@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Age of War — Melee Only (Updated)</title>
+    <style>
+      :root {
+        --bg: #071022;
+        --panel: #0b1220;
+        --accent: #ffcc00;
+        --text: #e6eef8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, Arial;
+        background: linear-gradient(180deg, #041224 0%, #07122a 100%);
+        color: var(--text);
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        background: rgba(2, 6, 23, 0.75);
+      }
+      .card {
+        background: #07122a;
+        padding: 18px;
+        border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(2, 6, 23, 0.8);
+        width: 920px;
+        max-width: 95vw;
+      }
+      .menu-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .wrap {
+        display: flex;
+        gap: 12px;
+        padding: 14px;
+        height: 100vh;
+      }
+      .panel {
+        width: 320px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+        overflow: auto;
+      }
+      .battle {
+        flex: 1;
+        position: relative;
+        border-radius: 12px;
+        padding: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        overflow: hidden;
+      }
+      h1,
+      h2 {
+        margin: 6px 0;
+      }
+      .hud {
+        display: flex;
+        gap: 8px;
+      }
+      .stat {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 8px;
+        border-radius: 8px;
+        flex: 1;
+        text-align: center;
+      }
+      .units {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .btn {
+        background: linear-gradient(180deg, #1f2937, #0f1724);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .small {
+        font-size: 13px;
+        color: #9fb0d0;
+      }
+      .ground {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 10%;
+        height: 8px;
+        background: #2b3a4a;
+        border-radius: 4px;
+      }
+      .base {
+        position: absolute;
+        bottom: 14%;
+        width: 120px;
+        height: 140px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #07122a;
+        font-weight: 800;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+      }
+      .base.player {
+        left: 8px;
+        background: linear-gradient(180deg, #ffd57a, #ffb84d);
+      }
+      .base.enemy {
+        right: 8px;
+        background: linear-gradient(180deg, #ffdce5, #ff89a1);
+      }
+      .unit {
+        position: absolute;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+      }
+      .unit.player {
+        background: #9ae6b4;
+        color: #043;
+      }
+      .unit.enemy {
+        background: #fecaca;
+        color: #4b0707;
+      }
+      .log {
+        height: 150px;
+        overflow: auto;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 8px;
+        border-radius: 8px;
+      }
+      @media (max-width: 980px) {
+        .wrap {
+          flex-direction: column;
+        }
+        .panel {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="menu" class="overlay">
+      <div class="card">
+        <h1>Age of War — Melee Only</h1>
+        <div class="menu-grid">
+          <div>
+            <h2 class="small">Mode</h2>
+            <div style="display: flex; gap: 8px">
+              <button class="btn" id="modeNormal">Normal (Boss)</button>
+              <button class="btn" id="modeNoBoss">Without Boss</button>
+            </div>
+
+            <h2 class="small" style="margin-top: 12px">Difficulty</h2>
+            <div style="display: flex; gap: 8px" id="diffs">
+              <button class="btn" data-diff="easy">Easy</button>
+              <button class="btn" data-diff="medium">Medium</button>
+              <button class="btn" data-diff="hard">Hard</button>
+              <button class="btn" data-diff="impossible">Impossible</button>
+            </div>
+
+            <h2 class="small" style="margin-top: 12px">
+              Choose Boss (optional)
+            </h2>
+            <div id="bosses"></div>
+
+            <div style="margin-top: 12px; display: flex; gap: 8px">
+              <button class="btn" id="startBtn">Start Game</button>
+              <button class="btn" id="tutorialBtn">Quick Tutorial</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="small">Selected</div>
+            <div style="display: flex; gap: 8px; margin-top: 8px">
+              <div class="stat">
+                Mode<br /><strong id="selMode">Normal</strong>
+              </div>
+              <div class="stat">
+                Difficulty<br /><strong id="selDiff">Medium</strong>
+              </div>
+              <div class="stat">
+                Boss<br /><strong id="selBoss">August</strong>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px" class="small">Rules</div>
+            <div class="log" id="menuLog">
+              Units are melee only (short-distance attacks). Enemy spawn rate
+              starts low and ramps up over time; when enemy base is destroyed
+              spawning stops and the boss appears (in Normal mode). Weaker-era
+              bosses spawn faster at start; stronger-era bosses spawn less at
+              start but all ramp up with time.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="panel">
+        <h2>Player</h2>
+        <div class="hud">
+          <div class="stat">Gold<br /><strong id="gold">220</strong></div>
+          <div class="stat">XP<br /><strong id="xp">0</strong></div>
+          <div class="stat">
+            Age<br /><strong id="playerAge">Ancient World</strong>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px">
+          <button class="btn" id="upgradeAgeBtn">
+            Upgrade Age (XP: <span id="ageCost">200</span>)
+          </button>
+          <button class="btn" id="toggleAuto">Toggle Auto-Spawn</button>
+        </div>
+
+        <h2 style="font-size: 15px; margin-top: 8px">Units</h2>
+        <div id="unitButtons" class="units"></div>
+
+        <h2 style="font-size: 15px; margin-top: 8px">Battle Log</h2>
+        <div id="logArea" class="log"></div>
+      </div>
+
+      <div class="battle" id="battle">
+        <div class="base player" id="playerBase">
+          <div>YOU</div>
+          <div id="pBaseHP">0</div>
+        </div>
+        <div class="base enemy" id="enemyBase">
+          <div id="enemyLabel">Enemy Base</div>
+          <div id="eBaseHP">0</div>
+        </div>
+        <div class="ground"></div>
+        <div
+          id="battleUnits"
+          style="position: absolute; left: 0; right: 0; top: 0; bottom: 0"
+        ></div>
+
+        <div
+          id="bossHUD"
+          style="
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 6%;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px;
+            border-radius: 8px;
+            display: none;
+          "
+        >
+          <div style="font-weight: 700" id="bossTitle">BOSS</div>
+          <div>HP: <span id="bossHP">0</span></div>
+        </div>
+
+        <div
+          id="finishOverlay"
+          class="overlay"
+          style="display: none; z-index: 80"
+        >
+          <div class="card" style="width: 420px; text-align: center">
+            <h2 id="resultTitle"></h2>
+            <div style="margin-top: 12px">
+              <button class="btn" id="restartBtn">Restart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Enemy</h2>
+        <div class="hud">
+          <div class="stat">
+            Boss<br /><strong id="bossLabel">August</strong>
+          </div>
+          <div class="stat">
+            Enemy Age<br /><strong id="enemyAge">Ancient Rome</strong>
+          </div>
+          <div class="stat">Base HP<br /><strong id="enemyHP">0</strong></div>
+        </div>
+
+        <h2 style="font-size: 15px; margin-top: 8px">Boss Controls</h2>
+        <div style="display: flex; gap: 8px; margin-top: 8px">
+          <button cjulass="btn" id="bossAggro">Increase Aggression</button>
+          <button class="btn" id="bossDef">Decrease Aggression</button>
+        </div>
+
+        <h2 style="font-size: 15px; margin-top: 8px">Info</h2>
+        <div class="small" id="bossInfo">No boss active</div>
+      </div>
+    </div>
+
+    <script>
+      // Data
+      const AGES = [
+        { id: 1, name: "Ancient World" },
+        { id: 2, name: "Ancient Rome" },
+        { id: 3, name: "Medieval" },
+        { id: 4, name: "New Time" },
+        { id: 5, name: "Now Time" },
+        { id: 6, name: "Future" },
+      ];
+
+      const BOSSES = [
+        { id: 1, name: "Kronos", age: 1, baseHP: 800, desc: "Ancient terror" },
+        {
+          id: 2,
+          name: "August",
+          age: 2,
+          baseHP: 1000,
+          desc: "Warlord of Rome",
+        },
+        {
+          id: 3,
+          name: "Ivan I",
+          age: 3,
+          baseHP: 1300,
+          desc: "Medieval champion",
+        },
+        {
+          id: 4,
+          name: "Napoleon",
+          age: 4,
+          baseHP: 1800,
+          desc: "Tactician of the new era",
+        },
+        {
+          id: 5,
+          name: "Hitler",
+          age: 5,
+          baseHP: 2300,
+          desc: "20th-century tyrant",
+        },
+        {
+          id: 6,
+          name: "Arclord",
+          age: 6,
+          baseHP: 3200,
+          desc: "A glimpse of the future",
+        },
+      ];
+
+      // Make all units melee-only templates (no ranged)
+      const UNIT_TEMPLATES = {
+        1: [
+          {
+            id: "spear",
+            name: "Spearman",
+            cost: 50,
+            hp: 50,
+            atk: 12,
+            spd: 0.6,
+            type: "melee",
+            atkSpeed: 0.9,
+          },
+          {
+            id: "club",
+            name: "Clubber",
+            cost: 70,
+            hp: 70,
+            atk: 18,
+            spd: 0.45,
+            type: "melee",
+            atkSpeed: 1.1,
+          },
+        ],
+        2: [
+          {
+            id: "legion",
+            name: "Legionary",
+            cost: 80,
+            hp: 70,
+            atk: 20,
+            spd: 0.55,
+            type: "melee",
+            atkSpeed: 1.0,
+          },
+          {
+            id: "pilum",
+            name: "Pilumman",
+            cost: 110,
+            hp: 65,
+            atk: 24,
+            spd: 0.48,
+            type: "melee",
+            atkSpeed: 1.2,
+          },
+        ],
+        3: [
+          {
+            id: "sword",
+            name: "Knight",
+            cost: 120,
+            hp: 110,
+            atk: 32,
+            spd: 0.45,
+            type: "melee",
+            atkSpeed: 1.0,
+          },
+          {
+            id: "axeman",
+            name: "Axeman",
+            cost: 140,
+            hp: 100,
+            atk: 36,
+            spd: 0.42,
+            type: "melee",
+            atkSpeed: 1.2,
+          },
+        ],
+        4: [
+          {
+            id: "musket",
+            name: "Line Soldier",
+            cost: 160,
+            hp: 95,
+            atk: 42,
+            spd: 0.48,
+            type: "melee",
+            atkSpeed: 1.0,
+          },
+          {
+            id: "cannoncrew",
+            name: "Cannon Crew",
+            cost: 240,
+            hp: 150,
+            atk: 70,
+            spd: 0.28,
+            type: "melee",
+            atkSpeed: 1.6,
+          },
+        ],
+        5: [
+          {
+            id: "rifle",
+            name: "Rifleman",
+            cost: 220,
+            hp: 110,
+            atk: 58,
+            spd: 0.5,
+            type: "melee",
+            atkSpeed: 0.9,
+          },
+          {
+            id: "tank",
+            name: "Tank",
+            cost: 400,
+            hp: 300,
+            atk: 140,
+            spd: 0.22,
+            type: "melee",
+            atkSpeed: 2.2,
+          },
+        ],
+        6: [
+          {
+            id: "drone",
+            name: "Drone",
+            cost: 350,
+            hp: 140,
+            atk: 100,
+            spd: 0.9,
+            type: "melee",
+            atkSpeed: 0.8,
+          },
+          {
+            id: "mech",
+            name: "Mech",
+            cost: 700,
+            hp: 420,
+            atk: 240,
+            spd: 0.32,
+            type: "melee",
+            atkSpeed: 2.5,
+          },
+        ],
+      };
+
+      const DIFF = {
+        easy: { enemySpawnRate: 4, enemyHPmod: 0.9, bossMul: 0.9 },
+        medium: { enemySpawnRate: 3, enemyHPmod: 1.0, bossMul: 1.0 },
+        hard: { enemySpawnRate: 2.2, enemyHPmod: 1.15, bossMul: 1.2 },
+        impossible: { enemySpawnRate: 1.6, enemyHPmod: 1.3, bossMul: 1.35 },
+      };
+
+      const XP_REQUIRED = [150, 300, 600, 900, 1300];
+
+      // STATE
+      let state = {
+        difficulty: "medium",
+        mode: "normal",
+        bossChoice: BOSSES[1],
+        running: false,
+        gold: 220,
+        xp: 0,
+        playerAge: 1,
+        enemyAge: 1,
+        playerBaseHP: 100,
+        enemyBaseHP: 100,
+        ageLevel: 1,
+        units: [],
+        enemyAggression: 1.0,
+        autoSpawn: false,
+        enemySpawnTimer: 0,
+        time: 0,
+        bossActive: false,
+        bossHP: 0,
+        bossDefeated: false,
+        enemyBaseDestroyed: false,
+        enemyAgeUpgradeCooldown: 45.0,
+      };
+
+      // DOM refs
+      const menuEl = document.getElementById("menu");
+      const bossesDiv = document.getElementById("bosses");
+      const selMode = document.getElementById("selMode");
+      const selDiff = document.getElementById("selDiff");
+      const selBoss = document.getElementById("selBoss");
+      const goldEl = document.getElementById("gold");
+      const xpEl = document.getElementById("xp");
+      const playerAgeEl = document.getElementById("playerAge");
+      const pBaseHP = document.getElementById("pBaseHP");
+      const eBaseHP = document.getElementById("eBaseHP");
+      const unitButtons = document.getElementById("unitButtons");
+      const ageCostEl = document.getElementById("ageCost");
+      const ageBtn = document.getElementById("upgradeAgeBtn");
+      const logArea = document.getElementById("logArea");
+      const battleUnits = document.getElementById("battleUnits");
+      const enemyAgeEl = document.getElementById("enemyAge");
+      const bossLabel = document.getElementById("bossLabel");
+      const bossInfo = document.getElementById("bossInfo");
+      const bossHUD = document.getElementById("bossHUD");
+      const bossTitle = document.getElementById("bossTitle");
+      const bossHPEl = document.getElementById("bossHP");
+      const finishOverlay = document.getElementById("finishOverlay");
+
+      function initMenu() {
+        bossesDiv.innerHTML = "";
+        BOSSES.forEach((b) => {
+          const div = document.createElement("div");
+          div.className = "btn";
+          div.style.display = "flex";
+          div.style.justifyContent = "space-between";
+          div.style.padding = "8px";
+          div.style.marginTop = "6px";
+          div.innerHTML = `<div><strong>${b.name}</strong><div class="small">${
+            AGES[b.age - 1].name
+          }</div></div><div style="opacity:.9">${b.desc}</div>`;
+          div.onclick = () => {
+            state.bossChoice = b;
+            selBoss.textContent = b.name;
+          };
+          bossesDiv.appendChild(div);
+        });
+        document.querySelectorAll("#diffs .btn").forEach((btn) => {
+          btn.onclick = () => {
+            state.difficulty = btn.dataset.diff;
+            selDiff.textContent = state.difficulty;
+          };
+        });
+        document.getElementById("modeNormal").onclick = () => {
+          state.mode = "normal";
+          selMode.textContent = "Normal";
+        };
+        document.getElementById("modeNoBoss").onclick = () => {
+          state.mode = "none";
+          selMode.textContent = "Without Boss";
+        };
+        document.getElementById("startBtn").onclick = () => {
+          startGame();
+          menuEl.style.display = "none";
+        };
+        document.getElementById("tutorialBtn").onclick = () => {
+          alert(
+            "Units are melee only. Kill enemy units to get XP. Upgrade Age. Destroy enemy base — if boss selected, boss will appear and must be defeated."
+          );
+        };
+      }
+
+      function startGame() {
+        state.running = true;
+        state.gold = 220;
+        state.xp = 0;
+        state.playerAge = 1;
+        state.enemyAge = state.bossChoice.age;
+        state.playerBaseHP = 100;
+        state.enemyBaseHP = Math.round(500 * DIFF[state.difficulty].enemyHPmod);
+        state.ageLevel = 1;
+        state.units = [];
+        state.enemyAggression = 1.0;
+        state.enemySpawnTimer = 0;
+        state.time = 0;
+        state.bossActive = false;
+        state.bossDefeated = false;
+        state.bossHP = 0;
+        state.enemyBaseDestroyed = false;
+        state.enemyAgeUpgradeCooldown = 45 + Math.random() * 20;
+        updateUI();
+        generateUnitButtons();
+        log(
+          `Game started. Enemy: ${state.bossChoice.name} (${
+            AGES[state.enemyAge - 1].name
+          })`
+        );
+        bossLabel.textContent = state.bossChoice.name;
+        enemyAgeEl.textContent = AGES[state.enemyAge - 1].name;
+        bossInfo.textContent = `Boss: ${state.bossChoice.name} — ${state.bossChoice.desc}`;
+        last = performance.now();
+      }
+
+      function updateUI() {
+        goldEl.textContent = Math.floor(state.gold);
+        xpEl.textContent = Math.floor(state.xp);
+        playerAgeEl.textContent = AGES[state.playerAge - 1].name;
+        pBaseHP.textContent = Math.max(0, Math.round(state.playerBaseHP));
+        eBaseHP.textContent = Math.max(0, Math.round(state.enemyBaseHP));
+        ageCostEl.textContent = XP_REQUIRED[state.playerAge - 1] || 9999;
+        if (state.bossActive) {
+          bossHUD.style.display = "block";
+          bossTitle.textContent = `${state.bossChoice.name}`;
+          bossHPEl.textContent = Math.max(0, Math.round(state.bossHP));
+        } else bossHUD.style.display = "none";
+      }
+
+      function generateUnitButtons() {
+        unitButtons.innerHTML = "";
+        const list = UNIT_TEMPLATES[state.playerAge];
+        list.forEach((t) => {
+          const b = document.createElement("div");
+          b.className = "btn";
+          b.style.display = "flex";
+          b.style.flexDirection = "column";
+          b.style.alignItems = "flex-start";
+          b.style.marginTop = "6px";
+          const name = document.createElement("div");
+          name.textContent = `${t.name} — $${t.cost}`;
+          const desc = document.createElement("div");
+          desc.className = "small";
+          desc.textContent = `HP ${t.hp} · ATK ${t.atk} · SPD ${t.spd}`;
+          b.appendChild(name);
+          b.appendChild(desc);
+          b.onclick = () => spawnUnit("player", t);
+          unitButtons.appendChild(b);
+        });
+      }
+
+      function spawnUnit(side, template) {
+        if (side === "player") {
+          if (state.gold < template.cost) {
+            log("Not enough gold");
+            return;
+          }
+          state.gold -= template.cost;
+        }
+        const battleRect = document
+          .getElementById("battle")
+          .getBoundingClientRect();
+        const el = document.createElement("div");
+        el.className = "unit " + (side === "player" ? "player" : "enemy");
+        el.style.width = "36px";
+        el.style.height = "36px";
+        battleUnits.appendChild(el);
+        const xStart = side === "player" ? 100 : battleRect.width - 160;
+        const unit = {
+          id: Math.random().toString(36).slice(2, 9),
+          template,
+          side,
+          hp: template.hp,
+          atk: template.atk,
+          spd: template.spd,
+          x: xStart,
+          width: 36,
+          type: template.type,
+          el,
+          atkTimer: 0,
+          atkSpeed: template.atkSpeed || 1.0,
+        };
+        state.units.push(unit);
+        renderUnits();
+        updateUI();
+      }
+
+      function enemySpawnLogic(dt) {
+        if (state.bossActive || state.enemyBaseDestroyed) return;
+        state.enemySpawnTimer -= dt;
+        if (state.enemySpawnTimer > 0) return; // spawn probability ramps with time
+        const ramp = Math.min(state.time / 40000, 1); // 0..1 over 40s
+        // If boss era is weak (low age), boss will cause more frequent spawns when active; here regular enemy spawn uses ramp only
+        const spawnChance = 0.25 + 0.75 * ramp;
+        if (Math.random() < spawnChance) {
+          const templates = UNIT_TEMPLATES[state.enemyAge];
+          const tplt = templates[Math.floor(Math.random() * templates.length)];
+          spawnUnit("enemy", tplt);
+        }
+        state.enemySpawnTimer =
+          DIFF[state.difficulty].enemySpawnRate * (0.6 + Math.random() * 0.8);
+      }
+
+      function enemyAgeUpgradeTick(dt) {
+        if (state.enemyAge >= 6) return;
+        state.enemyAgeUpgradeCooldown -= dt;
+        if (state.enemyAgeUpgradeCooldown <= 0) {
+          if (Math.random() < 0.28) {
+            state.enemyAge++;
+            log("Enemy upgraded to " + AGES[state.enemyAge - 1].name);
+          }
+          state.enemyAgeUpgradeCooldown = 40 + Math.random() * 40;
+        }
+      }
+
+      // Unit combat (melee only)
+      function findNearestEnemy(u) {
+        let best = null,
+          bd = Infinity;
+        for (const o of state.units) {
+          if (o.side === u.side) continue;
+          const d = Math.abs(o.x - u.x);
+          if (d < bd) {
+            best = o;
+            bd = d;
+          }
+        }
+        if (!best && state.bossActive)
+          return {
+            id: "BOSS",
+            isBoss: true,
+            x: document.getElementById("battle").clientWidth - 120,
+            hp: state.bossHP,
+            side: "enemy",
+          };
+        return best;
+      }
+
+      function updateUnits(dt) {
+        const bw = document.getElementById("battle").clientWidth; // move and melee
+        for (const u of state.units) {
+          if (u.side === "player") {
+            const target = findNearestEnemy(u);
+            if (target && Math.abs(target.x - u.x) <= 36) {
+              // melee contact
+              u.atkTimer += dt;
+              if (u.atkTimer >= u.atkSpeed) {
+                // deal
+                if (target.isBoss) {
+                  state.bossHP -= u.atk;
+                  log(`${u.template.name} hit the BOSS for ${u.atk}`);
+                } else {
+                  target.hp -= u.atk;
+                }
+                u.atkTimer = 0;
+              }
+            } else {
+              u.x += u.spd * 60 * dt;
+              if (u.x + u.width >= bw - 160) {
+                if (state.bossActive) {
+                  state.bossHP -= u.atk;
+                  log(`${u.template.name} hit the BOSS for ${u.atk}`);
+                } else {
+                  state.enemyBaseHP -= u.atk;
+                  log(`${u.template.name} hit enemy base for ${u.atk}`);
+                }
+                u.hp = 0;
+              }
+            }
+          } else {
+            // enemy unit
+            const target = findNearestEnemy(u);
+            if (target && Math.abs(target.x - u.x) <= 36) {
+              u.atkTimer += dt;
+              if (u.atkTimer >= u.atkSpeed) {
+                if (target.isBoss) {
+                  /* enemy hitting boss? ignore */
+                } else {
+                  target.hp -= u.atk;
+                }
+                u.atkTimer = 0;
+              }
+            } else {
+              u.x -= u.spd * 60 * dt;
+              if (u.x <= 100) {
+                state.playerBaseHP -= u.atk;
+                log(`Enemy ${u.template.name} hit your base for ${u.atk}`);
+                u.hp = 0;
+              }
+            }
+          }
+        }
+        // melee engagement between units (both hit each other when in contact)
+        for (let i = 0; i < state.units.length; i++) {
+          for (let j = i + 1; j < state.units.length; j++) {
+            const a = state.units[i],
+              b = state.units[j];
+            if (!a || !b || a.side === b.side) continue;
+            if (Math.abs(a.x - b.x) < 36) {
+              // continuous small damage
+              a.hp -= b.atk * 0.02;
+              b.hp -= a.atk * 0.02;
+            }
+          }
+        }
+        // cleanup deaths
+        for (let k = state.units.length - 1; k >= 0; k--) {
+          const u = state.units[k];
+          if (u.hp <= 0) {
+            const died = state.units.splice(k, 1)[0];
+            if (died.el && died.el.remove) died.el.remove();
+            if (died.side === "enemy") {
+              const xpGain = Math.round((died.template.cost || 60) * 0.35);
+              state.xp += xpGain;
+              state.gold += Math.round((died.template.cost || 60) * 0.12);
+              log(`Killed enemy ${died.template.name} (+${xpGain} XP)`);
+            }
+          }
+        }
+      }
+
+      // Boss activation and minion spawn behavior
+      function activateBoss() {
+        state.bossActive = true;
+        const boss = state.bossChoice;
+        const eraBonus = 1 + (boss.age - 1) * 0.18;
+        const diffMul = DIFF[state.difficulty].bossMul;
+        state.bossHP = Math.round(boss.baseHP * eraBonus * diffMul);
+        bossHUD.style.display = "block";
+        log(`Boss ${boss.name} has appeared! HP: ${state.bossHP}`);
+        bossSpawnLoop();
+      }
+
+      async function bossSpawnLoop() {
+        // spawn rate depends on boss "weakness" (lower-era -> spawn more at start) and difficulty; ramps up over time
+        const bossAge = state.bossChoice.age; // 1..6
+        const ageFactor = (7 - bossAge) / 6; // age1 -> 1.0 (weaker -> more spawns), age6 -> ~0.166
+        const difficultyMul =
+          { easy: 1.0, medium: 1.0, hard: 1.12, impossible: 1.18 }[
+            state.difficulty
+          ] || 1.0;
+        const baseInterval = 1600; // ms
+        while (state.bossActive && !state.bossDefeated) {
+          const tlist = UNIT_TEMPLATES[state.bossChoice.age];
+          const t = tlist[Math.floor(Math.random() * tlist.length)];
+          spawnUnit("enemy", t);
+          log("Boss spawned a minion: " + t.name);
+          const timeFactor = Math.min(state.time / 90000, 1);
+          const randomJitter = 0.85 + Math.random() * 0.5; // 0.85..1.35
+          // interval shrinks with higher ageFactor (weaker bosses) and with timeFactor; difficulty reduces interval slightly
+          let interval =
+            ((baseInterval * (1 - 0.45 * ageFactor) * (1 - 0.6 * timeFactor)) /
+              difficultyMul) *
+            randomJitter;
+          interval = Math.max(300, Math.round(interval));
+          await new Promise((r) => setTimeout(r, interval));
+        }
+      }
+
+      // rendering
+      function renderUnits() {
+        battleUnits.innerHTML = "";
+        const bw = document.getElementById("battle").clientWidth;
+        for (const u of state.units) {
+          const el = u.el;
+          if (!el) continue;
+          el.style.left = Math.max(60, Math.min(bw - 200, u.x)) + "px";
+          el.style.bottom = "18%";
+          if (u.side === "enemy") el.style.transform = "scaleX(-1)";
+          const hb = document.createElement("div");
+          hb.style.position = "absolute";
+          hb.style.top = "-8px";
+          hb.style.left = "0";
+          hb.style.right = "0";
+          hb.style.height = "5px";
+          hb.style.background = "rgba(0,0,0,0.5)";
+          hb.style.borderRadius = "6px";
+          const h = document.createElement("div");
+          h.style.height = "100%";
+          h.style.background = "linear-gradient(90deg,#10b981,#059669)";
+          h.style.borderRadius = "6px";
+          const hpperc = Math.max(0, Math.min(1, u.hp / u.template.hp));
+          h.style.width = hpperc * 100 + "%";
+          hb.appendChild(h);
+          el.appendChild(hb);
+          const label = document.createElement("div");
+          label.style.paddingTop = "6px";
+          label.style.fontSize = "11px";
+          label.textContent = u.template.name[0];
+          el.appendChild(label);
+          battleUnits.appendChild(el);
+        }
+        if (state.bossActive) {
+          const bossEl = document.createElement("div");
+          bossEl.style.position = "absolute";
+          bossEl.style.right = "110px";
+          bossEl.style.top = "6%";
+          bossEl.style.padding = "6px 10px";
+          bossEl.style.background = "rgba(255,120,120,0.12)";
+          bossEl.style.borderRadius = "8px";
+          bossEl.style.fontWeight = "700";
+          bossEl.textContent = state.bossChoice.name;
+          battleUnits.appendChild(bossEl);
+        }
+      }
+
+      // main loop
+      let last = performance.now();
+      function loop(now) {
+        const dt = (now - last) / 1000;
+        last = now;
+        if (!state.running) {
+          requestAnimationFrame(loop);
+          return;
+        }
+        state.time += dt;
+        state.gold += 12 * dt * (1 + (state.ageLevel - 1) * 0.12);
+        enemySpawnLogic(dt);
+        enemyAgeUpgradeTick(dt);
+        if (state.autoSpawn && Math.random() < 0.018) {
+          const list = UNIT_TEMPLATES[state.playerAge];
+          const t = list[Math.floor(Math.random() * list.length)];
+          if (state.gold >= t.cost) spawnUnit("player", t);
+        }
+        updateUnits(dt);
+        renderUnits();
+        updateUI();
+        if (state.playerBaseHP <= 0) {
+          endGame(false, "Defeat — your base destroyed");
+        }
+        if (
+          state.enemyBaseHP <= 0 &&
+          !state.bossActive &&
+          !state.enemyBaseDestroyed
+        ) {
+          state.enemyBaseDestroyed = true;
+          log("Enemy base destroyed!");
+          if (state.mode === "none") {
+            endGame(true, "Victory — enemy base destroyed (No Boss mode)");
+          } else {
+            // stop normal spawning, activate boss
+            activateBoss();
+          }
+        }
+        if (state.bossActive && state.bossHP <= 0 && !state.bossDefeated) {
+          state.bossDefeated = true;
+          log("Boss defeated — You win!");
+          endGame(true, "Victory — Boss defeated");
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      // UI actions
+      ageBtn.onclick = () => {
+        const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
+        if (state.xp >= cost && state.playerAge < 6) {
+          state.xp -= cost;
+          state.playerAge++;
+          state.ageLevel++;
+          state.playerBaseHP += 160;
+          generateUnitButtons();
+          log("Upgraded to " + AGES[state.playerAge - 1].name);
+        } else log("Cannot upgrade age");
+        updateUI();
+      };
+      document.getElementById("toggleAuto").onclick = () => {
+        state.autoSpawn = !state.autoSpawn;
+        document.getElementById("toggleAuto").textContent = state.autoSpawn
+          ? "Auto: ON"
+          : "Toggle Auto-Spawn";
+      };
+      document.getElementById("bossAggro").onclick = () => {
+        state.enemyAggression += 0.14;
+        log("Enemy aggression increased");
+      };
+      document.getElementById("bossDef").onclick = () => {
+        state.enemyAggression = Math.max(0.4, state.enemyAggression - 0.14);
+        log("Enemy aggression decreased");
+      };
+      document.getElementById("restartBtn").onclick = () => {
+        location.reload();
+      };
+
+      function log(txt) {
+        const t = document.createElement("div");
+        t.innerHTML = `[${new Date().toLocaleTimeString()}] ${txt}`;
+        logArea.insertBefore(t, logArea.firstChild);
+        while (logArea.childElementCount > 200)
+          logArea.removeChild(logArea.lastChild);
+      }
+      function endGame(win, message) {
+        state.running = false;
+        finishOverlay.style.display = "flex";
+        document.getElementById("resultTitle").textContent = message;
+      }
+
+      initMenu();
+      state.bossChoice = BOSSES[1];
+      selBoss.textContent = state.bossChoice.name;
+      selDiff.textContent = state.difficulty;
+      updateUI();
+    </script>
+  </body>
+</html>
