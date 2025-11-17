@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Age of War — Melee Only (Final)</title>
+    <title>Age of War — Fixed Menu & Bosses</title>
     <style>
       :root {
         --bg: #071022;
@@ -30,16 +30,16 @@
         background: rgba(2, 6, 23, 0.75);
       }
       .card {
-        background: #07122a;
+        background: linear-gradient(180deg, #07122a, #091428);
         padding: 18px;
         border-radius: 12px;
         box-shadow: 0 12px 40px rgba(2, 6, 23, 0.8);
-        width: 920px;
+        width: 960px;
         max-width: 95vw;
       }
       .menu-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 360px;
         gap: 12px;
       }
       .wrap {
@@ -89,11 +89,20 @@
         gap: 8px;
       }
       .btn {
-        background: linear-gradient(180deg, #1f2937, #0f1724);
+        background: linear-gradient(180deg, #132033, #0d1622);
         border: 1px solid rgba(255, 255, 255, 0.04);
         padding: 8px;
         border-radius: 8px;
         cursor: pointer;
+        color: var(--text);
+      }
+      .bigBtn {
+        padding: 14px 18px;
+        font-size: 16px;
+        width: 100%;
+        border-radius: 10px;
+        background: linear-gradient(180deg, #0f1724, #08101a);
+        border: 1px solid rgba(255, 255, 255, 0.03);
       }
       .small {
         font-size: 13px;
@@ -105,13 +114,13 @@
         right: 0;
         bottom: 10%;
         height: 8px;
-        background: #2b3a4a;
+        background: #213444;
         border-radius: 4px;
       }
       .base {
         position: absolute;
         bottom: 14%;
-        width: 120px;
+        width: 140px;
         height: 140px;
         border-radius: 8px;
         display: flex;
@@ -136,12 +145,19 @@
         height: 36px;
         border-radius: 6px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        overflow: visible;
       }
       .unit.player {
         background: #9ae6b4;
       }
       .unit.enemy {
         background: #fecaca;
+      }
+      .unit img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 6px;
       }
       .bossUnit {
         position: absolute;
@@ -150,18 +166,72 @@
         border-radius: 6px;
         background: #ff8a8a;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+        overflow: visible;
       }
-      .timeButtons {
+      .hpBar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 6px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.45);
+        top: -10px;
+        overflow: hidden;
+      }
+      .hpFill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #059669);
+        width: 100%;
+      }
+      .hpFill.low {
+        background: linear-gradient(90deg, #f97316, #ef4444);
+      }
+      .boss-locked {
+        opacity: 0.36;
+        filter: grayscale(70%);
+        pointer-events: none;
+      }
+      .boss-card {
         display: flex;
+        align-items: center;
         gap: 8px;
-        margin-top: 8px;
-      }
-      .log {
-        height: 150px;
-        overflow: auto;
-        background: rgba(255, 255, 255, 0.02);
         padding: 8px;
         border-radius: 8px;
+        background: linear-gradient(180deg, #0b1320, #06101a);
+        cursor: pointer;
+      }
+      .boss-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 6px;
+        background: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      }
+      .menu-settings {
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 8px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          rgba(255, 255, 255, 0.005)
+        );
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 14%;
+        background: #0b1220;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      }
+      .hidden {
+        display: none;
       }
       @media (max-width: 980px) {
         .wrap {
@@ -174,76 +244,132 @@
     </style>
   </head>
   <body>
-    <!-- MENU -->
+    <!-- Menu overlay with simplified three-button start -->
     <div id="menu" class="overlay">
-      <div class="card">
-        <h1>Age of War — Melee Only (Final)</h1>
-        <div class="menu-grid">
-          <div>
-            <h2 class="small">Mode</h2>
-            <div style="display: flex; gap: 8px">
-              <button class="btn" id="modeNormal">Normal (Boss)</button>
-              <button class="btn" id="modeNoBoss">Without Boss</button>
-            </div>
+      <div class="card" id="menuCard">
+        <h1 style="margin-bottom: 6px">Age of War — Fixed</h1>
+        <div
+          style="
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <div style="flex: 1; color: #9fb0d0">Press a button to continue.</div>
+          <div style="font-size: 13px; color: #cbd5e1">Progress saved</div>
+        </div>
 
-            <h2 class="small" style="margin-top: 12px">Difficulty</h2>
-            <div style="display: flex; gap: 8px" id="diffs">
-              <button class="btn" data-diff="easy">Easy</button>
-              <button class="btn" data-diff="medium">Medium</button>
-              <button class="btn" data-diff="hard">Hard</button>
-              <button class="btn" data-diff="impossible">Impossible</button>
-            </div>
+        <!-- TOP: three big buttons -->
+        <div style="display: flex; gap: 12px; margin-bottom: 12px">
+          <button id="btnSettings" class="bigBtn">Settings</button>
+          <button id="btnNormal" class="bigBtn">Normal</button>
+          <button id="btnBosses" class="bigBtn">Bosses</button>
+        </div>
 
-            <h2 class="small" style="margin-top: 12px">
-              Choose Boss (optional)
-            </h2>
-            <div id="bosses"></div>
-
-            <div style="margin-top: 12px; display: flex; gap: 8px">
-              <button class="btn" id="startBtn">Start Game</button>
-              <button class="btn" id="tutorialBtn">Quick Tutorial</button>
-            </div>
-
-            <div
-              style="
-                margin-top: 12px;
-                display: flex;
-                gap: 8px;
-                align-items: center;
-              "
-            >
-              <label class="small" style="margin-right: 8px">Hack mode</label>
-              <input type="checkbox" id="hackMode" />
-            </div>
+        <!-- Settings panel (hidden until Settings clicked) -->
+        <div id="panelSettings" class="menu-settings hidden">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div style="font-weight: 700">Settings</div>
+            <div class="small">v1.0</div>
           </div>
+          <div style="margin-top: 8px" class="small">Volume</div>
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              align-items: center;
+              margin-top: 6px;
+            "
+          >
+            <input id="volRange" type="range" min="0" max="100" value="80" />
+            <div id="volLabel" class="small">80%</div>
+          </div>
+          <div
+            style="
+              margin-top: 10px;
+              display: flex;
+              gap: 8px;
+              align-items: center;
+            "
+          >
+            <label class="small">Hack mode</label
+            ><input type="checkbox" id="hackMode" />
+          </div>
+          <div
+            style="
+              margin-top: 10px;
+              display: flex;
+              gap: 8px;
+              align-items: center;
+            "
+          >
+            <label class="small">Show HP numbers</label
+            ><input type="checkbox" id="showHPNumbers" />
+          </div>
+          <div style="margin-top: 10px">
+            <button class="btn" id="resetProgress">Reset Progress</button>
+          </div>
+        </div>
 
-          <div>
-            <div class="small">Selected</div>
-            <div style="display: flex; gap: 8px; margin-top: 8px">
-              <div class="stat">
-                Mode<br /><strong id="selMode">Normal</strong>
-              </div>
-              <div class="stat">
-                Difficulty<br /><strong id="selDiff">Medium</strong>
-              </div>
-              <div class="stat">
-                Boss<br /><strong id="selBoss">August</strong>
-              </div>
-            </div>
+        <!-- Normal mode controls (hidden until Normal clicked) -->
+        <div id="panelNormal" class="hidden" style="margin-top: 12px">
+          <div style="display: flex; gap: 8px; align-items: center">
+            <div class="small">Difficulty</div>
+            <div style="flex: 1"></div>
+          </div>
+          <div
+            style="display: flex; gap: 8px; margin-top: 6px"
+            id="diffsNormal"
+          >
+            <button class="btn" data-diff="easy">Easy</button>
+            <button class="btn" data-diff="medium">Medium</button>
+            <button class="btn" data-diff="hard">Hard</button>
+          </div>
+          <div style="margin-top: 10px; display: flex; gap: 8px">
+            <button class="btn" id="startNormalBtn">
+              Start Normal (No Boss)
+            </button>
+          </div>
+        </div>
 
-            <div style="margin-top: 10px" class="small">Rules</div>
-            <div class="log" id="menuLog">
-              Units are melee-only (short-distance attacks). Enemy spawn rate
-              starts low and ramps up over time. When enemy base is destroyed
-              spawning stops and the boss appears (in Normal mode). Weaker-era
-              bosses spawn faster at the start; stronger-era bosses spawn less
-              at the start but all ramp up with time.
-            </div>
+        <!-- Bosses mode controls (hidden until Bosses clicked) -->
+        <div id="panelBosses" class="hidden" style="margin-top: 12px">
+          <div class="small">Choose boss (only unlocked)</div>
+          <div id="bosses" style="margin-top: 8px"></div>
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              align-items: center;
+              margin-top: 8px;
+            "
+          >
+            <div class="small">Difficulty</div>
+            <div style="flex: 1"></div>
+          </div>
+          <div
+            style="display: flex; gap: 8px; margin-top: 6px"
+            id="diffsBosses"
+          >
+            <button class="btn" data-diff="easy">Easy</button>
+            <button class="btn" data-diff="medium">Medium</button>
+            <button class="btn" data-diff="hard">Hard</button>
+          </div>
+          <div style="margin-top: 10px; display: flex; gap: 8px">
+            <button class="btn" id="startBossBtn">Start Boss Match</button>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Game UI -->
     <div class="wrap">
       <div class="panel">
         <h2>Player</h2>
@@ -251,7 +377,7 @@
           <div class="stat">Gold<br /><strong id="gold">220</strong></div>
           <div class="stat">XP<br /><strong id="xp">0</strong></div>
           <div class="stat">
-            Age<br /><strong id="playerAge">Ancient World</strong>
+            Age<br /><strong id="playerAge">Ancient</strong>
           </div>
         </div>
 
@@ -266,14 +392,18 @@
         <div id="unitButtons" class="units"></div>
 
         <h2 style="font-size: 15px; margin-top: 8px">Speed</h2>
-        <div class="timeButtons">
+        <div style="display: flex; gap: 8px">
           <button class="btn" data-speed="1">x1</button>
           <button class="btn" data-speed="1.5">x1.5</button>
           <button class="btn" data-speed="2">x2</button>
         </div>
 
         <h2 style="font-size: 15px; margin-top: 8px">Battle Log</h2>
-        <div id="logArea" class="log"></div>
+        <div
+          id="logArea"
+          class="log"
+          style="height: 160px; overflow: auto"
+        ></div>
       </div>
 
       <div class="battle" id="battle">
@@ -308,11 +438,7 @@
           <div>HP: <span id="bossHP">0</span></div>
         </div>
 
-        <div
-          id="finishOverlay"
-          class="overlay"
-          style="display: none; z-index: 80"
-        >
+        <div id="finishOverlay" class="overlay hidden" style="z-index: 80">
           <div class="card" style="width: 420px; text-align: center">
             <h2 id="resultTitle"></h2>
             <div style="margin-top: 12px">
@@ -325,11 +451,9 @@
       <div class="panel">
         <h2>Enemy</h2>
         <div class="hud">
+          <div class="stat">Boss<br /><strong id="bossLabel">-</strong></div>
           <div class="stat">
-            Boss<br /><strong id="bossLabel">August</strong>
-          </div>
-          <div class="stat">
-            Enemy Age<br /><strong id="enemyAge">Ancient Rome</strong>
+            Enemy Age<br /><strong id="enemyAge">-</strong>
           </div>
           <div class="stat">Base HP<br /><strong id="enemyHP">0</strong></div>
         </div>
@@ -339,8 +463,10 @@
       </div>
     </div>
 
+    <div id="toast" class="toast hidden"></div>
+
     <script>
-      // Data
+      // ------------- Data & config -------------
       const AGES = [
         { id: 1, name: "Ancient World" },
         { id: 2, name: "Ancient Rome" },
@@ -389,10 +515,9 @@
         },
       ];
 
-      // HP per age baseline (cumulative increments requested)
+      // BASE HP per age (exact values you asked)
       const HP_PER_AGE = [100, 150, 250, 400, 650, 1000];
 
-      // Unit templates now melee only; hp will be set from HP_PER_AGE when generating buttons
       const UNIT_TEMPLATES = {
         1: [
           {
@@ -513,39 +638,54 @@
 
       const XP_REQUIRED = [200, 350, 600, 900, 1300];
 
-      // STATE
+      // ------------- State -------------
       let state = {
+        // selection mode in menu: 'normal' or 'boss'
         difficulty: "medium",
-        mode: "normal",
-        bossChoice: BOSSES[1],
+        modeSelected: null, // null until player picks Normal/Bosses in menu area
+        chosenBossId: 1,
         running: false,
         gold: 220,
         xp: 0,
         playerAge: 1,
         enemyAge: 1,
-        playerBaseHP: 500,
-        enemyBaseHP: 500,
+        playerBaseHP: HP_PER_AGE[0],
+        enemyBaseHP: HP_PER_AGE[0],
         ageLevel: 1,
-        units: [],
-        enemyAggression: 1.0,
-        autoSpawn: false,
+        units: [], // each unit: {id, template, side, hp, maxHp, atk, spd, x, width, el, atkTimer, atkSpeed, isBoss, sprite}
         enemySpawnTimer: 0,
         time: 0,
         bossActive: false,
         bossHP: 0,
         bossDefeated: false,
         enemyBaseDestroyed: false,
-        enemyAgeUpgradeCooldown: 45.0,
+        enemyAgeUpgradeCooldown: 45,
         hackMode: false,
         timeMultiplier: 1,
+        volume: 0.8,
+        showHPNumbers: false,
+        unlocked: [1], // saved progression, first boss unlocked only
       };
 
-      // DOM refs
-      const menuEl = document.getElementById("menu");
+      // ------------- DOM refs -------------
+      const menu = document.getElementById("menu");
+      const btnSettings = document.getElementById("btnSettings");
+      const btnNormal = document.getElementById("btnNormal");
+      const btnBosses = document.getElementById("btnBosses");
+      const panelSettings = document.getElementById("panelSettings");
+      const panelNormal = document.getElementById("panelNormal");
+      const panelBosses = document.getElementById("panelBosses");
       const bossesDiv = document.getElementById("bosses");
-      const selMode = document.getElementById("selMode");
-      const selDiff = document.getElementById("selDiff");
-      const selBoss = document.getElementById("selBoss");
+      const diffsNormal = document.getElementById("diffsNormal");
+      const diffsBosses = document.getElementById("diffsBosses");
+      const startNormalBtn = document.getElementById("startNormalBtn");
+      const startBossBtn = document.getElementById("startBossBtn");
+      const volRange = document.getElementById("volRange");
+      const volLabel = document.getElementById("volLabel");
+      const hackToggle = document.getElementById("hackMode");
+      const resetBtn = document.getElementById("resetProgress");
+      const showHPChk = document.getElementById("showHPNumbers");
+
       const goldEl = document.getElementById("gold");
       const xpEl = document.getElementById("xp");
       const playerAgeEl = document.getElementById("playerAge");
@@ -556,91 +696,216 @@
       const ageBtn = document.getElementById("upgradeAgeBtn");
       const logArea = document.getElementById("logArea");
       const battleUnits = document.getElementById("battleUnits");
-      const enemyAgeEl = document.getElementById("enemyAge");
       const bossLabel = document.getElementById("bossLabel");
       const bossInfo = document.getElementById("bossInfo");
       const bossHUD = document.getElementById("bossHUD");
       const bossTitle = document.getElementById("bossTitle");
       const bossHPEl = document.getElementById("bossHP");
       const finishOverlay = document.getElementById("finishOverlay");
-      const hackToggle = document.getElementById("hackMode");
+      const restartBtn = document.getElementById("restartBtn");
+      const toast = document.getElementById("toast");
 
-      function initMenu() {
-        bossesDiv.innerHTML = "";
-        BOSSES.forEach((b) => {
-          const div = document.createElement("div");
-          div.className = "btn";
-          div.style.display = "flex";
-          div.style.justifyContent = "space-between";
-          div.style.padding = "8px";
-          div.style.marginTop = "6px";
-          div.innerHTML = `<div><strong>${b.name}</strong><div class="small">${
-            AGES[b.age - 1].name
-          }</div></div><div style="opacity:.9">${b.desc}</div>`;
-          div.onclick = () => {
-            state.bossChoice = b;
-            selBoss.textContent = b.name;
-          };
-          bossesDiv.appendChild(div);
-        });
-        document.querySelectorAll("#diffs .btn").forEach((btn) => {
-          btn.onclick = () => {
-            state.difficulty = btn.dataset.diff;
-            selDiff.textContent = state.difficulty;
-          };
-        });
-        document.getElementById("modeNormal").onclick = () => {
-          state.mode = "normal";
-          selMode.textContent = "Normal";
-          selBoss.textContent = state.bossChoice.name;
-        };
-        document.getElementById("modeNoBoss").onclick = () => {
-          state.mode = "none";
-          selMode.textContent = "Without Boss";
-          selBoss.textContent = "";
-        };
-        document.getElementById("startBtn").onclick = () => {
-          state.hackMode = hackToggle.checked;
-          startGame();
-          menuEl.style.display = "none";
-        };
-        document.getElementById("tutorialBtn").onclick = () => {
-          alert(
-            "Melee-only units. Kill enemy units for XP. Upgrade Age. Destroy enemy base — in Normal mode boss appears and must be defeated. Use Hack mode to get unlimited resources."
-          );
-        };
+      // audio
+      const audioCtx =
+        window.AudioContext || window.webkitAudioContext
+          ? new (window.AudioContext || window.webkitAudioContext)()
+          : null;
+      function playBeep(freq = 440, dur = 0.06) {
+        if (!audioCtx) return;
+        const g = audioCtx.createGain();
+        g.gain.value = state.volume;
+        g.connect(audioCtx.destination);
+        const o = audioCtx.createOscillator();
+        o.type = "sine";
+        o.frequency.value = freq;
+        o.connect(g);
+        o.start();
+        setTimeout(() => {
+          o.stop();
+          g.disconnect();
+        }, dur * 1000);
       }
 
-      function startGame() {
-        state.running = true;
-        state.gold = 220;
-        state.xp = 0;
-        state.playerAge = 1;
-        state.enemyAge = state.bossChoice.age;
-        state.playerBaseHP = 500 + (state.playerAge - 1) * 140;
-        state.enemyBaseHP = Math.round(500 * DIFF[state.difficulty].enemyHPmod);
-        state.ageLevel = 1;
-        state.units = [];
-        state.enemyAggression = 1.0;
-        state.enemySpawnTimer = 0;
-        state.time = 0;
-        state.bossActive = false;
-        state.bossDefeated = false;
-        state.bossHP = 0;
-        state.enemyBaseDestroyed = false;
-        state.enemyAgeUpgradeCooldown = 45 + Math.random() * 20;
-        state.hackMode = document.getElementById("hackMode").checked;
-        updateUI();
-        generateUnitButtons();
-        log(
-          `Game started. Enemy: ${state.bossChoice.name} (${
-            AGES[state.enemyAge - 1].name
-          })`
-        );
-        bossLabel.textContent = state.bossChoice.name;
-        enemyAgeEl.textContent = AGES[state.enemyAge - 1].name;
-        bossInfo.textContent = `Boss: ${state.bossChoice.name} — ${state.bossChoice.desc}`;
-        last = performance.now();
+      // ------------- Persistence (unlocked bosses) -------------
+      function loadProgress() {
+        try {
+          const r = localStorage.getItem("aow_unlocked");
+          if (r) {
+            const arr = JSON.parse(r);
+            if (Array.isArray(arr) && arr.length > 0) state.unlocked = arr;
+          }
+        } catch (e) {}
+      }
+      function saveProgress() {
+        try {
+          localStorage.setItem("aow_unlocked", JSON.stringify(state.unlocked));
+        } catch (e) {}
+      }
+      loadProgress();
+
+      // ------------- Menu logic -------------
+      function showToast(txt, t = 1800) {
+        toast.textContent = txt;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), t);
+      }
+
+      function buildBossCards() {
+        bossesDiv.innerHTML = "";
+        BOSSES.forEach((b) => {
+          const unlocked = state.unlocked.includes(b.id);
+          const node = document.createElement("div");
+          node.className = "boss-card " + (unlocked ? "" : "boss-locked");
+          node.style.marginTop = "8px";
+          node.onclick = () => {
+            if (!unlocked) {
+              showToast("Locked — defeat previous boss");
+              playBeep(260);
+              return;
+            }
+            state.chosenBossId = b.id;
+            showToast("Selected: " + b.name);
+            playBeep(880, 0.05);
+            highlightSelectedBoss();
+          };
+          const av = document.createElement("div");
+          av.className = "boss-avatar";
+          av.textContent = b.name[0];
+          const info = document.createElement("div");
+          info.innerHTML = `<div style="font-weight:700">${
+            b.name
+          }</div><div class="small">${AGES[b.age - 1].name}</div>`;
+          node.appendChild(av);
+          node.appendChild(info);
+          if (!unlocked) {
+            const tag = document.createElement("div");
+            tag.className = "small";
+            tag.style.marginLeft = "auto";
+            tag.textContent = "Locked";
+            node.appendChild(tag);
+          }
+          bossesDiv.appendChild(node);
+        });
+        highlightSelectedBoss();
+      }
+
+      function highlightSelectedBoss() {
+        const cards = bossesDiv.querySelectorAll(".boss-card");
+        cards.forEach((c, i) => {
+          const bid = BOSSES[i].id;
+          if (bid === state.chosenBossId)
+            c.style.outline = "2px solid rgba(255,204,0,0.12)";
+          else c.style.outline = "none";
+        });
+      }
+
+      btnSettings.onclick = () => {
+        panelSettings.classList.toggle("hidden");
+        panelNormal.classList.add("hidden");
+        panelBosses.classList.add("hidden");
+        playBeep(700);
+      };
+      btnNormal.onclick = () => {
+        panelNormal.classList.toggle("hidden");
+        panelBosses.classList.add("hidden");
+        panelSettings.classList.add("hidden");
+        // mark that player selected normal mode in menu (but not yet started)
+        state.modeSelected = "normal";
+        playBeep(700);
+        // set default difficulty for normal panel from state.level
+      };
+      btnBosses.onclick = () => {
+        panelBosses.classList.toggle("hidden");
+        panelNormal.classList.add("hidden");
+        panelSettings.classList.add("hidden");
+        state.modeSelected = "boss";
+        buildBossCards();
+        playBeep(700);
+      };
+
+      // difficulty buttons (both panels will change state.difficulty)
+      [
+        ...document.querySelectorAll("#diffsNormal .btn"),
+        ...document.querySelectorAll("#diffsBosses .btn"),
+      ].forEach((b) => {
+        b.onclick = () => {
+          state.difficulty = b.dataset.diff;
+          document
+            .querySelectorAll(".btn")
+            .forEach((x) => (x.style.opacity = ""));
+          playBeep(900, 0.03);
+          showToast("Difficulty: " + state.difficulty);
+          updateMenuSelectionVisual();
+        };
+      });
+      function updateMenuSelectionVisual() {
+        // simple visual: put bold on chosen diff in both panels
+        [
+          ...document.querySelectorAll("#diffsNormal .btn"),
+          ...document.querySelectorAll("#diffsBosses .btn"),
+        ].forEach((b) => {
+          if (b.dataset.diff === state.difficulty) {
+            b.style.boxShadow = "inset 0 0 0 2px rgba(255,255,255,0.02)";
+            b.style.transform = "scale(1.02)";
+          } else {
+            b.style.boxShadow = "none";
+            b.style.transform = "scale(1)";
+          }
+        });
+      }
+      updateMenuSelectionVisual();
+
+      // settings wiring
+      volRange.oninput = () => {
+        state.volume = parseFloat(volRange.value) / 100;
+        volLabel.textContent = volRange.value + "%";
+        playBeep(900, 0.02);
+      };
+      hackToggle.onchange = () => {
+        state.hackMode = hackToggle.checked;
+        playBeep(600, 0.02);
+      };
+      showHPChk.onchange = () => {
+        state.showHPNumbers = showHPChk.checked;
+        playBeep(750, 0.02);
+      };
+      resetBtn.onclick = () => {
+        if (confirm("Reset progression?")) {
+          state.unlocked = [1];
+          saveProgress();
+          buildBossCards();
+          showToast("Progress reset");
+          playBeep(220, 0.06);
+        }
+      };
+
+      // start buttons
+      startNormalBtn.onclick = () => {
+        // modeSelected is 'normal'
+        state.mode = "none"; // explicit "no boss" mode for in-game
+        state.hackMode = hackToggle.checked;
+        startGame();
+        menu.classList.add("hidden");
+      };
+      startBossBtn.onclick = () => {
+        // ensure chosen boss is unlocked
+        if (!state.unlocked.includes(state.chosenBossId)) {
+          showToast("Choose an unlocked boss");
+          playBeep(240);
+          return;
+        }
+        state.mode = "boss"; // in-game boss mode
+        state.bossChoice = BOSSES.find((b) => b.id === state.chosenBossId);
+        state.hackMode = hackToggle.checked;
+        startGame();
+        menu.classList.add("hidden");
+      };
+
+      // ------------- Gameplay core -------------
+
+      function bossPreSpawnMultiplier(bossAge) {
+        const m = 1.6 - (bossAge - 1) * 0.18;
+        return Math.max(0.3, m);
       }
 
       function updateUI() {
@@ -655,6 +920,13 @@
           bossTitle.textContent = `${state.bossChoice.name}`;
           bossHPEl.textContent = Math.max(0, Math.round(state.bossHP));
         } else bossHUD.style.display = "none";
+        bossLabel.textContent =
+          state.bossChoice && state.mode === "boss"
+            ? state.bossChoice.name
+            : "-";
+        bossInfo.textContent = state.bossActive
+          ? `Boss: ${state.bossChoice.name} — ${state.bossChoice.desc}`
+          : "No boss active";
       }
 
       function generateUnitButtons() {
@@ -672,7 +944,7 @@
           name.textContent = `${t.name} — $${t.cost}`;
           const desc = document.createElement("div");
           desc.className = "small";
-          desc.textContent = `HP ${baseHP} · ATK ${t.atk} · SPD ${t.spd}`;
+          desc.textContent = `Base HP ${baseHP} · ATK ${t.atk} · SPD ${t.spd}`;
           b.appendChild(name);
           b.appendChild(desc);
           b.onclick = () => spawnUnit("player", t);
@@ -695,44 +967,61 @@
         el.className = "unit " + (side === "player" ? "player" : "enemy");
         el.style.width = "36px";
         el.style.height = "36px";
+        const hpBar = document.createElement("div");
+        hpBar.className = "hpBar";
+        const hpFill = document.createElement("div");
+        hpFill.className = "hpFill";
+        hpBar.appendChild(hpFill);
+        el.appendChild(hpBar);
         battleUnits.appendChild(el);
+
         const xStart = side === "player" ? 100 : battleRect.width - 160;
-        const unitHP = HP_PER_AGE[state.playerAge - 1] || 100; // player's units use playerAge base
-        const enemyHP = HP_PER_AGE[state.enemyAge - 1] || 100;
+        const unitHP =
+          HP_PER_AGE[
+            side === "player" ? state.playerAge - 1 : state.enemyAge - 1
+          ];
         const unit = {
           id: Math.random().toString(36).slice(2, 9),
           template,
           side,
-          hp: side === "player" ? unitHP : enemyHP,
+          hp: unitHP,
+          maxHp: unitHP,
           atk: template.atk,
           spd: template.spd,
           x: xStart,
           width: 36,
-          type: template.type,
           el,
           atkTimer: 0,
           atkSpeed: template.atkSpeed || 1.0,
           isBoss: false,
+          sprite: null,
         };
         state.units.push(unit);
         renderUnits();
         updateUI();
       }
 
-      // enemy spawn logic (ramp up; stop when boss active or base destroyed)
+      // enemy spawn logic
       function enemySpawnLogic(dt) {
         if (state.bossActive || state.enemyBaseDestroyed) return;
         state.enemySpawnTimer -= dt * state.timeMultiplier;
         if (state.enemySpawnTimer > 0) return;
+
         const ramp = Math.min(state.time / 40000, 1);
         const spawnChance = 0.25 + 0.75 * ramp;
         if (Math.random() < spawnChance) {
           const templates = UNIT_TEMPLATES[state.enemyAge];
-          const tplt = templates[Math.floor(Math.random() * templates.length)];
-          spawnUnit("enemy", tplt);
+          const t = templates[Math.floor(Math.random() * templates.length)];
+          spawnUnit("enemy", t);
         }
-        state.enemySpawnTimer =
+
+        const bossMul = bossPreSpawnMultiplier(
+          state.bossChoice ? state.bossChoice.age : 1
+        );
+        const baseInterval =
           DIFF[state.difficulty].enemySpawnRate * (0.6 + Math.random() * 0.8);
+        state.enemySpawnTimer = baseInterval / bossMul;
+        if (state.enemySpawnTimer < 0.12) state.enemySpawnTimer = 0.12;
       }
 
       function enemyAgeUpgradeTick(dt) {
@@ -747,7 +1036,6 @@
         }
       }
 
-      // Unit combat (melee only) — no labels, no healthbars
       function findNearestEnemy(u) {
         let best = null,
           bd = Infinity;
@@ -759,7 +1047,7 @@
             bd = d;
           }
         }
-        if (!best && state.bossActive)
+        if (!best && state.bossActive) {
           return {
             id: "BOSS",
             isBoss: true,
@@ -767,11 +1055,17 @@
             hp: state.bossHP,
             side: "enemy",
           };
+        }
         return best;
       }
 
       function updateUnits(dt) {
         const bw = document.getElementById("battle").clientWidth;
+        function syncBossToUnit() {
+          const bossObj = state.units.find((u) => u.isBoss);
+          if (bossObj) bossObj.hp = state.bossHP;
+        }
+
         for (const u of state.units) {
           if (u.side === "player") {
             const target = findNearestEnemy(u);
@@ -780,6 +1074,7 @@
               if (u.atkTimer >= u.atkSpeed) {
                 if (target.isBoss) {
                   state.bossHP -= u.atk;
+                  syncBossToUnit();
                 } else {
                   target.hp -= u.atk;
                 }
@@ -790,6 +1085,7 @@
               if (u.x + u.width >= bw - 160) {
                 if (state.bossActive) {
                   state.bossHP -= u.atk;
+                  syncBossToUnit();
                 } else {
                   state.enemyBaseHP -= u.atk;
                 }
@@ -801,97 +1097,163 @@
             if (target && Math.abs(target.x - u.x) <= 36) {
               u.atkTimer += dt * state.timeMultiplier;
               if (u.atkTimer >= u.atkSpeed) {
-                if (!target.isBoss) {
-                  target.hp -= u.atk;
-                }
+                if (!target.isBoss) target.hp -= u.atk;
                 u.atkTimer = 0;
               }
             } else {
               u.x -= u.spd * 60 * dt * state.timeMultiplier;
               if (u.x <= 100) {
-                state.playerBaseHP -= u.atk;
+                if (u.isBoss) {
+                  state.playerBaseHP -= u.atk * 4;
+                } else {
+                  state.playerBaseHP -= u.atk;
+                }
                 u.hp = 0;
               }
             }
           }
         }
-        // contact damage small continuous
+
+        // contact damage
         for (let i = 0; i < state.units.length; i++) {
           for (let j = i + 1; j < state.units.length; j++) {
             const a = state.units[i],
               b = state.units[j];
             if (!a || !b || a.side === b.side) continue;
             if (Math.abs(a.x - b.x) < 36) {
-              a.hp -= b.atk * 0.02 * state.timeMultiplier;
-              b.hp -= a.atk * 0.02 * state.timeMultiplier;
+              if (a.isBoss) {
+                b.hp -= a.atk * 0.04 * state.timeMultiplier;
+                state.bossHP -= a.atk * 0.04 * state.timeMultiplier;
+              } else b.hp -= a.atk * 0.02 * state.timeMultiplier;
+              if (b.isBoss) {
+                a.hp -= b.atk * 0.04 * state.timeMultiplier;
+                state.bossHP -= b.atk * 0.04 * state.timeMultiplier;
+              } else a.hp -= b.atk * 0.02 * state.timeMultiplier;
+              if (state.units.find((u) => u.isBoss)) syncBossToUnit();
             }
           }
         }
-        // cleanup deaths
+
+        // cleanup dead
         for (let k = state.units.length - 1; k >= 0; k--) {
           const u = state.units[k];
           if (u.hp <= 0) {
             const died = state.units.splice(k, 1)[0];
             if (died.el && died.el.remove) died.el.remove();
-            if (died.side === "enemy" && !state.hackMode) {
-              const xpGain = Math.round((died.template.cost || 60) * 0.35);
-              state.xp += xpGain;
-              state.gold += Math.round((died.template.cost || 60) * 0.12);
-              log(`Killed enemy (+${xpGain} XP)`);
-            } else if (died.side === "enemy" && state.hackMode) {
-              /* hack: keep resources infinite */
+            if (died.isBoss) {
+              state.bossHP = 0;
+            } else if (died.side === "enemy") {
+              if (!state.hackMode) {
+                const xpGain = Math.round((died.template.cost || 60) * 0.35);
+                state.xp += xpGain;
+                state.gold += Math.round((died.template.cost || 60) * 0.12);
+                log(`Killed enemy (+${xpGain} XP)`);
+              }
             }
           }
         }
       }
 
-      // boss activation: spawn a boss unit (big square) that moves to player's base; stop other enemy spawns
       function activateBoss() {
         state.bossActive = true;
-        const boss = state.bossChoice;
+        state.bossChoice =
+          BOSSES.find((b) => b.id === state.chosenBossId) || BOSSES[0];
         const diffMul = DIFF[state.difficulty].bossMul;
-        state.bossHP = Math.round(boss.baseHP * diffMul);
+        state.bossHP = Math.round(state.bossChoice.baseHP * diffMul);
         bossHUD.style.display = "block";
-        log(`Boss ${boss.name} has appeared! HP: ${state.bossHP}`);
-        // remove all existing enemy spawn timers (no more normal spawns)
+        log(`Boss ${state.bossChoice.name} has appeared! HP: ${state.bossHP}`);
         state.enemyBaseDestroyed = true;
-        // create boss unit object that walks to player base
-        const battleRect = document
-          .getElementById("battle")
-          .getBoundingClientRect();
+        const br = document.getElementById("battle").getBoundingClientRect();
         const el = document.createElement("div");
         el.className = "bossUnit";
+        const hpBar = document.createElement("div");
+        hpBar.className = "hpBar";
+        const hpFill = document.createElement("div");
+        hpFill.className = "hpFill";
+        hpBar.appendChild(hpFill);
+        el.appendChild(hpBar);
         battleUnits.appendChild(el);
         const bossUnit = {
           id: "BOSS",
-          template: boss,
+          template: state.bossChoice,
           side: "enemy",
           hp: state.bossHP,
+          maxHp: state.bossHP,
           atk: Math.max(50, Math.floor(state.bossChoice.baseHP / 20)),
           spd: 0.25,
-          x: battleRect.width - 200,
+          x: br.width - 200,
           width: 72,
           el,
+          atkTimer: 0,
+          atkSpeed: 1.2,
           isBoss: true,
+          sprite: null,
         };
         state.units.push(bossUnit);
-        // boss will be managed by updateUnits like other units; when boss dies we clear
       }
 
-      // rendering: units only as squares, no text or healthbars
+      // render units: square or image; show hp bar (no numbers unless setting enabled)
       function renderUnits() {
         battleUnits.innerHTML = "";
         const bw = document.getElementById("battle").clientWidth;
         for (const u of state.units) {
           const el = u.el;
           if (!el) continue;
+          let img = el.querySelector("img");
+          if (u.sprite) {
+            if (!img) {
+              img = document.createElement("img");
+              el.appendChild(img);
+            }
+            img.src = u.sprite;
+            img.style.display = "block";
+          } else {
+            if (img) img.style.display = "none";
+            el.style.background = u.side === "player" ? "#9ae6b4" : "#fecaca";
+          }
+          const hpBar = el.querySelector(".hpBar");
+          const hpFill = el.querySelector(".hpFill");
+          const maxHP =
+            u.maxHp ||
+            HP_PER_AGE[
+              u.side === "player" ? state.playerAge - 1 : state.enemyAge - 1
+            ];
+          const percent = Math.max(0, Math.min(1, (u.hp || 0) / (maxHP || 1)));
+          if (hpFill) {
+            hpFill.style.width = percent * 100 + "%";
+            if (percent < 0.35) hpFill.classList.add("low");
+            else hpFill.classList.remove("low");
+          }
           el.style.left = Math.max(60, Math.min(bw - 200, u.x)) + "px";
           el.style.bottom = u.isBoss ? "16%" : "18%";
+          el.style.width = u.isBoss ? "72px" : "36px";
+          el.style.height = u.isBoss ? "72px" : "36px";
           if (u.side === "enemy" && !u.isBoss)
             el.style.transform = "scaleX(-1)";
+          else el.style.transform = "scaleX(1)";
+          // numbers: only if user enabled them
+          // We'll add a simple number overlay if showHPNumbers true
+          let num = el.querySelector(".hpNum");
+          if (state.showHPNumbers) {
+            if (!num) {
+              num = document.createElement("div");
+              num.className = "hpNum";
+              num.style.position = "absolute";
+              num.style.top = "-22px";
+              num.style.left = "0";
+              num.style.right = "0";
+              num.style.fontSize = "10px";
+              num.style.textAlign = "center";
+              num.style.color = "#dbeafe";
+              el.appendChild(num);
+            }
+            num.textContent =
+              Math.max(0, Math.round(u.hp)) + " / " + Math.round(maxHP);
+          } else {
+            if (num) num.remove();
+          }
           battleUnits.appendChild(el);
         }
-        // boss indicator
         if (state.bossActive) {
           const bossEl = document.createElement("div");
           bossEl.style.position = "absolute";
@@ -945,53 +1307,122 @@
         ) {
           state.enemyBaseDestroyed = true;
           log("Enemy base destroyed!");
-          if (state.mode === "none") {
-            endGame(true, "Victory — enemy base destroyed (No Boss mode)");
-          } else {
+          // decide based on actual in-menu selection: if user selected "boss" and started boss match -> spawn boss
+          if (state.mode === "boss") {
+            // boss match -> activate boss
             activateBoss();
+          } else {
+            // Normal (no boss)
+            endGame(true, "Victory — enemy base destroyed (No Boss mode)");
           }
         }
-        // boss death check: if a boss unit exists in state.units, its hp will be decreased by normal mechanics; when boss object removed -> win
+        // sync boss unit to bossHP and check death
         const bossObj = state.units.find((u) => u.isBoss);
-        if (bossObj && bossObj.hp <= 0 && !state.bossDefeated) {
-          state.bossDefeated = true;
-          log("Boss defeated — You win!");
-          endGame(true, "Victory — Boss defeated");
+        if (bossObj) {
+          bossObj.hp = state.bossHP;
+          if (bossObj.hp <= 0 && !state.bossDefeated) {
+            state.bossDefeated = true;
+            playBeep(1200, 0.12);
+            unlockNextBoss(state.bossChoice.id);
+            log("Boss defeated — You win!");
+            endGame(true, "Victory — Boss defeated");
+          }
         }
         requestAnimationFrame(loop);
       }
       requestAnimationFrame(loop);
 
-      // UI actions
+      function unlockNextBoss(id) {
+        const idx = BOSSES.findIndex((b) => b.id === id);
+        if (idx >= 0 && idx < BOSSES.length - 1) {
+          const nextID = BOSSES[idx + 1].id;
+          if (!state.unlocked.includes(nextID)) {
+            state.unlocked.push(nextID);
+            saveProgress();
+            buildBossCards();
+            showToast("Unlocked: " + BOSSES[idx + 1].name);
+          }
+        }
+      }
+
+      function startGame() {
+        // Ensure mode is set when starting
+        if (state.mode === null) {
+          showToast("Choose Normal or Bosses first");
+          playBeep(240);
+          return;
+        }
+        state.running = true;
+        state.gold = 220;
+        state.xp = 0;
+        state.playerAge = 1;
+        // enemy age: if boss mode, enemyAge equals boss.age, else set default to 1
+        state.enemyAge =
+          state.mode === "boss" && state.bossChoice ? state.bossChoice.age : 1;
+        // BASE HP is exactly the HP_PER_AGE value requested
+        state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
+        state.enemyBaseHP = HP_PER_AGE[state.enemyAge - 1];
+        state.ageLevel = 1;
+        state.units = [];
+        state.enemySpawnTimer = 0;
+        state.time = 0;
+        state.bossActive = false;
+        state.bossDefeated = false;
+        state.bossHP = 0;
+        state.enemyBaseDestroyed = false;
+        state.enemyAgeUpgradeCooldown = 45 + Math.random() * 20;
+        state.hackMode = hackToggle.checked;
+        state.volume = parseFloat(volRange.value) / 100;
+        state.showHPNumbers = showHPChk.checked;
+        generateUnitButtons();
+        updateUI();
+        if (state.mode === "boss") {
+          state.bossChoice =
+            BOSSES.find((b) => b.id === state.chosenBossId) || BOSSES[0];
+        }
+        log(
+          "Game started. Mode: " +
+            (state.mode === "boss" ? "Boss" : "Normal") +
+            (state.mode === "boss" ? " — " + state.bossChoice.name : "")
+        );
+        bossLabel.textContent =
+          state.mode === "boss" ? state.bossChoice.name : "-";
+        last = performance.now();
+      }
+
       ageBtn.onclick = () => {
         const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
         if (state.hackMode || (state.xp >= cost && state.playerAge < 6)) {
           if (!state.hackMode) state.xp -= cost;
           state.playerAge++;
           state.ageLevel++;
-          state.playerBaseHP += 160;
+          state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
           generateUnitButtons();
           log("Upgraded to " + AGES[state.playerAge - 1].name);
         } else log("Cannot upgrade age");
         updateUI();
       };
+
       document.getElementById("toggleAuto").onclick = () => {
         state.autoSpawn = !state.autoSpawn;
         document.getElementById("toggleAuto").textContent = state.autoSpawn
           ? "Auto: ON"
           : "Toggle Auto-Spawn";
       };
-      document.getElementById("restartBtn").onclick = () => {
+
+      restartBtn.onclick = () => {
         location.reload();
       };
-      document.querySelectorAll(".timeButtons .btn"); // noop placeholder
+
       document.querySelectorAll(".timeButtons button").forEach((b) => {
         b.onclick = () => {
           state.timeMultiplier = parseFloat(b.dataset.speed);
+          playBeep(900, 0.04);
           log("Time x" + state.timeMultiplier);
         };
       });
 
+      // logging UI
       function log(txt) {
         const t = document.createElement("div");
         t.innerHTML = `[${new Date().toLocaleTimeString()}] ${txt}`;
@@ -999,18 +1430,33 @@
         while (logArea.childElementCount > 200)
           logArea.removeChild(logArea.lastChild);
       }
-      function endGame(win, message) {
+
+      function endGame(win, msg) {
         state.running = false;
-        finishOverlay.style.display = "flex";
-        document.getElementById("resultTitle").textContent = message;
+        document.getElementById("resultTitle").textContent = msg;
+        finishOverlay.classList.remove("hidden");
+        playBeep(win ? 1400 : 240, 0.12);
+        // if win and boss mode, unlock next boss handled earlier on boss death; no extra handling here.
       }
 
-      // init
-      initMenu();
-      state.bossChoice = BOSSES[1];
-      selBoss.textContent = state.bossChoice.name;
-      selDiff.textContent = state.difficulty;
-      updateUI();
+      // initial boot
+      function init() {
+        // set default menu behavior
+        state.mode = null;
+        state.modeSelected = null;
+        // default chosen boss is the first unlocked
+        if (!state.unlocked || state.unlocked.length === 0)
+          state.unlocked = [1];
+        state.chosenBossId = state.unlocked[0];
+        buildBossCards();
+        // set UI elements
+        volRange.value = Math.round((state.volume || 0.8) * 100);
+        volLabel.textContent = volRange.value + "%";
+        showHPChk.checked = state.showHPNumbers;
+        updateUI();
+        generateUnitButtons();
+      }
+      init();
     </script>
   </body>
 </html>
