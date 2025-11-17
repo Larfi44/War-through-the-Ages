@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Age of War — Melee Only (Updated)</title>
+    <title>Age of War — Melee Only (Final)</title>
     <style>
       :root {
         --bg: #071022;
@@ -135,19 +135,26 @@
         width: 36px;
         height: 36px;
         border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
       }
       .unit.player {
         background: #9ae6b4;
-        color: #043;
       }
       .unit.enemy {
         background: #fecaca;
-        color: #4b0707;
+      }
+      .bossUnit {
+        position: absolute;
+        width: 72px;
+        height: 72px;
+        border-radius: 6px;
+        background: #ff8a8a;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+      }
+      .timeButtons {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
       }
       .log {
         height: 150px;
@@ -167,9 +174,10 @@
     </style>
   </head>
   <body>
+    <!-- MENU -->
     <div id="menu" class="overlay">
       <div class="card">
-        <h1>Age of War — Melee Only</h1>
+        <h1>Age of War — Melee Only (Final)</h1>
         <div class="menu-grid">
           <div>
             <h2 class="small">Mode</h2>
@@ -195,6 +203,18 @@
               <button class="btn" id="startBtn">Start Game</button>
               <button class="btn" id="tutorialBtn">Quick Tutorial</button>
             </div>
+
+            <div
+              style="
+                margin-top: 12px;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+              "
+            >
+              <label class="small" style="margin-right: 8px">Hack mode</label>
+              <input type="checkbox" id="hackMode" />
+            </div>
           </div>
 
           <div>
@@ -213,11 +233,11 @@
 
             <div style="margin-top: 10px" class="small">Rules</div>
             <div class="log" id="menuLog">
-              Units are melee only (short-distance attacks). Enemy spawn rate
-              starts low and ramps up over time; when enemy base is destroyed
+              Units are melee-only (short-distance attacks). Enemy spawn rate
+              starts low and ramps up over time. When enemy base is destroyed
               spawning stops and the boss appears (in Normal mode). Weaker-era
-              bosses spawn faster at start; stronger-era bosses spawn less at
-              start but all ramp up with time.
+              bosses spawn faster at the start; stronger-era bosses spawn less
+              at the start but all ramp up with time.
             </div>
           </div>
         </div>
@@ -244,6 +264,13 @@
 
         <h2 style="font-size: 15px; margin-top: 8px">Units</h2>
         <div id="unitButtons" class="units"></div>
+
+        <h2 style="font-size: 15px; margin-top: 8px">Speed</h2>
+        <div class="timeButtons">
+          <button class="btn" data-speed="1">x1</button>
+          <button class="btn" data-speed="1.5">x1.5</button>
+          <button class="btn" data-speed="2">x2</button>
+        </div>
 
         <h2 style="font-size: 15px; margin-top: 8px">Battle Log</h2>
         <div id="logArea" class="log"></div>
@@ -307,12 +334,6 @@
           <div class="stat">Base HP<br /><strong id="enemyHP">0</strong></div>
         </div>
 
-        <h2 style="font-size: 15px; margin-top: 8px">Boss Controls</h2>
-        <div style="display: flex; gap: 8px; margin-top: 8px">
-          <button cjulass="btn" id="bossAggro">Increase Aggression</button>
-          <button class="btn" id="bossDef">Decrease Aggression</button>
-        </div>
-
         <h2 style="font-size: 15px; margin-top: 8px">Info</h2>
         <div class="small" id="bossInfo">No boss active</div>
       </div>
@@ -324,13 +345,13 @@
         { id: 1, name: "Ancient World" },
         { id: 2, name: "Ancient Rome" },
         { id: 3, name: "Medieval" },
-        { id: 4, name: "New Time" },
+        { id: 4, name: "New Time (1750-1850)" },
         { id: 5, name: "Now Time" },
         { id: 6, name: "Future" },
       ];
 
       const BOSSES = [
-        { id: 1, name: "Kronos", age: 1, baseHP: 800, desc: "Ancient terror" },
+        { id: 1, name: "Kronos", age: 1, baseHP: 500, desc: "Ancient titan" },
         {
           id: 2,
           name: "August",
@@ -342,163 +363,142 @@
           id: 3,
           name: "Ivan I",
           age: 3,
-          baseHP: 1300,
+          baseHP: 3000,
           desc: "Medieval champion",
         },
         {
           id: 4,
           name: "Napoleon",
           age: 4,
-          baseHP: 1800,
+          baseHP: 10000,
           desc: "Tactician of the new era",
         },
         {
           id: 5,
           name: "Hitler",
           age: 5,
-          baseHP: 2300,
+          baseHP: 25000,
           desc: "20th-century tyrant",
         },
         {
           id: 6,
           name: "Arclord",
           age: 6,
-          baseHP: 3200,
+          baseHP: 100000,
           desc: "A glimpse of the future",
         },
       ];
 
-      // Make all units melee-only templates (no ranged)
+      // HP per age baseline (cumulative increments requested)
+      const HP_PER_AGE = [100, 150, 250, 400, 650, 1000];
+
+      // Unit templates now melee only; hp will be set from HP_PER_AGE when generating buttons
       const UNIT_TEMPLATES = {
         1: [
           {
-            id: "spear",
-            name: "Spearman",
+            id: "u1a",
+            name: "Soldier A",
             cost: 50,
-            hp: 50,
             atk: 12,
             spd: 0.6,
-            type: "melee",
             atkSpeed: 0.9,
           },
           {
-            id: "club",
-            name: "Clubber",
+            id: "u1b",
+            name: "Soldier B",
             cost: 70,
-            hp: 70,
             atk: 18,
             spd: 0.45,
-            type: "melee",
             atkSpeed: 1.1,
           },
         ],
         2: [
           {
-            id: "legion",
+            id: "u2a",
             name: "Legionary",
             cost: 80,
-            hp: 70,
             atk: 20,
             spd: 0.55,
-            type: "melee",
             atkSpeed: 1.0,
           },
           {
-            id: "pilum",
-            name: "Pilumman",
+            id: "u2b",
+            name: "Pilum",
             cost: 110,
-            hp: 65,
             atk: 24,
             spd: 0.48,
-            type: "melee",
             atkSpeed: 1.2,
           },
         ],
         3: [
           {
-            id: "sword",
+            id: "u3a",
             name: "Knight",
             cost: 120,
-            hp: 110,
             atk: 32,
             spd: 0.45,
-            type: "melee",
             atkSpeed: 1.0,
           },
           {
-            id: "axeman",
+            id: "u3b",
             name: "Axeman",
             cost: 140,
-            hp: 100,
             atk: 36,
             spd: 0.42,
-            type: "melee",
             atkSpeed: 1.2,
           },
         ],
         4: [
           {
-            id: "musket",
-            name: "Line Soldier",
+            id: "u4a",
+            name: "Line",
             cost: 160,
-            hp: 95,
             atk: 42,
             spd: 0.48,
-            type: "melee",
             atkSpeed: 1.0,
           },
           {
-            id: "cannoncrew",
-            name: "Cannon Crew",
+            id: "u4b",
+            name: "Crew",
             cost: 240,
-            hp: 150,
             atk: 70,
             spd: 0.28,
-            type: "melee",
             atkSpeed: 1.6,
           },
         ],
         5: [
           {
-            id: "rifle",
-            name: "Rifleman",
+            id: "u5a",
+            name: "Rifle",
             cost: 220,
-            hp: 110,
             atk: 58,
             spd: 0.5,
-            type: "melee",
             atkSpeed: 0.9,
           },
           {
-            id: "tank",
+            id: "u5b",
             name: "Tank",
             cost: 400,
-            hp: 300,
             atk: 140,
             spd: 0.22,
-            type: "melee",
             atkSpeed: 2.2,
           },
         ],
         6: [
           {
-            id: "drone",
+            id: "u6a",
             name: "Drone",
             cost: 350,
-            hp: 140,
             atk: 100,
             spd: 0.9,
-            type: "melee",
             atkSpeed: 0.8,
           },
           {
-            id: "mech",
+            id: "u6b",
             name: "Mech",
             cost: 700,
-            hp: 420,
             atk: 240,
             spd: 0.32,
-            type: "melee",
             atkSpeed: 2.5,
           },
         ],
@@ -511,7 +511,7 @@
         impossible: { enemySpawnRate: 1.6, enemyHPmod: 1.3, bossMul: 1.35 },
       };
 
-      const XP_REQUIRED = [150, 300, 600, 900, 1300];
+      const XP_REQUIRED = [200, 350, 600, 900, 1300];
 
       // STATE
       let state = {
@@ -523,8 +523,8 @@
         xp: 0,
         playerAge: 1,
         enemyAge: 1,
-        playerBaseHP: 100,
-        enemyBaseHP: 100,
+        playerBaseHP: 500,
+        enemyBaseHP: 500,
         ageLevel: 1,
         units: [],
         enemyAggression: 1.0,
@@ -536,6 +536,8 @@
         bossDefeated: false,
         enemyBaseDestroyed: false,
         enemyAgeUpgradeCooldown: 45.0,
+        hackMode: false,
+        timeMultiplier: 1,
       };
 
       // DOM refs
@@ -561,6 +563,7 @@
       const bossTitle = document.getElementById("bossTitle");
       const bossHPEl = document.getElementById("bossHP");
       const finishOverlay = document.getElementById("finishOverlay");
+      const hackToggle = document.getElementById("hackMode");
 
       function initMenu() {
         bossesDiv.innerHTML = "";
@@ -589,18 +592,21 @@
         document.getElementById("modeNormal").onclick = () => {
           state.mode = "normal";
           selMode.textContent = "Normal";
+          selBoss.textContent = state.bossChoice.name;
         };
         document.getElementById("modeNoBoss").onclick = () => {
           state.mode = "none";
           selMode.textContent = "Without Boss";
+          selBoss.textContent = "";
         };
         document.getElementById("startBtn").onclick = () => {
+          state.hackMode = hackToggle.checked;
           startGame();
           menuEl.style.display = "none";
         };
         document.getElementById("tutorialBtn").onclick = () => {
           alert(
-            "Units are melee only. Kill enemy units to get XP. Upgrade Age. Destroy enemy base — if boss selected, boss will appear and must be defeated."
+            "Melee-only units. Kill enemy units for XP. Upgrade Age. Destroy enemy base — in Normal mode boss appears and must be defeated. Use Hack mode to get unlimited resources."
           );
         };
       }
@@ -611,7 +617,7 @@
         state.xp = 0;
         state.playerAge = 1;
         state.enemyAge = state.bossChoice.age;
-        state.playerBaseHP = 100;
+        state.playerBaseHP = 500 + (state.playerAge - 1) * 140;
         state.enemyBaseHP = Math.round(500 * DIFF[state.difficulty].enemyHPmod);
         state.ageLevel = 1;
         state.units = [];
@@ -623,6 +629,7 @@
         state.bossHP = 0;
         state.enemyBaseDestroyed = false;
         state.enemyAgeUpgradeCooldown = 45 + Math.random() * 20;
+        state.hackMode = document.getElementById("hackMode").checked;
         updateUI();
         generateUnitButtons();
         log(
@@ -637,8 +644,8 @@
       }
 
       function updateUI() {
-        goldEl.textContent = Math.floor(state.gold);
-        xpEl.textContent = Math.floor(state.xp);
+        goldEl.textContent = state.hackMode ? "∞" : Math.floor(state.gold);
+        xpEl.textContent = state.hackMode ? "∞" : Math.floor(state.xp);
         playerAgeEl.textContent = AGES[state.playerAge - 1].name;
         pBaseHP.textContent = Math.max(0, Math.round(state.playerBaseHP));
         eBaseHP.textContent = Math.max(0, Math.round(state.enemyBaseHP));
@@ -653,6 +660,7 @@
       function generateUnitButtons() {
         unitButtons.innerHTML = "";
         const list = UNIT_TEMPLATES[state.playerAge];
+        const baseHP = HP_PER_AGE[state.playerAge - 1];
         list.forEach((t) => {
           const b = document.createElement("div");
           b.className = "btn";
@@ -664,7 +672,7 @@
           name.textContent = `${t.name} — $${t.cost}`;
           const desc = document.createElement("div");
           desc.className = "small";
-          desc.textContent = `HP ${t.hp} · ATK ${t.atk} · SPD ${t.spd}`;
+          desc.textContent = `HP ${baseHP} · ATK ${t.atk} · SPD ${t.spd}`;
           b.appendChild(name);
           b.appendChild(desc);
           b.onclick = () => spawnUnit("player", t);
@@ -674,11 +682,11 @@
 
       function spawnUnit(side, template) {
         if (side === "player") {
-          if (state.gold < template.cost) {
+          if (!state.hackMode && state.gold < template.cost) {
             log("Not enough gold");
             return;
           }
-          state.gold -= template.cost;
+          if (!state.hackMode) state.gold -= template.cost;
         }
         const battleRect = document
           .getElementById("battle")
@@ -689,11 +697,13 @@
         el.style.height = "36px";
         battleUnits.appendChild(el);
         const xStart = side === "player" ? 100 : battleRect.width - 160;
+        const unitHP = HP_PER_AGE[state.playerAge - 1] || 100; // player's units use playerAge base
+        const enemyHP = HP_PER_AGE[state.enemyAge - 1] || 100;
         const unit = {
           id: Math.random().toString(36).slice(2, 9),
           template,
           side,
-          hp: template.hp,
+          hp: side === "player" ? unitHP : enemyHP,
           atk: template.atk,
           spd: template.spd,
           x: xStart,
@@ -702,18 +712,19 @@
           el,
           atkTimer: 0,
           atkSpeed: template.atkSpeed || 1.0,
+          isBoss: false,
         };
         state.units.push(unit);
         renderUnits();
         updateUI();
       }
 
+      // enemy spawn logic (ramp up; stop when boss active or base destroyed)
       function enemySpawnLogic(dt) {
         if (state.bossActive || state.enemyBaseDestroyed) return;
-        state.enemySpawnTimer -= dt;
-        if (state.enemySpawnTimer > 0) return; // spawn probability ramps with time
-        const ramp = Math.min(state.time / 40000, 1); // 0..1 over 40s
-        // If boss era is weak (low age), boss will cause more frequent spawns when active; here regular enemy spawn uses ramp only
+        state.enemySpawnTimer -= dt * state.timeMultiplier;
+        if (state.enemySpawnTimer > 0) return;
+        const ramp = Math.min(state.time / 40000, 1);
         const spawnChance = 0.25 + 0.75 * ramp;
         if (Math.random() < spawnChance) {
           const templates = UNIT_TEMPLATES[state.enemyAge];
@@ -726,7 +737,7 @@
 
       function enemyAgeUpgradeTick(dt) {
         if (state.enemyAge >= 6) return;
-        state.enemyAgeUpgradeCooldown -= dt;
+        state.enemyAgeUpgradeCooldown -= dt * state.timeMultiplier;
         if (state.enemyAgeUpgradeCooldown <= 0) {
           if (Math.random() < 0.28) {
             state.enemyAge++;
@@ -736,7 +747,7 @@
         }
       }
 
-      // Unit combat (melee only)
+      // Unit combat (melee only) — no labels, no healthbars
       function findNearestEnemy(u) {
         let best = null,
           bd = Infinity;
@@ -760,69 +771,59 @@
       }
 
       function updateUnits(dt) {
-        const bw = document.getElementById("battle").clientWidth; // move and melee
+        const bw = document.getElementById("battle").clientWidth;
         for (const u of state.units) {
           if (u.side === "player") {
             const target = findNearestEnemy(u);
             if (target && Math.abs(target.x - u.x) <= 36) {
-              // melee contact
-              u.atkTimer += dt;
+              u.atkTimer += dt * state.timeMultiplier;
               if (u.atkTimer >= u.atkSpeed) {
-                // deal
                 if (target.isBoss) {
                   state.bossHP -= u.atk;
-                  log(`${u.template.name} hit the BOSS for ${u.atk}`);
                 } else {
                   target.hp -= u.atk;
                 }
                 u.atkTimer = 0;
               }
             } else {
-              u.x += u.spd * 60 * dt;
+              u.x += u.spd * 60 * dt * state.timeMultiplier;
               if (u.x + u.width >= bw - 160) {
                 if (state.bossActive) {
                   state.bossHP -= u.atk;
-                  log(`${u.template.name} hit the BOSS for ${u.atk}`);
                 } else {
                   state.enemyBaseHP -= u.atk;
-                  log(`${u.template.name} hit enemy base for ${u.atk}`);
                 }
                 u.hp = 0;
               }
             }
           } else {
-            // enemy unit
             const target = findNearestEnemy(u);
             if (target && Math.abs(target.x - u.x) <= 36) {
-              u.atkTimer += dt;
+              u.atkTimer += dt * state.timeMultiplier;
               if (u.atkTimer >= u.atkSpeed) {
-                if (target.isBoss) {
-                  /* enemy hitting boss? ignore */
-                } else {
+                if (!target.isBoss) {
                   target.hp -= u.atk;
                 }
                 u.atkTimer = 0;
               }
             } else {
-              u.x -= u.spd * 60 * dt;
+              u.x -= u.spd * 60 * dt * state.timeMultiplier;
               if (u.x <= 100) {
                 state.playerBaseHP -= u.atk;
-                log(`Enemy ${u.template.name} hit your base for ${u.atk}`);
                 u.hp = 0;
               }
             }
           }
         }
-        // melee engagement between units (both hit each other when in contact)
+        // contact damage small continuous
         for (let i = 0; i < state.units.length; i++) {
           for (let j = i + 1; j < state.units.length; j++) {
             const a = state.units[i],
               b = state.units[j];
             if (!a || !b || a.side === b.side) continue;
             if (Math.abs(a.x - b.x) < 36) {
-              // continuous small damage
-              a.hp -= b.atk * 0.02;
-              b.hp -= a.atk * 0.02;
+              a.hp -= b.atk * 0.02 * state.timeMultiplier;
+              b.hp -= a.atk * 0.02 * state.timeMultiplier;
             }
           }
         }
@@ -832,55 +833,52 @@
           if (u.hp <= 0) {
             const died = state.units.splice(k, 1)[0];
             if (died.el && died.el.remove) died.el.remove();
-            if (died.side === "enemy") {
+            if (died.side === "enemy" && !state.hackMode) {
               const xpGain = Math.round((died.template.cost || 60) * 0.35);
               state.xp += xpGain;
               state.gold += Math.round((died.template.cost || 60) * 0.12);
-              log(`Killed enemy ${died.template.name} (+${xpGain} XP)`);
+              log(`Killed enemy (+${xpGain} XP)`);
+            } else if (died.side === "enemy" && state.hackMode) {
+              /* hack: keep resources infinite */
             }
           }
         }
       }
 
-      // Boss activation and minion spawn behavior
+      // boss activation: spawn a boss unit (big square) that moves to player's base; stop other enemy spawns
       function activateBoss() {
         state.bossActive = true;
         const boss = state.bossChoice;
-        const eraBonus = 1 + (boss.age - 1) * 0.18;
         const diffMul = DIFF[state.difficulty].bossMul;
-        state.bossHP = Math.round(boss.baseHP * eraBonus * diffMul);
+        state.bossHP = Math.round(boss.baseHP * diffMul);
         bossHUD.style.display = "block";
         log(`Boss ${boss.name} has appeared! HP: ${state.bossHP}`);
-        bossSpawnLoop();
+        // remove all existing enemy spawn timers (no more normal spawns)
+        state.enemyBaseDestroyed = true;
+        // create boss unit object that walks to player base
+        const battleRect = document
+          .getElementById("battle")
+          .getBoundingClientRect();
+        const el = document.createElement("div");
+        el.className = "bossUnit";
+        battleUnits.appendChild(el);
+        const bossUnit = {
+          id: "BOSS",
+          template: boss,
+          side: "enemy",
+          hp: state.bossHP,
+          atk: Math.max(50, Math.floor(state.bossChoice.baseHP / 20)),
+          spd: 0.25,
+          x: battleRect.width - 200,
+          width: 72,
+          el,
+          isBoss: true,
+        };
+        state.units.push(bossUnit);
+        // boss will be managed by updateUnits like other units; when boss dies we clear
       }
 
-      async function bossSpawnLoop() {
-        // spawn rate depends on boss "weakness" (lower-era -> spawn more at start) and difficulty; ramps up over time
-        const bossAge = state.bossChoice.age; // 1..6
-        const ageFactor = (7 - bossAge) / 6; // age1 -> 1.0 (weaker -> more spawns), age6 -> ~0.166
-        const difficultyMul =
-          { easy: 1.0, medium: 1.0, hard: 1.12, impossible: 1.18 }[
-            state.difficulty
-          ] || 1.0;
-        const baseInterval = 1600; // ms
-        while (state.bossActive && !state.bossDefeated) {
-          const tlist = UNIT_TEMPLATES[state.bossChoice.age];
-          const t = tlist[Math.floor(Math.random() * tlist.length)];
-          spawnUnit("enemy", t);
-          log("Boss spawned a minion: " + t.name);
-          const timeFactor = Math.min(state.time / 90000, 1);
-          const randomJitter = 0.85 + Math.random() * 0.5; // 0.85..1.35
-          // interval shrinks with higher ageFactor (weaker bosses) and with timeFactor; difficulty reduces interval slightly
-          let interval =
-            ((baseInterval * (1 - 0.45 * ageFactor) * (1 - 0.6 * timeFactor)) /
-              difficultyMul) *
-            randomJitter;
-          interval = Math.max(300, Math.round(interval));
-          await new Promise((r) => setTimeout(r, interval));
-        }
-      }
-
-      // rendering
+      // rendering: units only as squares, no text or healthbars
       function renderUnits() {
         battleUnits.innerHTML = "";
         const bw = document.getElementById("battle").clientWidth;
@@ -888,31 +886,12 @@
           const el = u.el;
           if (!el) continue;
           el.style.left = Math.max(60, Math.min(bw - 200, u.x)) + "px";
-          el.style.bottom = "18%";
-          if (u.side === "enemy") el.style.transform = "scaleX(-1)";
-          const hb = document.createElement("div");
-          hb.style.position = "absolute";
-          hb.style.top = "-8px";
-          hb.style.left = "0";
-          hb.style.right = "0";
-          hb.style.height = "5px";
-          hb.style.background = "rgba(0,0,0,0.5)";
-          hb.style.borderRadius = "6px";
-          const h = document.createElement("div");
-          h.style.height = "100%";
-          h.style.background = "linear-gradient(90deg,#10b981,#059669)";
-          h.style.borderRadius = "6px";
-          const hpperc = Math.max(0, Math.min(1, u.hp / u.template.hp));
-          h.style.width = hpperc * 100 + "%";
-          hb.appendChild(h);
-          el.appendChild(hb);
-          const label = document.createElement("div");
-          label.style.paddingTop = "6px";
-          label.style.fontSize = "11px";
-          label.textContent = u.template.name[0];
-          el.appendChild(label);
+          el.style.bottom = u.isBoss ? "16%" : "18%";
+          if (u.side === "enemy" && !u.isBoss)
+            el.style.transform = "scaleX(-1)";
           battleUnits.appendChild(el);
         }
+        // boss indicator
         if (state.bossActive) {
           const bossEl = document.createElement("div");
           bossEl.style.position = "absolute";
@@ -922,7 +901,9 @@
           bossEl.style.background = "rgba(255,120,120,0.12)";
           bossEl.style.borderRadius = "8px";
           bossEl.style.fontWeight = "700";
-          bossEl.textContent = state.bossChoice.name;
+          bossEl.textContent =
+            state.bossChoice.name +
+            ` (${Math.max(0, Math.round(state.bossHP))})`;
           battleUnits.appendChild(bossEl);
         }
       }
@@ -930,20 +911,26 @@
       // main loop
       let last = performance.now();
       function loop(now) {
-        const dt = (now - last) / 1000;
+        const rawDt = (now - last) / 1000;
         last = now;
         if (!state.running) {
           requestAnimationFrame(loop);
           return;
         }
+        const dt = rawDt * state.timeMultiplier;
         state.time += dt;
-        state.gold += 12 * dt * (1 + (state.ageLevel - 1) * 0.12);
+        if (state.hackMode) {
+          state.gold = 9999999;
+          state.xp = 9999999;
+        } else {
+          state.gold += 12 * dt * (1 + (state.ageLevel - 1) * 0.12);
+        }
         enemySpawnLogic(dt);
         enemyAgeUpgradeTick(dt);
         if (state.autoSpawn && Math.random() < 0.018) {
           const list = UNIT_TEMPLATES[state.playerAge];
           const t = list[Math.floor(Math.random() * list.length)];
-          if (state.gold >= t.cost) spawnUnit("player", t);
+          if (state.gold >= t.cost || state.hackMode) spawnUnit("player", t);
         }
         updateUnits(dt);
         renderUnits();
@@ -961,11 +948,12 @@
           if (state.mode === "none") {
             endGame(true, "Victory — enemy base destroyed (No Boss mode)");
           } else {
-            // stop normal spawning, activate boss
             activateBoss();
           }
         }
-        if (state.bossActive && state.bossHP <= 0 && !state.bossDefeated) {
+        // boss death check: if a boss unit exists in state.units, its hp will be decreased by normal mechanics; when boss object removed -> win
+        const bossObj = state.units.find((u) => u.isBoss);
+        if (bossObj && bossObj.hp <= 0 && !state.bossDefeated) {
           state.bossDefeated = true;
           log("Boss defeated — You win!");
           endGame(true, "Victory — Boss defeated");
@@ -977,8 +965,8 @@
       // UI actions
       ageBtn.onclick = () => {
         const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
-        if (state.xp >= cost && state.playerAge < 6) {
-          state.xp -= cost;
+        if (state.hackMode || (state.xp >= cost && state.playerAge < 6)) {
+          if (!state.hackMode) state.xp -= cost;
           state.playerAge++;
           state.ageLevel++;
           state.playerBaseHP += 160;
@@ -993,17 +981,16 @@
           ? "Auto: ON"
           : "Toggle Auto-Spawn";
       };
-      document.getElementById("bossAggro").onclick = () => {
-        state.enemyAggression += 0.14;
-        log("Enemy aggression increased");
-      };
-      document.getElementById("bossDef").onclick = () => {
-        state.enemyAggression = Math.max(0.4, state.enemyAggression - 0.14);
-        log("Enemy aggression decreased");
-      };
       document.getElementById("restartBtn").onclick = () => {
         location.reload();
       };
+      document.querySelectorAll(".timeButtons .btn"); // noop placeholder
+      document.querySelectorAll(".timeButtons button").forEach((b) => {
+        b.onclick = () => {
+          state.timeMultiplier = parseFloat(b.dataset.speed);
+          log("Time x" + state.timeMultiplier);
+        };
+      });
 
       function log(txt) {
         const t = document.createElement("div");
@@ -1018,6 +1005,7 @@
         document.getElementById("resultTitle").textContent = message;
       }
 
+      // init
       initMenu();
       state.bossChoice = BOSSES[1];
       selBoss.textContent = state.bossChoice.name;
