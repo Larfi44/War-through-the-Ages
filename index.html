@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width,initial-scale=1,maximum-scale=1"
     />
-    <title>Age of War — Fixed (Boss targeting & spawnRules)</title>
+    <title>Age of War — Balanced Build</title>
     <style>
       :root {
         --bg: #071022;
@@ -100,8 +100,8 @@
       .base {
         position: absolute;
         bottom: 14%;
-        width: 130px;
-        height: 130px;
+        width: 140px;
+        height: 140px;
         border-radius: 8px;
         display: flex;
         flex-direction: column;
@@ -257,6 +257,23 @@
         max-width: 92vw;
         text-align: center;
       }
+      #finishOverlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(2, 6, 23, 0.75);
+        z-index: 300;
+      }
+      #finishCard {
+        background: linear-gradient(180deg, #07122a, #091428);
+        padding: 16px;
+        border-radius: 12px;
+        width: 420px;
+        max-width: 92vw;
+        text-align: center;
+      }
       @media (max-width: 900px) {
         .battle {
           height: 440px;
@@ -323,7 +340,7 @@
 
           <div id="menuPanels" style="margin-top: 12px">
             <div id="panelNormal" style="display: none">
-              <label class="small">Difficulty</label>
+              <label class="small" id="lblDiff">Difficulty</label>
               <select id="normalDiff">
                 <option value="easy">Easy</option>
                 <option value="medium" selected>Medium</option>
@@ -354,11 +371,15 @@
                 <input id="vol" type="range" min="0" max="100" value="80" />
               </div>
               <div style="margin-top: 8px">
-                <label class="small">Hack mode (in-game)</label>
+                <label class="small" id="lblHackAllowed"
+                  >Hack mode (unlocked after all bosses)</label
+                >
                 <input id="hackAllowed" type="checkbox" disabled />
               </div>
               <div style="margin-top: 8px">
-                <button id="resetProg" class="btn">Reset progress</button>
+                <button id="resetProg" class="btn" id="resetLabel">
+                  Reset progress
+                </button>
               </div>
             </div>
           </div>
@@ -395,9 +416,13 @@
         <!-- bottom bar centered -->
         <div class="bottomBar">
           <div style="display: flex; gap: 8px; align-items: center">
-            <div class="stat">Gold<br /><strong id="gold">0</strong></div>
-            <div class="stat">XP<br /><strong id="xp">0</strong></div>
-            <div class="stat">
+            <div class="stat" id="statGold">
+              Gold<br /><strong id="gold">0</strong>
+            </div>
+            <div class="stat" id="statXP">
+              XP<br /><strong id="xp">0</strong>
+            </div>
+            <div class="stat" id="statAge">
               Age<br /><strong id="ageText">Ancient World</strong>
             </div>
           </div>
@@ -437,7 +462,7 @@
       </div>
     </div>
 
-    <!-- Pause modal (Settings button removed as requested) -->
+    <!-- Pause modal -->
     <div id="pauseModal">
       <div id="pauseCard">
         <h3 id="pauseTitle">Paused</h3>
@@ -455,8 +480,37 @@
       </div>
     </div>
 
+    <!-- Finish overlay (win/lose) -->
+    <div id="finishOverlay">
+      <div id="finishCard">
+        <h2 id="finishTitle">Result</h2>
+        <div id="finishMessage" style="margin-top: 8px"></div>
+        <div
+          style="
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+          "
+        >
+          <button id="finishRestart" class="btn">Restart</button>
+          <button id="finishToMenu" class="btn">Menu</button>
+        </div>
+      </div>
+    </div>
+
     <script>
-      /* ------------- CONFIG ------------- */
+      /* ----------------- BALANCING & DATA -----------------
+  Tuning points:
+  - UNIT_TEMPLATES[*].atk, hp, atkSpeed, cost
+  - BOSSES[*].baseHP and spawnRules: cheapOnlyTime, allowMediumAfter, allowHeavyAfter
+  - HP_PER_AGE: base HP values
+  - DIFF.*.enemySpawnRate: lower => faster spawning
+  - Income scaling: in main loop (income formula)
+  - Player unit cost multiplier: in spawnUnit() (currently 1 + 0.18*(age-1))
+-----------------------------------------------------*/
+
+      /* Ages */
       const AGES = [
         { id: 1, name: "Ancient World", ru: "Древний мир" },
         { id: 2, name: "Ancient Rome", ru: "Древний Рим" },
@@ -466,17 +520,18 @@
         { id: 6, name: "Future", ru: "Будущее" },
       ];
 
-      /* explicit spawnRules for each boss: change these to tune when medium/heavy unlock */
+      /* Bosses with spawnRules (times in seconds from match start) */
+      /* Adjust baseHP here to make them easier/harder */
       const BOSSES = [
         {
           id: 1,
           name: "Kronos",
           ru: "Кронос",
           age: 1,
-          baseHP: 500,
+          baseHP: 700,
           spawnRules: {
-            cheapOnlyTime: 12,
-            allowMediumAfter: 25,
+            cheapOnlyTime: 8,
+            allowMediumAfter: 20,
             allowHeavyAfter: 45,
           },
         },
@@ -485,10 +540,10 @@
           name: "August",
           ru: "Август",
           age: 2,
-          baseHP: 1000,
+          baseHP: 1400,
           spawnRules: {
-            cheapOnlyTime: 15,
-            allowMediumAfter: 30,
+            cheapOnlyTime: 10,
+            allowMediumAfter: 25,
             allowHeavyAfter: 50,
           },
         },
@@ -497,11 +552,11 @@
           name: "Ivan I",
           ru: "Иван I",
           age: 3,
-          baseHP: 3000,
+          baseHP: 4200,
           spawnRules: {
-            cheapOnlyTime: 18,
-            allowMediumAfter: 35,
-            allowHeavyAfter: 60,
+            cheapOnlyTime: 12,
+            allowMediumAfter: 30,
+            allowHeavyAfter: 70,
           },
         },
         {
@@ -509,11 +564,11 @@
           name: "Napoleon",
           ru: "Наполеон",
           age: 4,
-          baseHP: 10000,
+          baseHP: 12000,
           spawnRules: {
-            cheapOnlyTime: 22,
+            cheapOnlyTime: 18,
             allowMediumAfter: 40,
-            allowHeavyAfter: 70,
+            allowHeavyAfter: 90,
           },
         },
         {
@@ -521,11 +576,11 @@
           name: "Hitler",
           ru: "Гитлер",
           age: 5,
-          baseHP: 25000,
+          baseHP: 26000,
           spawnRules: {
-            cheapOnlyTime: 30,
-            allowMediumAfter: 60,
-            allowHeavyAfter: 95,
+            cheapOnlyTime: 28,
+            allowMediumAfter: 65,
+            allowHeavyAfter: 140,
           },
         },
         {
@@ -536,15 +591,16 @@
           baseHP: 100000,
           spawnRules: {
             cheapOnlyTime: 40,
-            allowMediumAfter: 80,
-            allowHeavyAfter: 130,
+            allowMediumAfter: 100,
+            allowHeavyAfter: 220,
           },
         },
       ];
 
-      const HP_PER_AGE = [100, 150, 250, 400, 650, 1000];
+      /* Base HP per age (ONLY base) - increased so bases are tougher */
+      const HP_PER_AGE = [220, 360, 600, 1000, 1600, 2400];
 
-      /* unit templates: tier 1 = cheap melee, tier 2 = shooter (medium), tier 3 = heavy */
+      /* Units templates - unit HP set independently */
       const UNIT_TEMPLATES = {
         1: [
           {
@@ -552,9 +608,10 @@
             name: "Soldier",
             ru: "Солдат",
             cost: 50,
-            atk: 12,
+            hp: 60,
+            atk: 10,
             spd: 0.6,
-            atkSpeed: 0.9,
+            atkSpeed: 1.0,
             type: "melee",
             tier: 1,
           },
@@ -563,9 +620,10 @@
             name: "Skirmisher",
             ru: "Стрелок",
             cost: 90,
-            atk: 14,
+            hp: 36,
+            atk: 10,
             spd: 0.6,
-            atkSpeed: 1.0,
+            atkSpeed: 1.2,
             type: "shoot",
             range: 260,
             bulletSpeed: 420,
@@ -578,9 +636,10 @@
             name: "Clubber",
             ru: "Булава",
             cost: 130,
-            atk: 22,
+            hp: 110,
+            atk: 18,
             spd: 0.48,
-            atkSpeed: 1.3,
+            atkSpeed: 1.4,
             type: "melee",
             tier: 3,
           },
@@ -591,9 +650,10 @@
             name: "Legionary",
             ru: "Легионер",
             cost: 80,
-            atk: 20,
+            hp: 95,
+            atk: 16,
             spd: 0.55,
-            atkSpeed: 1.0,
+            atkSpeed: 1.1,
             type: "melee",
             tier: 1,
           },
@@ -602,9 +662,10 @@
             name: "Pilum",
             ru: "Пилум",
             cost: 110,
-            atk: 24,
+            hp: 56,
+            atk: 18,
             spd: 0.48,
-            atkSpeed: 1.2,
+            atkSpeed: 1.3,
             type: "shoot",
             range: 320,
             bulletSpeed: 360,
@@ -617,9 +678,10 @@
             name: "Veteran",
             ru: "Ветеран",
             cost: 200,
-            atk: 34,
+            hp: 170,
+            atk: 28,
             spd: 0.48,
-            atkSpeed: 1.2,
+            atkSpeed: 1.3,
             type: "melee",
             tier: 3,
           },
@@ -630,9 +692,10 @@
             name: "Knight",
             ru: "Рыцарь",
             cost: 120,
-            atk: 32,
+            hp: 140,
+            atk: 26,
             spd: 0.45,
-            atkSpeed: 1.0,
+            atkSpeed: 1.1,
             type: "melee",
             tier: 1,
           },
@@ -641,9 +704,10 @@
             name: "Archer",
             ru: "Лучник",
             cost: 150,
-            atk: 36,
+            hp: 76,
+            atk: 28,
             spd: 0.55,
-            atkSpeed: 1.0,
+            atkSpeed: 1.25,
             type: "shoot",
             range: 360,
             bulletSpeed: 420,
@@ -656,9 +720,10 @@
             name: "Axeman",
             ru: "Топорник",
             cost: 260,
-            atk: 60,
+            hp: 260,
+            atk: 48,
             spd: 0.36,
-            atkSpeed: 1.6,
+            atkSpeed: 1.7,
             type: "melee",
             tier: 3,
           },
@@ -669,9 +734,10 @@
             name: "Line",
             ru: "Линейный",
             cost: 160,
-            atk: 42,
+            hp: 200,
+            atk: 36,
             spd: 0.48,
-            atkSpeed: 1.0,
+            atkSpeed: 1.1,
             type: "melee",
             tier: 1,
           },
@@ -680,9 +746,10 @@
             name: "Musketeer",
             ru: "Мушкетёр",
             cost: 240,
-            atk: 70,
+            hp: 98,
+            atk: 60,
             spd: 0.28,
-            atkSpeed: 1.6,
+            atkSpeed: 1.8,
             type: "shoot",
             range: 400,
             bulletSpeed: 440,
@@ -695,7 +762,8 @@
             name: "Crew",
             ru: "Экипаж",
             cost: 420,
-            atk: 120,
+            hp: 560,
+            atk: 110,
             spd: 0.28,
             atkSpeed: 2.0,
             type: "melee",
@@ -708,9 +776,10 @@
             name: "Rifle",
             ru: "Ружейник",
             cost: 220,
-            atk: 58,
+            hp: 320,
+            atk: 46,
             spd: 0.5,
-            atkSpeed: 0.9,
+            atkSpeed: 1.0,
             type: "melee",
             tier: 1,
           },
@@ -719,9 +788,10 @@
             name: "Gunner",
             ru: "Пулемётчик",
             cost: 400,
-            atk: 140,
+            hp: 200,
+            atk: 110,
             spd: 0.36,
-            atkSpeed: 1.4,
+            atkSpeed: 1.6,
             type: "shoot",
             range: 460,
             bulletSpeed: 520,
@@ -734,7 +804,8 @@
             name: "Tank",
             ru: "Танк",
             cost: 900,
-            atk: 260,
+            hp: 1600,
+            atk: 220,
             spd: 0.2,
             atkSpeed: 2.6,
             type: "melee",
@@ -747,9 +818,10 @@
             name: "Drone",
             ru: "Дрон",
             cost: 350,
-            atk: 100,
+            hp: 420,
+            atk: 80,
             spd: 0.75,
-            atkSpeed: 0.9,
+            atkSpeed: 1.0,
             type: "melee",
             tier: 1,
           },
@@ -758,9 +830,10 @@
             name: "Mech Gun",
             ru: "Мех-пушка",
             cost: 700,
-            atk: 240,
+            hp: 360,
+            atk: 180,
             spd: 0.32,
-            atkSpeed: 2.5,
+            atkSpeed: 2.2,
             type: "shoot",
             range: 540,
             bulletSpeed: 620,
@@ -773,7 +846,8 @@
             name: "Mech",
             ru: "Мех",
             cost: 1400,
-            atk: 520,
+            hp: 3000,
+            atk: 420,
             spd: 0.32,
             atkSpeed: 2.8,
             type: "melee",
@@ -782,14 +856,17 @@
         ],
       };
 
+      /* Difficulty */
       const DIFF = {
         easy: { enemySpawnRate: 4, bossMul: 0.9 },
         medium: { enemySpawnRate: 3, bossMul: 1.0 },
         hard: { enemySpawnRate: 2.2, bossMul: 1.25 },
       };
-      const XP_REQUIRED = [200, 350, 600, 900, 1300];
 
-      /* ------------- STATE ------------- */
+      /* XP required to upgrade age */
+      const XP_REQUIRED = [240, 420, 720, 1080, 1600];
+
+      /* ----------------- STATE ----------------- */
       let state = {
         mode: null,
         difficulty: "medium",
@@ -817,12 +894,15 @@
         timeMultiplier: 1,
         volume: 0.8,
         unlocked: JSON.parse(localStorage.getItem("aow_unlocked") || "[1]"),
-        lang: localStorage.getItem("aow_lang") || "en",
+        lang:
+          localStorage.getItem("aow_lang") ||
+          (navigator.language && navigator.language.startsWith("ru")
+            ? "ru"
+            : "en"),
         showHPNumbers: false,
-        bossStartTime: null,
       };
 
-      /* ------------- DOM refs ------------- */
+      /* ----------------- DOM ----------------- */
       const $ = (id) => document.getElementById(id);
       const menu = $("menu"),
         panelNormal = $("panelNormal"),
@@ -864,8 +944,74 @@
         pauseCancel = $("pauseCancel"),
         pauseMenu = $("pauseMenu"),
         pauseTitle = $("pauseTitle");
+      const finishOverlay = $("finishOverlay"),
+        finishTitle = $("finishTitle"),
+        finishMessage = $("finishMessage"),
+        finishRestart = $("finishRestart"),
+        finishToMenu = $("finishToMenu");
 
-      /* ------------- audio helper ------------- */
+      /* ----------------- i18n strings ----------------- */
+      const I18N = {
+        en: {
+          title: "Age of War",
+          normal: "Normal",
+          bosses: "Bosses",
+          settings: "Settings",
+          startNormal: "Start Normal (no boss)",
+          startBoss: "Start Boss Match",
+          chooseBossLocked: "Choose an unlocked boss",
+          insufficientGold: "Not enough gold",
+          notEnoughXP: "Not enough XP",
+          enemyBaseDestroyed: "Enemy base destroyed!",
+          bossDefeated: "Boss defeated — You win!",
+          hackLocked: "Hack locked: beat all bosses",
+          unlockedBoss: "Unlocked boss: ",
+          paused: "Paused",
+          resume: "Cancel (Resume)",
+          returnMenu: "Return to Menu",
+          victoryBoss: "Victory — Boss defeated",
+          victoryBase: "Victory — enemy base destroyed (no boss)",
+          defeatBase: "Defeat — your base destroyed",
+          resetConfirm: "Reset progression?",
+          progressReset: "Progress reset",
+          killMsg: "Killed: ",
+          hpBoss: "Boss HP: ",
+          withoutBoss: "Without boss",
+          difficulty: "Difficulty: ",
+        },
+        ru: {
+          title: "Эпоха Войн",
+          normal: "Обычный",
+          bosses: "Боссы",
+          settings: "Настройки",
+          startNormal: "Старт (без босса)",
+          startBoss: "Старт с боссом",
+          chooseBossLocked: "Выберите открытого босса",
+          insufficientGold: "Недостаточно золота",
+          notEnoughXP: "Недостаточно XP",
+          enemyBaseDestroyed: "База противника уничтожена!",
+          bossDefeated: "Босс повержен — вы побеждаете!",
+          hackLocked: "Хак недоступен: победите всех боссов",
+          unlockedBoss: "Открыт босс: ",
+          paused: "Пауза",
+          resume: "Отмена (Возобновить)",
+          returnMenu: "Вернуться в меню",
+          victoryBoss: "Победа — босс повержен",
+          victoryBase: "Победа — база уничтожена (без босса)",
+          defeatBase: "Поражение — база уничтожена",
+          resetConfirm: "Сбросить прогресс?",
+          progressReset: "Прогресс сброшен",
+          killMsg: "Убит: ",
+          hpBoss: "HP босса: ",
+          withoutBoss: "Без босса",
+          difficulty: "Сложность: ",
+        },
+      };
+      function L(key) {
+        return I18N[state.lang][key] || key;
+      }
+
+      /* ----------------- small utilities ----------------- */
       function beep(freq = 440, dur = 0.06) {
         try {
           if (!window.audioCtx)
@@ -885,8 +1031,6 @@
           }, dur * 1000);
         } catch (e) {}
       }
-
-      /* ------------- persistence ------------- */
       function saveLang() {
         localStorage.setItem("aow_lang", state.lang);
       }
@@ -894,10 +1038,10 @@
         localStorage.setItem("aow_unlocked", JSON.stringify(state.unlocked));
       }
 
-      /* ------------- MENU & i18n ------------- */
+      /* ----------------- BUILD BOSS LIST ----------------- */
       function buildBossList() {
         bossListEl.innerHTML = "";
-        BOSSES.forEach((b) => {
+        BOSSES.forEach((b, i) => {
           const unlocked = state.unlocked.includes(b.id);
           const row = document.createElement("div");
           row.style.display = "flex";
@@ -948,18 +1092,12 @@
         );
       }
 
-      /* ------------- UI update ------------- */
+      /* ----------------- UI update (top info) ----------------- */
       function updateTop() {
-        if (state.bossActive && state.bossChoice) {
+        if (state.mode === "boss" && state.bossChoice && state.bossActive) {
           topLeft.textContent =
             state.lang === "ru" ? state.bossChoice.ru : state.bossChoice.name;
-          topMid.textContent =
-            state.lang === "ru"
-              ? "Эпоха: "
-              : "Era: " +
-                (state.lang === "ru"
-                  ? AGES[state.bossChoice.age - 1].ru
-                  : AGES[state.bossChoice.age - 1].name);
+          topMid.textContent = ""; // hide difficulty in boss regime per request
           topAge.textContent =
             (state.lang === "ru" ? "Эпоха врага: " : "Enemy age: ") +
             (state.lang === "ru"
@@ -967,24 +1105,18 @@
               : AGES[state.bossChoice.age - 1].name);
           topHP.style.display = "inline-block";
           topHP.textContent =
-            (state.lang === "ru" ? "HP босса: " : "Boss HP: ") +
-            Math.max(0, Math.round(state.bossHP));
+            L("hpBoss") + Math.max(0, Math.round(state.bossHP));
         } else {
           topLeft.textContent =
             state.mode === "none"
-              ? state.lang === "ru"
-                ? "Без босса"
-                : "Without boss"
+              ? L("withoutBoss")
               : state.bossChoice
               ? state.lang === "ru"
                 ? state.bossChoice.ru
                 : state.bossChoice.name
-              : state.lang === "ru"
-              ? "Без босса"
-              : "Without boss";
+              : L("withoutBoss");
           topMid.textContent =
-            (state.lang === "ru" ? "Сложность: " : "Difficulty: ") +
-            state.difficulty;
+            (state.mode === "boss" ? "" : L("difficulty")) + state.difficulty;
           topAge.textContent =
             (state.lang === "ru" ? "Эпоха врага: " : "Enemy age: ") +
             (state.lang === "ru"
@@ -994,30 +1126,36 @@
         }
       }
 
-      /* ------------- build unit buttons ------------- */
+      /* ----------------- Build unit buttons at bottom ----------------- */
       function buildUnitButtons() {
         unitButtons.innerHTML = "";
         const list = UNIT_TEMPLATES[state.playerAge] || [];
+        const costMultiplier = 1 + (state.playerAge - 1) * 0.18;
         list.forEach((t) => {
           const b = document.createElement("div");
           b.className = "btn";
+          const displayCost = Math.round(t.cost * costMultiplier);
           b.textContent =
-            (state.lang === "ru" && t.ru ? t.ru : t.name) + " — $" + t.cost;
+            (state.lang === "ru" && t.ru ? t.ru : t.name) +
+            " — $" +
+            displayCost;
           b.onclick = () => spawnUnit("player", t);
           unitButtons.appendChild(b);
         });
       }
 
-      /* ------------- spawn unit (single canonical function) ------------- */
+      /* ----------------- SPAWN UNIT ----------------- */
       function spawnUnit(side, template) {
         if (side === "player") {
-          if (!state.infiniteGold && state.gold < template.cost) {
-            showToast(
-              state.lang === "ru" ? "Недостаточно золота" : "Not enough gold"
-            );
+          const costMultiplier = 1 + (state.playerAge - 1) * 0.18;
+          const effectiveCost = Math.round(
+            (template.cost || 0) * costMultiplier
+          );
+          if (!state.infiniteGold && state.gold < effectiveCost) {
+            showToast(L("insufficientGold"));
             return;
           }
-          if (!state.infiniteGold) state.gold -= template.cost;
+          if (!state.infiniteGold) state.gold -= effectiveCost;
         }
         const battleRect = battleEl.getBoundingClientRect();
         const el = document.createElement("div");
@@ -1032,12 +1170,9 @@
         el.appendChild(hpBar);
         battleUnits.appendChild(el);
         const startX = side === "player" ? 100 : battleRect.width - 160;
-        const unitHP =
-          HP_PER_AGE[
-            side === "player" ? state.playerAge - 1 : state.enemyAge - 1
-          ] || 100;
+        const unitHP = template.hp || 60;
         const u = {
-          id: Math.random().toString(36).slice(2, 8),
+          id: Math.random().toString(36).slice(2, 9),
           template,
           side,
           hp: unitHP,
@@ -1050,14 +1185,14 @@
           atkTimer: 0,
           atkSpeed: template.atkSpeed || 1.0,
           isBoss: false,
+          age: side === "player" ? state.playerAge : state.enemyAge,
         };
         state.units.push(u);
         renderAll();
       }
 
-      /* ------------- create projectile ------------- */
+      /* ----------------- PROJECTILES ----------------- */
       function createProjectile(fromUnit, target) {
-        // target may be unit object or number (x)
         const br = battleEl.getBoundingClientRect();
         const startX =
           fromUnit.x + (fromUnit.side === "player" ? fromUnit.width : -6);
@@ -1071,11 +1206,9 @@
           fromUnit.side === "player" ? "#ffd27a" : "#ffd2d2";
         battleUnits.appendChild(el);
 
-        // resolve targetRef to actual unit object if boss is targeted
         let targetRef = null;
         let targetX = null;
         if (typeof target === "object" && target !== null) {
-          // if target object is a fabricated BOSS object (id === 'BOSS'), try find actual boss unit in state.units
           if (target.id === "BOSS") {
             targetRef = state.units.find((u) => u.isBoss) || null;
             targetX = targetRef
@@ -1084,16 +1217,13 @@
               ? br.width - 160
               : 140;
           } else {
-            // plain unit object reference that is in state.units -> safe to set as ref
             targetRef = target;
             targetX = targetRef.x;
           }
-        } else if (typeof target === "number") {
-          targetX = target;
-        } else {
-          targetX = fromUnit.side === "player" ? br.width - 160 : 140;
-        }
+        } else if (typeof target === "number") targetX = target;
+        else targetX = fromUnit.side === "player" ? br.width - 160 : 140;
 
+        // reduce projectile damage slightly to balance shooters
         const proj = {
           el,
           x: startX,
@@ -1101,20 +1231,18 @@
           targetRef,
           targetX,
           speed: fromUnit.template.bulletSpeed || 420,
-          dmg: fromUnit.atk,
+          dmg: Math.max(1, Math.round(fromUnit.atk * 0.92)),
           life: 3,
         };
         state.projectiles.push(proj);
       }
 
-      /* ------------- update projectiles ------------- */
       function updateProjectiles(dt) {
         if (!state.projectiles.length) return;
         const br = battleEl.getBoundingClientRect();
         for (let i = state.projectiles.length - 1; i >= 0; i--) {
           const p = state.projectiles[i];
           p.life -= dt;
-          // if targetRef is dead or removed, clear it and go to base
           if (p.targetRef) {
             const alive = state.units.find((u) => u === p.targetRef);
             if (
@@ -1123,10 +1251,7 @@
             ) {
               p.targetRef = null;
               p.targetX = p.from === "player" ? br.width - 160 : 140;
-            } else {
-              // keep targetX updated for moving target
-              p.targetX = p.targetRef.x;
-            }
+            } else p.targetX = p.targetRef.x;
           }
           if (p.life <= 0) {
             try {
@@ -1139,33 +1264,25 @@
           p.x += dir * p.speed * dt;
           p.el.style.left = p.x + "px";
           let hit = false;
-
-          // check collision with units (exact objects)
           for (const u of state.units) {
             if (u.side === p.from) continue;
-            // collision uses current u.x
             if (Math.abs(u.x - p.x) < 18) {
               if (u.isBoss) {
                 state.bossHP -= p.dmg;
-                // sync boss object hp if present
-                const bossObj = state.units.find((z) => z.isBoss);
-                if (bossObj) bossObj.hp = state.bossHP;
+                const bo = state.units.find((z) => z.isBoss);
+                if (bo) bo.hp = state.bossHP;
                 if (state.bossHP <= 0) onBossDefeated();
-              } else {
-                u.hp -= p.dmg;
-              }
+              } else u.hp -= p.dmg;
               hit = true;
               break;
             }
           }
-
-          // base hit
           if (!hit) {
             if (p.from === "player" && p.x >= br.width - 160) {
               if (state.bossActive) {
                 state.bossHP -= p.dmg;
-                const bossObj = state.units.find((z) => z.isBoss);
-                if (bossObj) bossObj.hp = state.bossHP;
+                const bo = state.units.find((z) => z.isBoss);
+                if (bo) bo.hp = state.bossHP;
                 if (state.bossHP <= 0) onBossDefeated();
               } else state.enemyBaseHP -= p.dmg;
               hit = true;
@@ -1174,7 +1291,6 @@
               hit = true;
             }
           }
-
           if (hit || p.x < 20 || p.x > br.width - 20) {
             try {
               p.el.remove();
@@ -1184,7 +1300,7 @@
         }
       }
 
-      /* ------------- find nearest enemy (returns actual units, boss as state.units entry) ------------- */
+      /* ----------------- FIND NEAREST ----------------- */
       function findNearest(u) {
         let best = null,
           bd = Infinity;
@@ -1192,15 +1308,13 @@
           if (o.side === u.side) continue;
           const d = Math.abs(o.x - u.x);
           if (d < bd) {
-            best = o;
             bd = d;
+            best = o;
           }
         }
-        // If no unit but boss active, prefer returning the actual boss unit object (if present)
         if (!best && state.bossActive) {
           const bossObj = state.units.find((z) => z.isBoss);
           if (bossObj) return bossObj;
-          // fallback: fabricated coordinate-only boss proxy (kept for safety)
           return {
             id: "BOSS",
             isBoss: true,
@@ -1212,14 +1326,13 @@
         return best;
       }
 
-      /* ------------- update units (movement & attack) ------------- */
+      /* ----------------- UNIT UPDATES ----------------- */
       function updateUnits(dt) {
         const bw = battleEl.clientWidth;
         for (const u of state.units) {
           if (u.side === "player") {
             const target = findNearest(u);
             if (u.template.type === "shoot") {
-              // allow shooting at boss too (target may be bossObj)
               const aim = target || null;
               const tx = aim
                 ? aim.x !== undefined
@@ -1237,14 +1350,13 @@
                 u.x += u.spd * 60 * dt;
               }
             } else {
-              // melee
               if (target && Math.abs(target.x - u.x) <= 36) {
                 u.atkTimer += dt;
                 if (u.atkTimer >= u.atkSpeed) {
                   if (target.isBoss) {
                     state.bossHP -= u.atk;
-                    const bossObj = state.units.find((z) => z.isBoss);
-                    if (bossObj) bossObj.hp = state.bossHP;
+                    const bo = state.units.find((z) => z.isBoss);
+                    if (bo) bo.hp = state.bossHP;
                     if (state.bossHP <= 0) onBossDefeated();
                   } else target.hp -= u.atk;
                   u.atkTimer = 0;
@@ -1254,8 +1366,8 @@
                 if (u.x + u.width >= bw - 160) {
                   if (state.bossActive) {
                     state.bossHP -= u.atk;
-                    const bossObj = state.units.find((z) => z.isBoss);
-                    if (bossObj) bossObj.hp = state.bossHP;
+                    const bo = state.units.find((z) => z.isBoss);
+                    if (bo) bo.hp = state.bossHP;
                     if (state.bossHP <= 0) onBossDefeated();
                   } else state.enemyBaseHP -= u.atk;
                   u.hp = 0;
@@ -1263,7 +1375,6 @@
               }
             }
           } else {
-            // enemy side
             const target = findNearest(u);
             if (u.template.type === "shoot") {
               const aim = target || null;
@@ -1285,8 +1396,8 @@
                   if (!target.isBoss) target.hp -= u.atk;
                   else {
                     state.bossHP -= u.atk;
-                    const bossObj = state.units.find((z) => z.isBoss);
-                    if (bossObj) bossObj.hp = state.bossHP;
+                    const bo = state.units.find((z) => z.isBoss);
+                    if (bo) bo.hp = state.bossHP;
                     if (state.bossHP <= 0) onBossDefeated();
                   }
                   u.atkTimer = 0;
@@ -1322,7 +1433,7 @@
           }
         }
 
-        // remove dead
+        // cleanup dead and rewards
         for (let k = state.units.length - 1; k >= 0; k--) {
           const u = state.units[k];
           if (u.hp <= 0) {
@@ -1334,16 +1445,74 @@
               state.bossHP = 0;
               onBossDefeated();
             } else if (died.side === "enemy" && !state.infiniteXP) {
-              const xpGain = Math.round((died.template.cost || 60) * 0.35);
+              const baseCost = died.template.cost || 60;
+              const xpGain = Math.round(baseCost * 0.3);
+              const goldGain = Math.round(
+                baseCost * (0.1 + 0.05 * (died.template.tier || 1)) +
+                  (died.age || 1) * 2
+              );
               state.xp += xpGain;
-              state.gold += Math.round((died.template.cost || 60) * 0.12);
+              state.gold += goldGain;
+              showToast(
+                (state.lang === "ru" ? I18N.ru.killMsg : I18N.en.killMsg) +
+                  (state.lang === "ru" && died.template.ru
+                    ? died.template.ru
+                    : died.template.name) +
+                  " +" +
+                  xpGain +
+                  " XP",
+                900
+              );
             }
           }
         }
       }
 
-      /* ------------- BOSS activation & spawn rules (strict) ------------- */
-      let bossSpawnData = null; // { spawnTimer }
+      /* ----------------- Boss waves from match start -----------------
+   Important: For boss mode, enemy waves spawn from match start following boss.spawnRules:
+   - cheapOnlyTime seconds of cheap-only,
+   - allowMediumAfter: after that seconds mediums allowed,
+   - allowHeavyAfter: after that heavies allowed.
+   When enemy base destroyed and boss unit appears, waves stop.
+--------------------------------------------------------------*/
+      let bossWaveTimer = 0;
+      function bossWaveTick(dt) {
+        if (state.mode !== "boss") return;
+        if (state.enemyBaseDestroyed) return;
+        if (!state.bossChoice) return;
+        bossWaveTimer -= dt;
+        if (bossWaveTimer > 0) return;
+
+        const elapsed = state.time;
+        const rules = state.bossChoice.spawnRules || {
+          cheapOnlyTime: 30,
+          allowMediumAfter: 60,
+          allowHeavyAfter: 120,
+        };
+        let allowedTiers;
+        if (elapsed < (rules.cheapOnlyTime || 30)) allowedTiers = [1];
+        else if (elapsed < (rules.allowMediumAfter || rules.cheapOnlyTime + 30))
+          allowedTiers = [1, 2];
+        else allowedTiers = [1, 2, 3];
+
+        const templates =
+          UNIT_TEMPLATES[state.bossChoice.age] || UNIT_TEMPLATES[1];
+        const pool = templates.filter((t) => allowedTiers.includes(t.tier));
+        const templ = pool.length
+          ? pool[Math.floor(Math.random() * pool.length)]
+          : templates[0];
+
+        const bossAgeFactor = 1 + (state.bossChoice.age - 1) * 0.32;
+        let interval = 1.6 * bossAgeFactor * (0.7 + Math.random() * 0.9);
+        const diffFactor =
+          { easy: 1.25, medium: 1.0, hard: 0.78 }[state.difficulty] || 1.0;
+        interval *= diffFactor;
+        bossWaveTimer = Math.max(0.6, interval);
+
+        spawnUnit("enemy", templ);
+      }
+
+      /* ----------------- Boss activation (after enemy base destroyed) ----------------- */
       function activateBoss() {
         state.bossActive = true;
         state.bossChoice =
@@ -1352,7 +1521,6 @@
         state.bossHP = Math.round(state.bossChoice.baseHP * diffMul);
         state.enemyBaseDestroyed = true;
 
-        // create boss visual object and push into state.units (so findNearest can return it directly)
         const br = battleEl.getBoundingClientRect();
         const el = document.createElement("div");
         el.className = "bossUnit";
@@ -1379,59 +1547,15 @@
           isBoss: true,
         };
         state.units.push(bossObj);
-
-        // record boss start time (use game state.time so pauses don't break elapsed counting)
-        state.bossStartTime = state.time;
-        bossSpawnData = { spawnTimer: 0.9 }; // small initial delay to avoid instant spawn
         updateTop();
       }
 
-      /* boss spawn tick - uses explicit spawnRules and state.time for elapsed */
-      function bossSpawnTick(dt) {
-        if (!state.bossActive || !state.bossChoice || !bossSpawnData) return;
-        bossSpawnData.spawnTimer -= dt;
-        if (bossSpawnData.spawnTimer > 0) return;
-
-        const elapsed = state.time - (state.bossStartTime || state.time);
-        const rules = state.bossChoice.spawnRules || {
-          cheapOnlyTime: 30,
-          allowMediumAfter: 60,
-          allowHeavyAfter: 120,
-        };
-
-        // strict gating - only templates with allowed tiers chosen
-        let allowedTiers;
-        if (elapsed < (rules.cheapOnlyTime || 30)) allowedTiers = [1];
-        else if (elapsed < (rules.allowMediumAfter || rules.cheapOnlyTime + 30))
-          allowedTiers = [1, 2];
-        else allowedTiers = [1, 2, 3];
-
-        const templates =
-          UNIT_TEMPLATES[state.bossChoice.age] || UNIT_TEMPLATES[1];
-        const pool = templates.filter((t) => allowedTiers.includes(t.tier));
-        const templ = pool.length
-          ? pool[Math.floor(Math.random() * pool.length)]
-          : templates[0];
-
-        // spawn interval scaled by boss age and difficulty
-        const bossAgeFactor = 1 + (state.bossChoice.age - 1) * 0.35;
-        let interval = 1.6 * bossAgeFactor * (0.8 + Math.random() * 0.8);
-        const diffFactor =
-          { easy: 1.25, medium: 1.0, hard: 0.78 }[state.difficulty] || 1.0;
-        interval *= diffFactor;
-        bossSpawnData.spawnTimer = Math.max(0.6, interval);
-
-        // spawn enemy unit for boss (this will be tier-filtered)
-        spawnUnit("enemy", templ);
-      }
-
-      /* ------------- boss defeat handler ------------- */
+      /* ----------------- Boss defeated ----------------- */
       function onBossDefeated() {
         if (state.bossDefeated) return;
         state.bossDefeated = true;
         state.bossActive = false;
         state.bossHP = 0;
-        // remove boss unit
         for (let i = state.units.length - 1; i >= 0; i--)
           if (state.units[i].isBoss) {
             try {
@@ -1439,45 +1563,35 @@
             } catch (e) {}
             state.units.splice(i, 1);
           }
-        // unlock next boss
         const idx = BOSSES.findIndex((b) => b.id === state.bossChoice.id);
         if (idx >= 0 && idx < BOSSES.length - 1) {
-          const nid = BOSSES[idx + 1].id;
-          if (!state.unlocked.includes(nid)) {
-            state.unlocked.push(nid);
+          const next = BOSSES[idx + 1].id;
+          if (!state.unlocked.includes(next)) {
+            state.unlocked.push(next);
             saveUnlocked();
             showToast(
-              (state.lang === "ru" ? "Открыт босс: " : "Unlocked boss: ") +
+              (state.lang === "ru"
+                ? I18N.ru.unlockedBoss
+                : I18N.en.unlockedBoss) +
                 (state.lang === "ru"
                   ? BOSSES[idx + 1].ru
                   : BOSSES[idx + 1].name)
             );
           }
         } else {
-          // all bosses done -> allow hack toggles
           hackAllowed.checked = true;
+          hackAllowed.disabled = false;
         }
         updateTop();
-        showToast(
-          state.lang === "ru"
-            ? "Босс повержен — вы побеждаете!"
-            : "Boss defeated — You win!",
-          1400
-        );
-        setTimeout(
-          () =>
-            endGame(
-              true,
-              state.lang === "ru"
-                ? "Победа — босс повержен"
-                : "Victory — Boss defeated"
-            ),
-          400
+        showFinish(
+          true,
+          state.lang === "ru" ? I18N.ru.bossDefeated : I18N.en.bossDefeated
         );
       }
 
-      /* ------------- enemy normal spawn ------------- */
+      /* ----------------- Normal enemy spawn ----------------- */
       function enemySpawnNormal(dt) {
+        if (state.mode === "boss") return;
         if (state.bossActive || state.enemyBaseDestroyed) return;
         state.enemySpawnTimer -= dt;
         if (state.enemySpawnTimer > 0) return;
@@ -1493,7 +1607,7 @@
         state.enemySpawnTimer = Math.max(0.12, baseInterval);
       }
 
-      /* ------------- enemy age tick ------------- */
+      /* ----------------- Enemy age tick (normal mode) ----------------- */
       function enemyAgeTick(dt) {
         if (state.mode !== "none") return;
         if (state.enemyAge >= AGES.length) return;
@@ -1511,7 +1625,7 @@
         }
       }
 
-      /* ------------- render ------------- */
+      /* ----------------- render ----------------- */
       function renderAll() {
         battleUnits.innerHTML = "";
         const bw = battleEl.clientWidth;
@@ -1519,12 +1633,7 @@
           const el = u.el;
           if (!el) continue;
           const hpFill = el.querySelector(".hpFill");
-          const maxHP =
-            u.maxHp ||
-            HP_PER_AGE[
-              u.side === "player" ? state.playerAge - 1 : state.enemyAge - 1
-            ] ||
-            100;
+          const maxHP = u.maxHp || u.template.hp || 60;
           const pct = Math.max(0, Math.min(1, (u.hp || 0) / (maxHP || 1)));
           if (hpFill) {
             hpFill.style.width = pct * 100 + "%";
@@ -1564,7 +1673,6 @@
           }
           battleUnits.appendChild(el);
         }
-
         for (const p of state.projectiles)
           if (p.el && p.el.parentNode !== battleUnits)
             battleUnits.appendChild(p.el);
@@ -1594,7 +1702,7 @@
         updateUI();
       }
 
-      /* ------------- main loop ------------- */
+      /* ----------------- main loop ----------------- */
       let last = performance.now();
       function loop(now) {
         const rawDt = (now - last) / 1000;
@@ -1605,80 +1713,103 @@
         }
         const dt = rawDt * state.timeMultiplier;
         state.time += dt;
+
+        // income (reduced growth so later ages are not OP)
         if (!state.infiniteGold)
-          state.gold += 12 * dt * (1 + (state.playerAge - 1) * 0.12);
-        enemySpawnNormal(dt);
-        enemyAgeTick(dt);
+          state.gold += 10 * dt * (1 + (state.playerAge - 1) * 0.15);
+
+        if (state.mode === "boss") bossWaveTick(dt);
+        else {
+          enemySpawnNormal(dt);
+          enemyAgeTick(dt);
+        }
+
         if (state.autoSpawn && Math.random() < 0.018) {
           const list = UNIT_TEMPLATES[state.playerAge];
-          const t = list[Math.floor(Math.random() * list.length)];
-          if (state.infiniteGold || state.gold >= t.cost)
-            spawnUnit("player", t);
+          if (list && list.length) {
+            const t = list[Math.floor(Math.random() * list.length)];
+            const effectiveCost = Math.round(
+              t.cost * (1 + (state.playerAge - 1) * 0.18)
+            );
+            if (state.infiniteGold || state.gold >= effectiveCost)
+              spawnUnit("player", t);
+          }
         }
-        bossSpawnTick(dt);
+
         updateUnits(dt);
         updateProjectiles(dt);
         renderAll();
-        // end conditions
-        if (state.playerBaseHP <= 0) {
-          endGame(
-            false,
-            state.lang === "ru"
-              ? "Поражение — база уничтожена"
-              : "Defeat — your base destroyed"
-          );
-        }
-        if (
-          state.enemyBaseHP <= 0 &&
-          !state.bossActive &&
-          !state.enemyBaseDestroyed
-        ) {
+
+        if (state.enemyBaseHP <= 0 && !state.enemyBaseDestroyed) {
           state.enemyBaseDestroyed = true;
           showToast(
             state.lang === "ru"
-              ? "База противника уничтожена!"
-              : "Enemy base destroyed!",
+              ? I18N.ru.enemyBaseDestroyed
+              : I18N.en.enemyBaseDestroyed,
             1000
           );
-          if (state.mode === "boss") activateBoss();
-          else
-            endGame(
+          if (state.mode === "boss") {
+            activateBoss();
+          } else
+            showFinish(
               true,
-              state.lang === "ru"
-                ? "Победа — база уничтожена (без босса)"
-                : "Victory — enemy base destroyed (no boss)"
+              state.lang === "ru" ? I18N.ru.victoryBase : I18N.en.victoryBase
             );
         }
+
+        if (state.playerBaseHP <= 0)
+          showFinish(
+            false,
+            state.lang === "ru" ? I18N.ru.defeatBase : I18N.en.defeatBase
+          );
+
         requestAnimationFrame(loop);
       }
       requestAnimationFrame(loop);
 
-      /* ------------- end / pause ------------- */
-      function endGame(win, msg) {
+      /* ----------------- game end overlay ----------------- */
+      function showFinish(win, message) {
         state.running = false;
-        alert(msg);
+        finishTitle.textContent = win
+          ? state.lang === "ru"
+            ? "Победа"
+            : "Victory"
+          : state.lang === "ru"
+          ? "Поражение"
+          : "Defeat";
+        finishMessage.textContent = message;
+        finishOverlay.style.display = "flex";
+      }
+      finishRestart.onclick = () => {
+        finishOverlay.style.display = "none";
+        startGame();
+      };
+      finishToMenu.onclick = () => {
+        finishOverlay.style.display = "none";
+        state.running = false;
         menu.style.display = "flex";
+      };
+
+      /* ----------------- helpers ----------------- */
+      function showToast(text, t = 1400) {
+        const el = document.createElement("div");
+        el.style.position = "fixed";
+        el.style.left = "50%";
+        el.style.transform = "translateX(-50%)";
+        el.style.bottom = "12%";
+        el.style.background = "rgba(0,0,0,0.7)";
+        el.style.padding = "8px 12px";
+        el.style.borderRadius = "8px";
+        el.style.zIndex = 9999;
+        el.textContent = text;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), t);
+      }
+      function endGame(win, msg) {
+        showFinish(win, msg);
       }
 
-      /* ------------- UI helpers ------------- */
-      function updateUI() {
-        $("gold").textContent = state.infiniteGold
-          ? "∞"
-          : Math.floor(state.gold);
-        $("xp").textContent = state.infiniteXP ? "∞" : Math.floor(state.xp);
-        $("ageText").textContent =
-          state.lang === "ru"
-            ? AGES[state.playerAge - 1].ru
-            : AGES[state.playerAge - 1].name;
-        if (state.playerAge >= AGES.length) upgradeAge.style.display = "none";
-        else {
-          upgradeAge.style.display = "inline-block";
-          ageCost.textContent =
-            "XP: " + (XP_REQUIRED[state.playerAge - 1] || 9999);
-        }
-      }
-
-      /* ------------- UI actions ------------- */
+      /* ----------------- UI ACTIONS ----------------- */
       btnNormal.onclick = () => {
         panelNormal.style.display =
           panelNormal.style.display === "block" ? "none" : "block";
@@ -1710,8 +1841,8 @@
         if (!state.unlocked.includes(state.chosenBossId)) {
           showToast(
             state.lang === "ru"
-              ? "Выберите открытого босса"
-              : "Choose an unlocked boss"
+              ? I18N.ru.chooseBossLocked
+              : I18N.en.chooseBossLocked
           );
           return;
         }
@@ -1729,20 +1860,21 @@
         updateTop();
         buildUnitButtons();
         updateUI();
+        localizeText();
       };
       volRange.oninput = () =>
         (state.volume = parseFloat(volRange.value) / 100);
       resetProg.onclick = () => {
         if (
           confirm(
-            state.lang === "ru" ? "Сбросить прогресс?" : "Reset progress?"
+            state.lang === "ru" ? I18N.ru.resetConfirm : I18N.en.resetConfirm
           )
         ) {
           state.unlocked = [1];
           saveUnlocked();
           buildBossList();
           showToast(
-            state.lang === "ru" ? "Прогресс сброшен" : "Progress reset"
+            state.lang === "ru" ? I18N.ru.progressReset : I18N.en.progressReset
           );
         }
       };
@@ -1760,8 +1892,7 @@
                 ? AGES[state.playerAge - 1].ru
                 : AGES[state.playerAge - 1].name)
           );
-        } else
-          showToast(state.lang === "ru" ? "Недостаточно XP" : "Not enough XP");
+        } else showToast(L("notEnoughXP"));
       };
 
       Array.from(speedBtns).forEach((b) => {
@@ -1788,11 +1919,10 @@
       };
 
       hackBtn.onclick = () => {
+        // only allow hack if all bosses unlocked
         if (!state.unlocked || state.unlocked.length < BOSSES.length) {
           showToast(
-            state.lang === "ru"
-              ? "Хак недоступен: победите всех боссов"
-              : "Hack locked: beat all bosses"
+            state.lang === "ru" ? I18N.ru.hackLocked : I18N.en.hackLocked
           );
           return;
         }
@@ -1824,9 +1954,9 @@
         );
       };
 
-      /* ------------- MENU / PAUSE ------------- */
       menuBtn.onclick = () => {
-        pauseTitle.textContent = state.lang === "ru" ? "Пауза" : "Paused";
+        pauseTitle.textContent =
+          state.lang === "ru" ? I18N.ru.paused : I18N.en.paused;
         pauseModal.style.display = "flex";
         pauseModal._wasRunning = state.running;
         state.running = false;
@@ -1844,7 +1974,7 @@
         menu.style.display = "flex";
       };
 
-      /* ------------- startGame ------------- */
+      /* ----------------- Start game ----------------- */
       function startGame() {
         if (state.mode === null) {
           showToast(state.lang === "ru" ? "Выберите режим" : "Choose mode");
@@ -1871,31 +2001,43 @@
         state.enemyBaseDestroyed = false;
         state.bossDefeated = false;
         state.enemyAgeUpgradeCooldown = 45 + Math.random() * 20;
-        state.bossStartTime = null;
+        bossWaveTimer = 0;
         buildUnitButtons();
         updateUI();
         buildBossList();
         menu.style.display = "none";
+        updateHackUI();
       }
 
-      /* ------------- toast ------------- */
-      function showToast(text, t = 1400) {
-        const el = document.createElement("div");
-        el.style.position = "fixed";
-        el.style.left = "50%";
-        el.style.transform = "translateX(-50%)";
-        el.style.bottom = "12%";
-        el.style.background = "rgba(0,0,0,0.7)";
-        el.style.padding = "8px 12px";
-        el.style.borderRadius = "8px";
-        el.style.zIndex = 9999;
-        el.textContent = text;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), t);
+      /* ----------------- update hack UI (hide hack button when disallowed) ----------------- */
+      function updateHackUI() {
+        if (!hackAllowed || hackAllowed.disabled) {
+          hackBtn.style.display = "none";
+          hackPopup.style.display = "none";
+        } else hackBtn.style.display = "inline-block";
       }
 
-      /* ------------- init ------------- */
+      /* ----------------- render, UI update ----------------- */
+      function updateUI() {
+        $("gold").textContent = state.infiniteGold
+          ? "∞"
+          : Math.floor(state.gold);
+        $("xp").textContent = state.infiniteXP ? "∞" : Math.floor(state.xp);
+        $("ageText").textContent =
+          state.lang === "ru"
+            ? AGES[state.playerAge - 1].ru
+            : AGES[state.playerAge - 1].name;
+        if (state.playerAge >= AGES.length) upgradeAge.style.display = "none";
+        else {
+          upgradeAge.style.display = "inline-block";
+          ageCost.textContent =
+            "XP: " + (XP_REQUIRED[state.playerAge - 1] || 9999);
+        }
+      }
+
+      /* ----------------- init ----------------- */
       function init() {
+        // load unlocked
         try {
           const raw = localStorage.getItem("aow_unlocked");
           if (raw) {
@@ -1909,16 +2051,57 @@
         updateTop();
         updateUI();
         menu.style.display = "flex";
-        hackAllowed.checked = state.unlocked.length >= BOSSES.length;
+        if (state.unlocked.length >= BOSSES.length) {
+          hackAllowed.checked = true;
+          hackAllowed.disabled = false;
+        } else {
+          hackAllowed.checked = false;
+          hackAllowed.disabled = true;
+        }
+        updateHackUI();
+        localizeText();
       }
       init();
 
-      /* ------------- developer notes -------------
-- To change boss HP: edit BOSSES[x].baseHP
-- To change spawn unlock times: edit BOSSES[x].spawnRules.{cheapOnlyTime,allowMediumAfter,allowHeavyAfter}
-- To change unit stats: edit UNIT_TEMPLATES
-- spawnRules are strictly enforced using state.time (so pause/resume doesn't break timing)
--------------------------------------------- */
+      /* ----------------- localize static text ----------------- */
+      function localizeText() {
+        $("title").textContent = L("title");
+        document.querySelector("#btnNormal").textContent = L("normal");
+        document.querySelector("#btnBosses").textContent = L("bosses");
+        document.querySelector("#btnSettings").textContent = L("settings");
+        $("startNormal").textContent = L("startNormal");
+        $("startBoss").textContent = L("startBoss");
+        $("lblDiff").textContent = L("difficulty");
+        $("resetProg").textContent =
+          state.lang === "ru" ? I18N.ru.progressReset : I18N.en.progressReset;
+        $("upgradeAge").textContent =
+          state.lang === "ru" ? "Улучшить эпоху" : "Upgrade Age";
+        $("menuBtn").textContent = state.lang === "ru" ? "Меню" : "Menu";
+        $("hackAllowed").checked = state.unlocked.length >= BOSSES.length;
+        updateTop();
+      }
+
+      /* --------------- show/hide hack in settings if all bosses unlocked --------------- */
+      (function watchUnlocks() {
+        const interval = setInterval(() => {
+          if (state.unlocked.length >= BOSSES.length) {
+            hackAllowed.checked = true;
+            hackAllowed.disabled = false;
+            updateHackUI();
+            clearInterval(interval);
+          }
+        }, 2000);
+      })();
+
+      /* ---------------------------------------------------------
+  Developer tuning notes:
+  - Boss HP: change BOSSES[i].baseHP
+  - Boss gating times: BOSSES[i].spawnRules
+  - Unit stats: UNIT_TEMPLATES
+  - Base HP: HP_PER_AGE
+  - Enemy spawn rate: DIFF.*.enemySpawnRate
+  - Income scaling: change in main loop
+--------------------------------------------------------- */
     </script>
   </body>
 </html>
