@@ -501,21 +501,21 @@
 
     <script>
       /* ----------------- BALANCING & DATA -----------------
-  Tuning points:
-  - UNIT_TEMPLATES[*].atk, hp, atkSpeed, cost
-  - BOSSES[*].baseHP and spawnRules: cheapOnlyTime, allowMediumAfter, allowHeavyAfter
-  - HP_PER_AGE: base HP values
-  - DIFF.*.enemySpawnRate: lower => faster spawning
-  - Income scaling: in main loop (income formula)
-  - Player unit cost multiplier: in spawnUnit() (currently 1 + 0.18*(age-1))
------------------------------------------------------*/
+        Tuning points:
+        - UNIT_TEMPLATES[*].atk, hp, atkSpeed, cost
+        - BOSSES[*].baseHP and spawnRules: cheapOnlyTime, allowMediumAfter, allowHeavyAfter
+        - HP_PER_AGE: base HP values
+        - DIFF.*.enemySpawnRate: lower => faster spawning
+        - Income scaling: in main loop (income formula)
+        - Player unit cost multiplier: in spawnUnit() (currently 1 + 0.18*(age-1))
+      -----------------------------------------------------*/
 
       /* Ages */
       const AGES = [
-        { id: 1, name: "Ancient World", ru: "Древний мир" },
-        { id: 2, name: "Ancient Rome", ru: "Древний Рим" },
+        { id: 1, name: "Ancient World", ru: "Каменный век" },
+        { id: 2, name: "Antiquity", ru: "Античность" },
         { id: 3, name: "Medieval", ru: "Средневековье" },
-        { id: 4, name: "New Time", ru: "Новое время" },
+        { id: 4, name: "Age of Enlightenment", ru: "Эпоха Просвещения" },
         { id: 5, name: "Now Time", ru: "Наше время" },
         { id: 6, name: "Future", ru: "Будущее" },
       ];
@@ -528,9 +528,10 @@
           name: "Kronos",
           ru: "Кронос",
           age: 1,
-          baseHP: 700,
+          baseHP: 1000,
+          accel: 1.1,
           spawnRules: {
-            cheapOnlyTime: 8,
+            cheapOnlyTime: 10,
             allowMediumAfter: 20,
             allowHeavyAfter: 45,
           },
@@ -540,9 +541,10 @@
           name: "August",
           ru: "Август",
           age: 2,
-          baseHP: 1400,
+          baseHP: 3000,
+          accel: 0.9,
           spawnRules: {
-            cheapOnlyTime: 10,
+            cheapOnlyTime: 15,
             allowMediumAfter: 25,
             allowHeavyAfter: 50,
           },
@@ -552,10 +554,11 @@
           name: "Ivan I",
           ru: "Иван I",
           age: 3,
-          baseHP: 4200,
+          accel: 0.8,
+          baseHP: 7000,
           spawnRules: {
-            cheapOnlyTime: 12,
-            allowMediumAfter: 30,
+            cheapOnlyTime: 20,
+            allowMediumAfter: 35,
             allowHeavyAfter: 70,
           },
         },
@@ -564,10 +567,11 @@
           name: "Napoleon",
           ru: "Наполеон",
           age: 4,
-          baseHP: 12000,
+          accel: 0.75,
+          baseHP: 15000,
           spawnRules: {
-            cheapOnlyTime: 18,
-            allowMediumAfter: 40,
+            cheapOnlyTime: 30,
+            allowMediumAfter: 45,
             allowHeavyAfter: 90,
           },
         },
@@ -576,29 +580,31 @@
           name: "Hitler",
           ru: "Гитлер",
           age: 5,
-          baseHP: 26000,
+          accel: 0.75,
+          baseHP: 40000,
           spawnRules: {
-            cheapOnlyTime: 28,
-            allowMediumAfter: 65,
+            cheapOnlyTime: 35,
+            allowMediumAfter: 50,
             allowHeavyAfter: 140,
           },
         },
         {
           id: 6,
-          name: "Arclord",
-          ru: "Арклорд",
+          name: "Lord Yaroslav",
+          ru: "Лорд Ярослав",
           age: 6,
+          accel: 0.75,
           baseHP: 100000,
           spawnRules: {
-            cheapOnlyTime: 40,
-            allowMediumAfter: 100,
+            cheapOnlyTime: 35,
+            allowMediumAfter: 65,
             allowHeavyAfter: 220,
           },
         },
       ];
 
       /* Base HP per age (ONLY base) - increased so bases are tougher */
-      const HP_PER_AGE = [220, 360, 600, 1000, 1600, 2400];
+      const HP_PER_AGE = [200, 400, 800, 1600, 4000, 8000];
 
       /* Units templates - unit HP set independently */
       const UNIT_TEMPLATES = {
@@ -625,7 +631,7 @@
             spd: 0.6,
             atkSpeed: 1.2,
             type: "shoot",
-            range: 260,
+            range: 200,
             bulletSpeed: 420,
             bulletSize: 10,
             bulletSprite: null,
@@ -636,8 +642,8 @@
             name: "Clubber",
             ru: "Булава",
             cost: 130,
-            hp: 110,
-            atk: 18,
+            hp: 140,
+            atk: 20,
             spd: 0.48,
             atkSpeed: 1.4,
             type: "melee",
@@ -667,7 +673,7 @@
             spd: 0.48,
             atkSpeed: 1.3,
             type: "shoot",
-            range: 320,
+            range: 250,
             bulletSpeed: 360,
             bulletSize: 12,
             bulletSprite: null,
@@ -678,8 +684,8 @@
             name: "Veteran",
             ru: "Ветеран",
             cost: 200,
-            hp: 170,
-            atk: 28,
+            hp: 230,
+            atk: 30,
             spd: 0.48,
             atkSpeed: 1.3,
             type: "melee",
@@ -709,7 +715,7 @@
             spd: 0.55,
             atkSpeed: 1.25,
             type: "shoot",
-            range: 360,
+            range: 300,
             bulletSpeed: 420,
             bulletSize: 10,
             bulletSprite: null,
@@ -720,7 +726,7 @@
             name: "Axeman",
             ru: "Топорник",
             cost: 260,
-            hp: 260,
+            hp: 350,
             atk: 48,
             spd: 0.36,
             atkSpeed: 1.7,
@@ -747,11 +753,11 @@
             ru: "Мушкетёр",
             cost: 240,
             hp: 98,
-            atk: 60,
+            atk: 45,
             spd: 0.28,
-            atkSpeed: 1.8,
+            atkSpeed: 1.4,
             type: "shoot",
-            range: 400,
+            range: 350,
             bulletSpeed: 440,
             bulletSize: 12,
             bulletSprite: null,
@@ -762,7 +768,7 @@
             name: "Crew",
             ru: "Экипаж",
             cost: 420,
-            hp: 560,
+            hp: 600,
             atk: 110,
             spd: 0.28,
             atkSpeed: 2.0,
@@ -789,11 +795,11 @@
             ru: "Пулемётчик",
             cost: 400,
             hp: 200,
-            atk: 110,
+            atk: 50,
             spd: 0.36,
-            atkSpeed: 1.6,
+            atkSpeed: 2.2,
             type: "shoot",
-            range: 460,
+            range: 400,
             bulletSpeed: 520,
             bulletSize: 14,
             bulletSprite: null,
@@ -833,9 +839,9 @@
             hp: 360,
             atk: 180,
             spd: 0.32,
-            atkSpeed: 2.2,
+            atkSpeed: 1.6,
             type: "shoot",
-            range: 540,
+            range: 450,
             bulletSpeed: 620,
             bulletSize: 12,
             bulletSprite: null,
@@ -845,7 +851,7 @@
             id: "u6_h",
             name: "Mech",
             ru: "Мех",
-            cost: 1400,
+            cost: 1500,
             hp: 3000,
             atk: 420,
             spd: 0.32,
@@ -864,7 +870,7 @@
       };
 
       /* XP required to upgrade age */
-      const XP_REQUIRED = [240, 420, 720, 1080, 1600];
+      const XP_REQUIRED = [250, 500, 750, 2000, 4000];
 
       /* ----------------- STATE ----------------- */
       let state = {
@@ -1446,10 +1452,10 @@
               onBossDefeated();
             } else if (died.side === "enemy" && !state.infiniteXP) {
               const baseCost = died.template.cost || 60;
-              const xpGain = Math.round(baseCost * 0.3);
+              const xpGain = Math.round(baseCost * 0.4);
               const goldGain = Math.round(
-                baseCost * (0.1 + 0.05 * (died.template.tier || 1)) +
-                  (died.age || 1) * 2
+                baseCost * (0.2 * (died.template.tier || 1)) +
+                  (died.age * 2.5 || 1) * 8
               );
               state.xp += xpGain;
               state.gold += goldGain;
@@ -1469,12 +1475,12 @@
       }
 
       /* ----------------- Boss waves from match start -----------------
-   Important: For boss mode, enemy waves spawn from match start following boss.spawnRules:
-   - cheapOnlyTime seconds of cheap-only,
-   - allowMediumAfter: after that seconds mediums allowed,
-   - allowHeavyAfter: after that heavies allowed.
-   When enemy base destroyed and boss unit appears, waves stop.
---------------------------------------------------------------*/
+         Important: For boss mode, enemy waves spawn from match start following boss.spawnRules:
+         - cheapOnlyTime seconds of cheap-only,
+         - allowMediumAfter: after that seconds mediums allowed,
+         - allowHeavyAfter: after that heavies allowed.
+         When enemy base destroyed and boss unit appears, waves stop.
+      --------------------------------------------------------------*/
       let bossWaveTimer = 0;
       function bossWaveTick(dt) {
         if (state.mode !== "boss") return;
@@ -1502,8 +1508,16 @@
           ? pool[Math.floor(Math.random() * pool.length)]
           : templates[0];
 
-        const bossAgeFactor = 1 + (state.bossChoice.age - 1) * 0.32;
+        const bossAgeFactor = 1 + state.bossChoice.age * 0.3;
+        // Time-based acceleration (the longer game runs, the faster boss spawns)
+        const bossAccel = state.bossChoice.accel || 1.0;
+
+        // base interval depending on boss age
         let interval = 1.6 * bossAgeFactor * (0.7 + Math.random() * 0.9);
+
+        // APPLY ACCELERATION (easy bosses = more spawn)
+        interval /= bossAccel;
+
         const diffFactor =
           { easy: 1.25, medium: 1.0, hard: 0.78 }[state.difficulty] || 1.0;
         interval *= diffFactor;
@@ -1715,8 +1729,7 @@
         state.time += dt;
 
         // income (reduced growth so later ages are not OP)
-        if (!state.infiniteGold)
-          state.gold += 10 * dt * (1 + (state.playerAge - 1) * 0.15);
+        if (!state.infiniteGold) state.gold += 5 * dt * (state.playerAge * 2);
 
         if (state.mode === "boss") bossWaveTick(dt);
         else {
@@ -1982,9 +1995,13 @@
         }
         state.running = true;
         state.gold =
-          220 +
+          150 +
           (state.mode === "boss" && state.bossChoice
-            ? (state.bossChoice.age - 1) * 160
+            ? state.bossChoice.age === 6
+              ? state.bossChoice.age * 200
+              : state.bossChoice.age > 3
+              ? state.bossChoice.age * 100
+              : state.bossChoice.age * 50
             : 0);
         state.xp = 0;
         state.playerAge = 1;
@@ -2094,14 +2111,14 @@
       })();
 
       /* ---------------------------------------------------------
-  Developer tuning notes:
-  - Boss HP: change BOSSES[i].baseHP
-  - Boss gating times: BOSSES[i].spawnRules
-  - Unit stats: UNIT_TEMPLATES
-  - Base HP: HP_PER_AGE
-  - Enemy spawn rate: DIFF.*.enemySpawnRate
-  - Income scaling: change in main loop
---------------------------------------------------------- */
+        Developer tuning notes:
+        - Boss HP: change BOSSES[i].baseHP
+        - Boss gating times: BOSSES[i].spawnRules
+        - Unit stats: UNIT_TEMPLATES
+        - Base HP: HP_PER_AGE
+        - Enemy spawn rate: DIFF.*.enemySpawnRate
+        - Income scaling: change in main loop
+      --------------------------------------------------------- */
     </script>
   </body>
 </html>
