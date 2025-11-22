@@ -49,6 +49,81 @@
         gap: 10px;
         align-items: center;
       }
+      .language-switcher {
+        display: flex;
+        gap: 4px;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.05),
+          rgba(255, 255, 255, 0.02)
+        );
+        border-radius: 10px;
+        padding: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .lang-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 13px;
+        color: #9fb0d0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .lang-option::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .lang-option:hover::before {
+        left: 100%;
+      }
+
+      .lang-option:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        transform: translateY(-1px);
+      }
+
+      .lang-option.active {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 204, 0, 0.2),
+          rgba(255, 204, 0, 0.1)
+        );
+        color: #ffcc00;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(255, 204, 0, 0.2);
+      }
+
+      .lang-flag {
+        font-size: 15px;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+      }
+
+      .lang-text {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+      }
       .battleWrap {
         width: 100%;
         max-width: 980px;
@@ -201,12 +276,47 @@
         border-radius: 8px;
         text-align: center;
       }
+      #ageText {
+        font-size: 14px; /* Reduced from default */
+      }
       .unitButtons {
         flex: 1;
         display: flex;
         gap: 8px;
         overflow: auto;
         padding: 4px 2px;
+      }
+      .unitButtons.no-scroll {
+        overflow: visible;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .unit-btn {
+        background: linear-gradient(180deg, #0f1724, #08101a);
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        white-space: nowrap;
+        flex-shrink: 0;
+        width: 80px;
+        height: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+      }
+      .unit-btn .unit-name {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      .unit-btn .unit-cost {
+        font-size: 11px;
+        color: #ffcc00;
+        font-weight: 700;
       }
       .btn {
         background: linear-gradient(180deg, #0f1724, #08101a);
@@ -217,6 +327,11 @@
         color: var(--text);
         white-space: nowrap;
         flex-shrink: 0;
+        transition: all 0.2s;
+      }
+      .btn.active {
+        background: linear-gradient(180deg, #1e293b, #0f1724);
+        outline: 2px solid rgba(255, 204, 0, 0.3);
       }
       .small {
         font-size: 13px;
@@ -310,6 +425,106 @@
         padding: 20px;
         font-size: 18px;
       }
+      /* Settings panel styles */
+      .settings-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .setting-label {
+        font-size: 14px;
+        color: #9fb0d0;
+        min-width: 120px;
+      }
+      .setting-control {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+      }
+      select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        padding: 6px 10px;
+        color: var(--text);
+        min-width: 140px;
+      }
+      input[type="range"] {
+        width: 140px;
+      }
+      /* Boss list styles */
+      .boss-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin: 4px 0;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .boss-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .boss-item.selected {
+        outline: 2px solid rgba(255, 204, 0, 0.3);
+        background: rgba(255, 204, 0, 0.05);
+      }
+      .boss-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .boss-name {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .boss-age {
+        font-size: 12px;
+        color: #9fb0d0;
+        margin-top: 2px;
+      }
+      .boss-status {
+        font-size: 12px;
+        color: #9fb0d0;
+      }
+      /* Difficulty switcher styles */
+      .difficulty-switcher {
+        display: flex;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 4px;
+      }
+      .diff-btn {
+        flex: 1;
+        padding: 6px 12px;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 12px;
+      }
+      .diff-btn.active {
+        background: rgba(255, 204, 0, 0.15);
+        color: #ffcc00;
+        font-weight: 600;
+      }
       @media (max-width: 900px) {
         .battle {
           height: 440px;
@@ -321,6 +536,13 @@
         .bossUnit {
           width: 56px;
           height: 56px;
+        }
+        .unit-btn {
+          width: 70px;
+          height: 70px;
+        }
+        .unit-btn .unit-name {
+          font-size: 11px;
         }
       }
       @media (max-width: 520px) and (orientation: portrait) {
@@ -356,10 +578,42 @@
   <body>
     <div class="orientation-warning" id="orientationWarning">
       <div>
-        <h3>Please rotate your device to landscape mode</h3>
-        <p>This game works best in landscape orientation on mobile devices</p>
+        <h3>Пожалуйста, поверните устройство в альбомный режим</h3>
+        <p>
+          Эта игра лучше всего работает в альбомной ориентации на мобильных
+          устройствах
+        </p>
       </div>
     </div>
+
+    <!-- Audio elements for music -->
+    <audio id="mainMusic" loop>
+      <source src="music/main.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="bossMusic" loop>
+      <source src="music/boss.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="ancientMusic" loop>
+      <source src="music/ancient.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="antiquityMusic" loop>
+      <source src="music/antiquity.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="medievalMusic" loop>
+      <source src="music/medieval.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="enlightenmentMusic" loop>
+      <source src="music/enlightenment.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="modernMusic" loop>
+      <source src="music/modern.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="futureMusic" loop>
+      <source src="music/future.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="menuMusic" loop>
+      <source src="music/menu.mp3" type="audio/mpeg" />
+    </audio>
 
     <div class="card" id="root">
       <!-- MENU overlay -->
@@ -378,55 +632,90 @@
         <div
           style="
             background: linear-gradient(180deg, #07122a, #091428);
-            padding: 16px;
+            padding: 20px;
             border-radius: 12px;
             width: 920px;
             max-width: 95vw;
           "
         >
-          <h2 id="title">Age of War</h2>
-          <div style="display: flex; gap: 8px; margin-top: 8px">
+          <h2 id="title" style="text-align: center; margin-bottom: 20px">
+            Age of War
+          </h2>
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              margin-top: 8px;
+              justify-content: center;
+            "
+          >
             <button id="btnNormal" class="btn">Normal</button>
             <button id="btnBosses" class="btn">Bosses</button>
             <button id="btnSettings" class="btn">Settings</button>
           </div>
 
-          <div id="menuPanels" style="margin-top: 12px">
+          <div id="menuPanels" style="margin-top: 20px">
             <div id="panelNormal" style="display: none">
-              <label class="small" id="lblDiff">Difficulty</label>
-              <select id="normalDiff">
-                <option value="easy">Easy</option>
-                <option value="medium" selected>Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-              <div style="margin-top: 10px">
-                <button id="startNormal" class="btn">
-                  Start Normal (no boss)
-                </button>
+              <div class="settings-container">
+                <div class="setting-row">
+                  <div class="setting-label" id="lblDiff">Difficulty</div>
+                  <div class="setting-control">
+                    <div class="difficulty-switcher">
+                      <button class="diff-btn" data-diff="easy">Easy</button>
+                      <button class="diff-btn active" data-diff="medium">
+                        Medium
+                      </button>
+                      <button class="diff-btn" data-diff="hard">Hard</button>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center">
+                  <button
+                    id="startNormal"
+                    class="btn"
+                    style="padding: 10px 20px"
+                  >
+                    Start Normal (no boss)
+                  </button>
+                </div>
               </div>
             </div>
 
             <div id="panelBosses" style="display: none">
-              <div id="bossList"></div>
-              <div style="margin-top: 10px">
-                <button id="startBoss" class="btn">Start Boss Match</button>
+              <div
+                id="bossList"
+                style="max-height: 300px; overflow-y: auto; margin-bottom: 15px"
+              ></div>
+              <div style="text-align: center">
+                <button id="startBoss" class="btn" style="padding: 10px 20px">
+                  Start Boss Match
+                </button>
               </div>
             </div>
 
             <div id="panelSettings" style="display: none">
-              <div style="display: flex; gap: 8px; align-items: center">
-                <label class="small">Lang</label>
-                <select id="lang">
-                  <option value="en">English</option>
-                  <option value="ru">Русский</option>
-                </select>
-                <label class="small">Volume</label>
-                <input id="vol" type="range" min="0" max="100" value="80" />
-              </div>
-              <div style="margin-top: 8px">
-                <button id="resetProg" class="btn" id="resetLabel">
-                  Reset progress
-                </button>
+              <div class="settings-container">
+                <div class="setting-row">
+                  <div class="setting-label" id="lblLang">Language</div>
+                  <div class="setting-control">
+                    <div class="language-switcher">
+                      <div class="lang-option" data-lang="en">
+                        <span class="lang-flag">🇺🇸</span>
+                        <span class="lang-text">English</span>
+                      </div>
+                      <div class="lang-option" data-lang="ru">
+                        <span class="lang-flag">🇷🇺</span>
+                        <span class="lang-text">Русский</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-label" id="lblVolume">Volume</div>
+                  <div class="setting-control">
+                    <input id="vol" type="range" min="0" max="100" value="80" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -492,11 +781,19 @@
               <div class="hackPopup" id="hackPopup">
                 <label style="display: flex; gap: 6px; align-items: center"
                   ><input id="infGold" type="checkbox" />
-                  <span class="small">Infinite Gold</span></label
+                  <span class="small" id="hackLabelGold"
+                    >Infinite Gold</span
+                  ></label
                 >
                 <label style="display: flex; gap: 6px; align-items: center"
                   ><input id="infXP" type="checkbox" />
-                  <span class="small">Infinite XP</span></label
+                  <span class="small" id="hackLabelXP">Infinite XP</span></label
+                >
+                <label style="display: flex; gap: 6px; align-items: center"
+                  ><input id="stopEnemySpawn" type="checkbox" />
+                  <span class="small" id="hackLabelNoSpawn"
+                    >Enemy doesn't spawn</span
+                  ></label
                 >
                 <button id="pauseTimeBtn" class="btn">Pause Time</button>
                 <button id="killEnemyBtn" class="btn">
@@ -505,10 +802,6 @@
                 <button id="killPlayerBtn" class="btn">
                   Kill All Your Units
                 </button>
-                <label style="display: flex; gap: 6px; align-items: center"
-                  ><input id="stopEnemySpawn" type="checkbox" />
-                  <span class="small">Enemy doesn't spawn</span></label
-                >
               </div>
             </div>
 
@@ -565,7 +858,37 @@
         - Income scaling: in main loop (income formula)
         - Player unit cost multiplier: in spawnUnit() (currently 1 + 0.18*(age-1))
       -----------------------------------------------------*/
+      // Language switcher functionality
+      document.querySelectorAll(".lang-option").forEach((option) => {
+        option.onclick = () => {
+          // Remove active class from all options
+          document.querySelectorAll(".lang-option").forEach((opt) => {
+            opt.classList.remove("active");
+          });
 
+          // Add active class to clicked option
+          option.classList.add("active");
+
+          // Update language
+          state.lang = option.dataset.lang;
+          saveLang(); // This saves to localStorage
+
+          // Update everything
+          buildBossList();
+          updateTop();
+          buildUnitButtons();
+          updateUI();
+          localizeText();
+
+          // Show confirmation
+          showToast(
+            state.lang === "ru"
+              ? "Язык изменен на Русский"
+              : "Language changed to English",
+            1500
+          );
+        };
+      });
       /* Ages */
       const AGES = [
         { id: 1, name: "Ancient World", ru: "Каменный век" },
@@ -585,7 +908,7 @@
           ru: "Кронос",
           age: 1,
           baseHP: 1000,
-          accel: 1.1,
+          accel: 1.15,
           spawnRules: {
             allowMediumAfter: 10,
             allowHeavyAfter: 20,
@@ -593,11 +916,11 @@
         },
         {
           id: 2,
-          name: "Imperor August",
-          ru: "Император Август",
+          name: "Yuri Caesar",
+          ru: "Юрий Цезарь",
           age: 2,
           baseHP: 3000,
-          accel: 0.9,
+          accel: 1,
           spawnRules: {
             allowMediumAfter: 15,
             allowHeavyAfter: 30,
@@ -605,11 +928,11 @@
         },
         {
           id: 3,
-          name: "Ivan I",
+          name: "Ivan the Terrible",
           ru: "Иван Грозный",
           age: 3,
-          accel: 0.8,
           baseHP: 7000,
+          accel: 1,
           spawnRules: {
             allowMediumAfter: 25,
             allowHeavyAfter: 40,
@@ -620,7 +943,7 @@
           name: "Napoleon Bonaparte",
           ru: "Наполеон Бонапарт",
           age: 4,
-          accel: 0.8,
+          accel: 1,
           baseHP: 15000,
           spawnRules: {
             allowMediumAfter: 30,
@@ -632,11 +955,11 @@
           name: "Adolf Hitler",
           ru: "Адольф Гитлер",
           age: 5,
-          accel: 0.75,
+          accel: 1,
           baseHP: 30000,
           spawnRules: {
-            allowMediumAfter: 35,
-            allowHeavyAfter: 55,
+            allowMediumAfter: 40,
+            allowHeavyAfter: 70,
           },
         },
         {
@@ -644,25 +967,25 @@
           name: "Lord Yaroslav",
           ru: "Лорд Ярослав",
           age: 6,
-          accel: 0.75,
+          accel: 1,
           baseHP: 100000,
           spawnRules: {
-            allowMediumAfter: 50,
+            allowMediumAfter: 45,
             allowHeavyAfter: 75,
           },
         },
       ];
 
       /* Base HP per age (ONLY base) - increased so bases are tougher */
-      const HP_PER_AGE = [200, 400, 800, 1600, 4000, 8000];
+      const HP_PER_AGE = [100, 200, 400, 800, 1600, 3000];
 
       /* Units templates - unit HP set independently - ALL COSTS HALVED */
       const UNIT_TEMPLATES = {
         1: [
           {
             id: "u1_m",
-            name: "Soldier",
-            ru: "Солдат",
+            name: "Warrior",
+            ru: "Воин",
             cost: 25, // Halved
             hp: 60,
             atk: 10,
@@ -673,8 +996,8 @@
           },
           {
             id: "u1_s",
-            name: "Skirmisher",
-            ru: "Стрелок",
+            name: "Hunter",
+            ru: "Охотник",
             cost: 45, // Halved
             hp: 36,
             atk: 12,
@@ -689,8 +1012,8 @@
           },
           {
             id: "u1_h",
-            name: "Clubber",
-            ru: "Булава",
+            name: "Brute",
+            ru: "Громила",
             cost: 65, // Halved
             hp: 140,
             atk: 20,
@@ -715,8 +1038,8 @@
           },
           {
             id: "u2_s",
-            name: "Pilum",
-            ru: "Пилум",
+            name: "Spearman",
+            ru: "Копейщик",
             cost: 55, // Halved
             hp: 56,
             atk: 18,
@@ -773,8 +1096,8 @@
           },
           {
             id: "u3_h",
-            name: "Axeman",
-            ru: "Топорник",
+            name: "Dragoon",
+            ru: "Драгун",
             cost: 130, // Halved
             hp: 350,
             atk: 48,
@@ -792,7 +1115,7 @@
             cost: 80, // Halved
             hp: 200,
             atk: 36,
-            spd: 0.48,
+            spd: 0.5,
             atkSpeed: 1.1,
             type: "melee",
             tier: 1,
@@ -804,7 +1127,7 @@
             cost: 120, // Halved
             hp: 98,
             atk: 45,
-            spd: 0.4,
+            spd: 0.5,
             atkSpeed: 2,
             type: "shoot",
             range: 350,
@@ -815,12 +1138,12 @@
           },
           {
             id: "u4_h",
-            name: "Crew",
-            ru: "Экипаж",
+            name: "Artillery",
+            ru: "Гренадёр",
             cost: 210, // Halved
             hp: 600,
             atk: 110,
-            spd: 0.28,
+            spd: 0.33,
             atkSpeed: 2.0,
             type: "melee",
             tier: 3,
@@ -888,7 +1211,7 @@
             cost: 350, // Halved
             hp: 360,
             atk: 180,
-            spd: 0.32,
+            spd: 0.37,
             atkSpeed: 2,
             type: "shoot",
             range: 450,
@@ -912,11 +1235,26 @@
         ],
       };
 
-      /* Difficulty */
+      /* Difficulty - Made normal mode harder */
       const DIFF = {
-        easy: { enemySpawnRate: 4, bossMul: 0.9 },
-        medium: { enemySpawnRate: 3, bossMul: 1.0 },
-        hard: { enemySpawnRate: 2.2, bossMul: 1.25 },
+        easy: {
+          enemySpawnRate: 3.3,
+          bossMul: 0.9,
+          incomeMultiplier: 0.8,
+          enemyAgeUpgradeSpeed: 0.8,
+        },
+        medium: {
+          enemySpawnRate: 2.7,
+          bossMul: 1.0,
+          incomeMultiplier: 1.0,
+          enemyAgeUpgradeSpeed: 0.9,
+        },
+        hard: {
+          enemySpawnRate: 1.7,
+          bossMul: 1.25,
+          incomeMultiplier: 1.2,
+          enemyAgeUpgradeSpeed: 1.1,
+        },
       };
 
       /* XP required to upgrade age */
@@ -958,6 +1296,7 @@
         hackEnabled: false,
         timePaused: false,
         stopEnemySpawn: false,
+        currentMusic: null,
       };
 
       /* ----------------- DOM ----------------- */
@@ -1011,6 +1350,17 @@
         finishToMenu = $("finishToMenu");
       const orientationWarning = $("orientationWarning");
 
+      // Audio elements
+      const mainMusic = $("mainMusic");
+      const bossMusic = $("bossMusic");
+      const ancientMusic = $("ancientMusic");
+      const antiquityMusic = $("antiquityMusic");
+      const medievalMusic = $("medievalMusic");
+      const enlightenmentMusic = $("enlightenmentMusic");
+      const modernMusic = $("modernMusic");
+      const futureMusic = $("futureMusic");
+      const menuMusic = $("menuMusic");
+
       /* ----------------- i18n strings ----------------- */
       const I18N = {
         en: {
@@ -1018,8 +1368,8 @@
           normal: "Normal",
           bosses: "Bosses",
           settings: "Settings",
-          startNormal: "Start Normal (no boss)",
-          startBoss: "Start Boss Match",
+          startNormal: "Start",
+          startBoss: "Start",
           chooseBossLocked: "Choose an unlocked boss",
           insufficientGold: "Not enough gold",
           notEnoughXP: "Not enough XP",
@@ -1028,7 +1378,7 @@
           hackLocked: "Hack locked: beat all bosses",
           unlockedBoss: "Unlocked boss: ",
           paused: "Paused",
-          resume: "Cancel (Resume)",
+          resume: "Resume",
           returnMenu: "Return to Menu",
           victoryBoss: "Victory — Boss defeated",
           victoryBase: "Victory — enemy base destroyed (no boss)",
@@ -1039,14 +1389,43 @@
           hpBoss: "Boss HP: ",
           withoutBoss: "Without boss",
           difficulty: "Difficulty: ",
+          infiniteGold: "Infinite Gold",
+          infiniteXP: "Infinite XP",
+          pauseTime: "Pause Time",
+          killEnemyUnits: "Kill All Enemy Units",
+          killPlayerUnits: "Kill All Your Units",
+          enemyNoSpawn: "Enemy doesn't spawn",
+          hack: "Hack",
+          menu: "Menu",
+          upgradeAge: "Upgrade Age",
+          gold: "Gold",
+          xp: "XP",
+          age: "Age",
+          you: "YOU",
+          enemy: "ENEMY",
+          resumeGame: "Resume Game",
+          restart: "Restart",
+          toMenu: "To Menu",
+          victory: "Victory",
+          defeat: "Defeat",
+          pleaseRotate: "Please rotate your device to landscape mode",
+          rotateMessage:
+            "This game works best in landscape orientation on mobile devices",
+          easy: "Easy",
+          medium: "Medium",
+          hard: "Hard",
+          language: "Language",
+          volume: "Volume",
+          unlocked: "Unlocked",
+          locked: "Locked",
         },
         ru: {
           title: "Эпоха Войн",
           normal: "Обычный",
           bosses: "Боссы",
           settings: "Настройки",
-          startNormal: "Старт (без босса)",
-          startBoss: "Старт с боссом",
+          startNormal: "Начать",
+          startBoss: "Начать",
           chooseBossLocked: "Выберите открытого босса",
           insufficientGold: "Недостаточно золота",
           notEnoughXP: "Недостаточно XP",
@@ -1055,7 +1434,7 @@
           hackLocked: "Хак недоступен: победите всех боссов",
           unlockedBoss: "Открыт босс: ",
           paused: "Пауза",
-          resume: "Отмена (Возобновить)",
+          resume: "Продолжить",
           returnMenu: "Вернуться в меню",
           victoryBoss: "Победа — босс повержен",
           victoryBase: "Победа — база уничтожена (без босса)",
@@ -1066,10 +1445,138 @@
           hpBoss: "HP босса: ",
           withoutBoss: "Без босса",
           difficulty: "Сложность: ",
+          infiniteGold: "Бесконечное золото",
+          infiniteXP: "Бесконечный XP",
+          pauseTime: "Остановить время",
+          killEnemyUnits: "Убить всех врагов",
+          killPlayerUnits: "Убить всех своих",
+          enemyNoSpawn: "Враги не появляются",
+          hack: "Хак",
+          menu: "Меню",
+          upgradeAge: "Улучшить эпоху",
+          gold: "Золото",
+          xp: "Опыт",
+          age: "Эпоха",
+          you: "ВЫ",
+          enemy: "ВРАГ",
+          resumeGame: "Продолжить",
+          restart: "Заново",
+          toMenu: "В меню",
+          victory: "Победа",
+          defeat: "Поражение",
+          pleaseRotate:
+            "Пожалуйста, поверните устройство в альбомный (горизональный) режим",
+          rotateMessage:
+            "Эта игра лучше всего работает в альбомной (горизональной) ориентации на мобильных устройствах",
+          easy: "Легкая",
+          medium: "Средняя",
+          hard: "Сложная",
+          language: "Язык",
+          volume: "Громкость",
+          unlocked: "Открыт",
+          locked: "Закрыт",
         },
       };
       function L(key) {
         return I18N[state.lang][key] || key;
+      }
+
+      /* ----------------- Music Management ----------------- */
+      function playAgeMusic(age) {
+        if (state.currentMusic === age) return;
+
+        // Stop all music first
+        stopAllMusic();
+
+        let musicElement;
+        switch (age) {
+          case 1:
+            musicElement = ancientMusic;
+            break;
+          case 2:
+            musicElement = antiquityMusic;
+            break;
+          case 3:
+            musicElement = medievalMusic;
+            break;
+          case 4:
+            musicElement = enlightenmentMusic;
+            break;
+          case 5:
+            musicElement = modernMusic;
+            break;
+          case 6:
+            musicElement = futureMusic;
+            break;
+          default:
+            musicElement = mainMusic;
+        }
+
+        musicElement.volume = state.volume;
+        musicElement.play().catch((e) => console.log("Audio play failed:", e));
+        state.currentMusic = age;
+      }
+
+      function playBossMusic() {
+        if (state.currentMusic === "boss") return;
+
+        stopAllMusic();
+
+        bossMusic.volume = state.volume;
+        bossMusic.play().catch((e) => console.log("Audio play failed:", e));
+        state.currentMusic = "boss";
+      }
+
+      function playMenuMusic() {
+        if (state.currentMusic === "menu") return;
+
+        stopAllMusic();
+
+        // Use only the music files you actually have
+        const availableMusic = [];
+
+        // Add only the music files that exist
+        if (mainMusic) availableMusic.push(mainMusic);
+        if (ancientMusic) availableMusic.push(ancientMusic);
+        if (antiquityMusic) availableMusic.push(antiquityMusic);
+        if (medievalMusic) availableMusic.push(medievalMusic);
+        if (enlightenmentMusic) availableMusic.push(enlightenmentMusic);
+        if (modernMusic) availableMusic.push(modernMusic);
+        if (futureMusic) availableMusic.push(futureMusic);
+        if (menuMusic) availableMusic.push(menuMusic);
+
+        // Pick random music from available options
+        if (availableMusic.length > 0) {
+          const randomMusic =
+            availableMusic[Math.floor(Math.random() * availableMusic.length)];
+
+          randomMusic.volume = state.volume;
+          randomMusic
+            .play()
+            .catch((e) => console.log("Menu music play failed:", e));
+          state.currentMusic = "menu";
+        }
+      }
+
+      function stopAllMusic() {
+        const allMusic = [
+          mainMusic,
+          bossMusic,
+          ancientMusic,
+          antiquityMusic,
+          medievalMusic,
+          enlightenmentMusic,
+          modernMusic,
+          futureMusic,
+          menuMusic,
+        ];
+
+        allMusic.forEach((music) => {
+          music.pause();
+          music.currentTime = 0;
+        });
+
+        state.currentMusic = null;
       }
 
       /* ----------------- small utilities ----------------- */
@@ -1105,10 +1612,8 @@
         BOSSES.forEach((b, i) => {
           const unlocked = state.unlocked.includes(b.id);
           const row = document.createElement("div");
-          row.style.display = "flex";
-          row.style.justifyContent = "space-between";
-          row.style.padding = "6px";
-          row.style.cursor = unlocked ? "pointer" : "default";
+          row.className =
+            "boss-item" + (state.chosenBossId === b.id ? " selected" : "");
           if (!unlocked) {
             row.classList.add("locked");
           }
@@ -1127,33 +1632,42 @@
             highlightSelected();
             updateTop();
           };
-          const left = document.createElement("div");
-          left.textContent =
-            (state.lang === "ru" ? b.ru : b.name) +
-            " — " +
-            (state.lang === "ru" ? AGES[b.age - 1].ru : AGES[b.age - 1].name);
-          const right = document.createElement("div");
-          right.textContent = unlocked
-            ? state.lang === "ru"
-              ? "Открыт"
-              : "Unlocked"
-            : state.lang === "ru"
-            ? "Закрыт"
-            : "Locked";
-          row.appendChild(left);
-          row.appendChild(right);
+
+          const bossInfo = document.createElement("div");
+          bossInfo.className = "boss-info";
+
+          const bossName = document.createElement("div");
+          bossName.className = "boss-name";
+          bossName.textContent = state.lang === "ru" ? b.ru : b.name;
+
+          const bossAge = document.createElement("div");
+          bossAge.className = "boss-age";
+          bossAge.textContent =
+            state.lang === "ru" ? AGES[b.age - 1].ru : AGES[b.age - 1].name;
+
+          bossInfo.appendChild(bossName);
+          bossInfo.appendChild(bossAge);
+
+          const bossStatus = document.createElement("div");
+          bossStatus.className = "boss-status";
+          bossStatus.textContent = unlocked ? L("unlocked") : L("locked");
+
+          row.appendChild(bossInfo);
+          row.appendChild(bossStatus);
           bossListEl.appendChild(row);
         });
         highlightSelected();
       }
+
       function highlightSelected() {
-        Array.from(bossListEl.children).forEach(
-          (el, i) =>
-            (el.style.outline =
-              BOSSES[i].id === state.chosenBossId
-                ? "2px solid rgba(255,204,0,0.12)"
-                : "none")
-        );
+        Array.from(bossListEl.children).forEach((el, i) => {
+          const boss = BOSSES[i];
+          if (boss && boss.id === state.chosenBossId) {
+            el.classList.add("selected");
+          } else {
+            el.classList.remove("selected");
+          }
+        });
       }
 
       /* ----------------- UI update (top info) ----------------- */
@@ -1161,7 +1675,7 @@
         if (state.mode === "boss" && state.bossChoice && state.bossActive) {
           topLeft.textContent =
             state.lang === "ru" ? state.bossChoice.ru : state.bossChoice.name;
-          topMid.textContent = ""; // hide difficulty in boss regime per request
+          topMid.textContent = ""; // Remove difficulty display in boss regime
           topAge.textContent =
             (state.lang === "ru" ? "Эпоха врага: " : "Enemy age: ") +
             (state.lang === "ru"
@@ -1179,8 +1693,18 @@
                 ? state.bossChoice.ru
                 : state.bossChoice.name
               : L("withoutBoss");
+          // Show difficulty in Russian for non-boss mode
+          const diffText =
+            state.lang === "ru"
+              ? state.difficulty === "easy"
+                ? "Легкая"
+                : state.difficulty === "medium"
+                ? "Средняя"
+                : "Сложная"
+              : state.difficulty;
           topMid.textContent =
-            (state.mode === "boss" ? "" : L("difficulty")) + state.difficulty;
+            (state.mode === "boss" ? "" : L("difficulty")) +
+            (state.mode === "boss" ? "" : diffText);
           topAge.textContent =
             (state.lang === "ru" ? "Эпоха врага: " : "Enemy age: ") +
             (state.lang === "ru"
@@ -1197,15 +1721,44 @@
         const costMultiplier = 1 + (state.playerAge - 1) * 0.18;
         list.forEach((t) => {
           const b = document.createElement("div");
-          b.className = "btn";
+          b.className = "unit-btn";
           const displayCost = Math.round(t.cost * costMultiplier);
-          b.textContent =
-            (state.lang === "ru" && t.ru ? t.ru : t.name) +
-            " — $" +
-            displayCost;
+
+          const unitName = document.createElement("div");
+          unitName.className = "unit-name";
+          unitName.textContent = state.lang === "ru" && t.ru ? t.ru : t.name;
+
+          const unitCost = document.createElement("div");
+          unitCost.className = "unit-cost";
+          unitCost.textContent = "$" + displayCost;
+
+          b.appendChild(unitName);
+          b.appendChild(unitCost);
+
           b.onclick = () => spawnUnit("player", t);
           unitButtons.appendChild(b);
         });
+
+        // Check if buttons fit without scrolling
+        checkUnitButtonsFit();
+      }
+
+      function checkUnitButtonsFit() {
+        const buttons = unitButtons.querySelectorAll(".unit-btn");
+        let totalWidth = 0;
+
+        buttons.forEach((btn) => {
+          totalWidth += btn.offsetWidth + 8; // 8px for gap
+        });
+
+        // Add some padding
+        totalWidth += 16;
+
+        if (totalWidth <= unitButtons.offsetWidth) {
+          unitButtons.classList.add("no-scroll");
+        } else {
+          unitButtons.classList.remove("no-scroll");
+        }
       }
 
       /* ----------------- SPAWN UNIT ----------------- */
@@ -1251,6 +1804,7 @@
           isBoss: false,
           age: side === "player" ? state.playerAge : state.enemyAge,
           attackingBase: false,
+          target: null, // Track current target
         };
         state.units.push(u);
         renderAll();
@@ -1371,13 +1925,14 @@
           bd = Infinity;
         for (const o of state.units) {
           if (o.side === u.side) continue;
+          if (o.hp <= 0) continue; // Skip dead units
           const d = Math.abs(o.x - u.x);
           if (d < bd) {
             bd = d;
             best = o;
           }
         }
-        if (!best && state.bossActive) {
+        if (!best && state.bossActive && u.side === "player") {
           const bossObj = state.units.find((z) => z.isBoss);
           if (bossObj) return bossObj;
           return {
@@ -1394,6 +1949,19 @@
       /* ----------------- UNIT UPDATES ----------------- */
       function updateUnits(dt) {
         const bw = battleEl.clientWidth;
+
+        // First update all units and clear dead targets
+        for (const u of state.units) {
+          // Clear target if it's dead or doesn't exist
+          if (
+            u.target &&
+            (u.target.hp <= 0 || !state.units.includes(u.target))
+          ) {
+            u.target = null;
+            u.attackingBase = false;
+          }
+        }
+
         for (const u of state.units) {
           if (u.attackingBase) {
             // Unit is already attacking base, continue attacking
@@ -1418,6 +1986,8 @@
 
           if (u.side === "player") {
             const target = findNearest(u);
+            u.target = target; // Store current target
+
             if (u.template.type === "shoot") {
               const aim = target || null;
               const tx = aim
@@ -1458,6 +2028,8 @@
             }
           } else {
             const target = findNearest(u);
+            u.target = target; // Store current target
+
             if (u.template.type === "shoot") {
               const aim = target || null;
               const tx = aim ? (aim.x !== undefined ? aim.x : 140) : 140;
@@ -1517,11 +2089,33 @@
 
         // Fix for boss getting stuck - ensure boss can always move and attack
         const boss = state.units.find((u) => u.isBoss);
-        if (boss && !boss.attackingBase) {
-          const target = findNearest(boss);
-          if (target && Math.abs(target.x - boss.x) > 50) {
-            // Boss should move toward target
-            boss.x -= boss.spd * 60 * dt;
+        if (boss) {
+          // Clear boss target if it's dead
+          if (
+            boss.target &&
+            (boss.target.hp <= 0 || !state.units.includes(boss.target))
+          ) {
+            boss.target = null;
+            boss.attackingBase = false;
+          }
+
+          if (!boss.attackingBase) {
+            const target = findNearest(boss);
+            boss.target = target;
+
+            if (target) {
+              if (Math.abs(target.x - boss.x) > 50) {
+                // Boss should move toward target
+                boss.x -= boss.spd * 60 * dt;
+              }
+            } else {
+              // No target, move toward player base
+              boss.x -= boss.spd * 60 * dt;
+              if (boss.x <= 100) {
+                boss.attackingBase = true;
+                boss.x = 100;
+              }
+            }
           }
         }
 
@@ -1542,11 +2136,14 @@
               if (state.bossChoice && state.bossChoice.age >= 4) {
                 xpMul = 0.55;
               }
+              if (state.bossChoice && state.bossChoice.age === 6) {
+                xpMul = 1.2;
+              }
 
               const xpGain = Math.round(baseCost * xpMul);
               const goldGain = Math.round(
-                baseCost * (0.1 * (died.template.tier || 1)) + // Halved gold from kills
-                  (died.age * 2.5 || 1) * 8 // Halved
+                baseCost * (0.15 * (died.template.tier || 1)) + // Halved gold from kills
+                  (died.age * 2.5 || 1) * 6 // Halved
               );
               state.xp += xpGain;
               state.gold += goldGain;
@@ -1677,6 +2274,9 @@
         state.bossHP = Math.round(state.bossChoice.baseHP * diffMul);
         state.enemyBaseDestroyed = true;
 
+        // Switch to boss music
+        playBossMusic();
+
         const br = battleEl.getBoundingClientRect();
         const el = document.createElement("div");
         el.className = "bossUnit";
@@ -1702,6 +2302,7 @@
           atkSpeed: 1.2,
           isBoss: true,
           attackingBase: false,
+          target: null,
         };
         state.units.push(bossObj);
         updateTop();
@@ -1739,6 +2340,10 @@
           state.hackEnabled = true;
           updateHackUI();
         }
+
+        // Switch back to current age music
+        playAgeMusic(state.playerAge);
+
         updateTop();
         showFinish(
           true,
@@ -1753,16 +2358,36 @@
         if (state.stopEnemySpawn) return;
         state.enemySpawnTimer -= dt;
         if (state.enemySpawnTimer > 0) return;
-        const ramp = Math.min(state.time / 40000, 1);
-        const spawnChance = 0.25 + 0.75 * ramp;
+
+        // Make normal mode harder - increased spawn rate and more aggressive spawning
+        const ramp = Math.min(state.time / 25000, 1); // Faster ramp-up
+        const spawnChance = 0.4 + 0.9 * ramp; // Higher base chance
         if (Math.random() < spawnChance) {
           const templates = UNIT_TEMPLATES[state.enemyAge] || UNIT_TEMPLATES[1];
-          const t = templates[Math.floor(Math.random() * templates.length)];
+
+          // More likely to spawn higher tier units in normal mode
+          let tierWeights = [1, 1, 1]; // Default weights
+          if (state.time > 45) tierWeights = [1, 2, 1.5]; // After 45 seconds, favor tier 2
+          if (state.time > 90) tierWeights = [1, 1.5, 2]; // After 90 seconds, favor tier 3
+
+          let weightedTemplates = [];
+          templates.forEach((t, i) => {
+            for (let j = 0; j < tierWeights[i]; j++) {
+              weightedTemplates.push(t);
+            }
+          });
+
+          const t =
+            weightedTemplates[
+              Math.floor(Math.random() * weightedTemplates.length)
+            ];
           spawnUnit("enemy", t);
         }
+
+        // Reduced interval for more frequent spawning
         const baseInterval =
-          DIFF[state.difficulty].enemySpawnRate * (0.6 + Math.random() * 0.8);
-        state.enemySpawnTimer = Math.max(0.12, baseInterval);
+          DIFF[state.difficulty].enemySpawnRate * (0.4 + Math.random() * 0.5);
+        state.enemySpawnTimer = Math.max(0.06, baseInterval);
       }
 
       /* ----------------- Enemy age tick (normal mode) ----------------- */
@@ -1771,15 +2396,22 @@
         if (state.enemyAge >= AGES.length) return;
         state.enemyAgeUpgradeCooldown -= dt;
         if (state.enemyAgeUpgradeCooldown <= 0) {
-          if (Math.random() < 0.28) {
+          // Make enemy age up faster in normal mode
+          const upgradeChance = 0.4 + state.enemyAge * 0.06; // Higher chance to upgrade
+          if (Math.random() < upgradeChance) {
             state.enemyAge++;
+            state.enemyBaseHP = HP_PER_AGE[state.enemyAge - 1];
             showToast(
               state.lang === "ru"
                 ? "Противник повысил эпоху"
                 : "Enemy age increased"
             );
           }
-          state.enemyAgeUpgradeCooldown = 40 + Math.random() * 40;
+          // Shorter cooldown for more frequent upgrades
+          const speedMultiplier =
+            DIFF[state.difficulty].enemyAgeUpgradeSpeed || 1.0;
+          state.enemyAgeUpgradeCooldown =
+            (20 + Math.random() * 20) / speedMultiplier;
         }
       }
 
@@ -1873,7 +2505,10 @@
         state.time += dt;
 
         // income (reduced growth so later ages are not OP) - HALVED
-        if (!state.infiniteGold) state.gold += 3 * dt * (state.playerAge * 1.6); // Halved
+        // Apply difficulty multiplier to income
+        const incomeMultiplier = DIFF[state.difficulty].incomeMultiplier || 1.0;
+        if (!state.infiniteGold)
+          state.gold += 3 * dt * (state.playerAge * 1.6) * incomeMultiplier;
 
         if (state.mode === "boss") bossWaveTick(dt);
         else {
@@ -1915,13 +2550,8 @@
       /* ----------------- game end overlay ----------------- */
       function showFinish(win, message) {
         state.running = false;
-        finishTitle.textContent = win
-          ? state.lang === "ru"
-            ? "Победа"
-            : "Victory"
-          : state.lang === "ru"
-          ? "Поражение"
-          : "Defeat";
+        stopAllMusic();
+        finishTitle.textContent = win ? L("victory") : L("defeat");
         finishMessage.textContent = message;
         finishOverlay.style.display = "flex";
       }
@@ -1933,6 +2563,7 @@
         finishOverlay.style.display = "none";
         state.running = false;
         menu.style.display = "flex";
+        playMenuMusic();
       };
 
       /* ----------------- helpers ----------------- */
@@ -1956,30 +2587,49 @@
 
       /* ----------------- UI ACTIONS ----------------- */
       btnNormal.onclick = () => {
-        panelNormal.style.display =
-          panelNormal.style.display === "block" ? "none" : "block";
+        panelNormal.style.display = "block";
         panelBosses.style.display = "none";
         panelSettings.style.display = "none";
         state.mode = "none";
+        // Update button states
+        btnNormal.classList.add("active");
+        btnBosses.classList.remove("active");
+        btnSettings.classList.remove("active");
       };
       btnBosses.onclick = () => {
-        panelBosses.style.display =
-          panelBosses.style.display === "block" ? "none" : "block";
+        panelBosses.style.display = "block";
         panelNormal.style.display = "none";
         panelSettings.style.display = "none";
         state.mode = "boss";
         buildBossList();
+        // Update button states
+        btnNormal.classList.remove("active");
+        btnBosses.classList.add("active");
+        btnSettings.classList.remove("active");
       };
       btnSettings.onclick = () => {
-        panelSettings.style.display =
-          panelSettings.style.display === "block" ? "none" : "block";
+        panelSettings.style.display = "block";
         panelNormal.style.display = "none";
         panelBosses.style.display = "none";
+        // Update button states
+        btnNormal.classList.remove("active");
+        btnBosses.classList.remove("active");
+        btnSettings.classList.add("active");
       };
+
+      // Difficulty switcher
+      document.querySelectorAll(".diff-btn").forEach((btn) => {
+        btn.onclick = () => {
+          document
+            .querySelectorAll(".diff-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.difficulty = btn.dataset.diff;
+        };
+      });
 
       startNormal.onclick = () => {
         state.mode = "none";
-        state.difficulty = normalDiff.value;
         startGame();
       };
       startBoss.onclick = () => {
@@ -1996,7 +2646,6 @@
         startGame();
       };
 
-      normalDiff.onchange = () => (state.difficulty = normalDiff.value);
       langSelect.value = state.lang;
       langSelect.onchange = () => {
         state.lang = langSelect.value;
@@ -2007,21 +2656,18 @@
         updateUI();
         localizeText();
       };
-      volRange.oninput = () =>
-        (state.volume = parseFloat(volRange.value) / 100);
-      resetProg.onclick = () => {
-        if (
-          confirm(
-            state.lang === "ru" ? I18N.ru.resetConfirm : I18N.en.resetConfirm
-          )
-        ) {
-          state.unlocked = [1];
-          saveUnlocked();
-          buildBossList();
-          showToast(
-            state.lang === "ru" ? I18N.ru.progressReset : I18N.en.progressReset
-          );
-        }
+      volRange.oninput = () => {
+        state.volume = parseFloat(volRange.value) / 100;
+        // Update all music volumes
+        mainMusic.volume = state.volume;
+        bossMusic.volume = state.volume;
+        ancientMusic.volume = state.volume;
+        antiquityMusic.volume = state.volume;
+        medievalMusic.volume = state.volume;
+        enlightenmentMusic.volume = state.volume;
+        modernMusic.volume = state.volume;
+        futureMusic.volume = state.volume;
+        menuMusic.volume = state.volume;
       };
 
       upgradeAge.onclick = () => {
@@ -2031,6 +2677,8 @@
           state.playerAge++;
           state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
           buildUnitButtons();
+          // Play new age music
+          playAgeMusic(state.playerAge);
           showToast(
             (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
               (state.lang === "ru"
@@ -2066,9 +2714,7 @@
         state.infiniteGold = infGold.checked;
         showToast(
           state.infiniteGold
-            ? state.lang === "ru"
-              ? "Бесконечное золото"
-              : "Infinite Gold"
+            ? L("infiniteGold")
             : state.lang === "ru"
             ? "Золото нормальное"
             : "Gold normal"
@@ -2078,9 +2724,7 @@
         state.infiniteXP = infXP.checked;
         showToast(
           state.infiniteXP
-            ? state.lang === "ru"
-              ? "Бесконечный XP"
-              : "Infinite XP"
+            ? L("infiniteXP")
             : state.lang === "ru"
             ? "XP нормальное"
             : "XP normal"
@@ -2090,8 +2734,20 @@
       // New hack buttons
       pauseTimeBtn.onclick = () => {
         state.timePaused = !state.timePaused;
-        pauseTimeBtn.textContent = state.timePaused ? "Continue" : "Pause Time";
-        showToast(state.timePaused ? "Time Paused" : "Time Resumed");
+        pauseTimeBtn.textContent = state.timePaused
+          ? state.lang === "ru"
+            ? "Продолжить"
+            : "Continue"
+          : L("pauseTime");
+        showToast(
+          state.timePaused
+            ? state.lang === "ru"
+              ? "Время остановлено"
+              : "Time Paused"
+            : state.lang === "ru"
+            ? "Время возобновлено"
+            : "Time Resumed"
+        );
       };
 
       killEnemyBtn.onclick = () => {
@@ -2103,7 +2759,9 @@
             state.units.splice(i, 1);
           }
         }
-        showToast("All enemy units killed");
+        showToast(
+          state.lang === "ru" ? "Все враги убиты" : "All enemy units killed"
+        );
       };
 
       killPlayerBtn.onclick = () => {
@@ -2115,19 +2773,28 @@
             state.units.splice(i, 1);
           }
         }
-        showToast("All player units killed");
+        showToast(
+          state.lang === "ru"
+            ? "Все ваши юниты убиты"
+            : "All player units killed"
+        );
       };
 
       stopEnemySpawn.onchange = () => {
         state.stopEnemySpawn = stopEnemySpawn.checked;
         showToast(
-          state.stopEnemySpawn ? "Enemy spawn stopped" : "Enemy spawn enabled"
+          state.stopEnemySpawn
+            ? state.lang === "ru"
+              ? "Появление врагов остановлено"
+              : "Enemy spawn stopped"
+            : state.lang === "ru"
+            ? "Появление врагов включено"
+            : "Enemy spawn enabled"
         );
       };
 
       menuBtn.onclick = () => {
-        pauseTitle.textContent =
-          state.lang === "ru" ? I18N.ru.paused : I18N.en.paused;
+        pauseTitle.textContent = L("paused");
         pauseModal.style.display = "flex";
         pauseModal._wasRunning = state.running;
         state.running = false;
@@ -2143,6 +2810,7 @@
         pauseModal.style.display = "none";
         state.running = false;
         menu.style.display = "flex";
+        playMenuMusic();
       };
 
       /* ----------------- Start game ----------------- */
@@ -2156,7 +2824,7 @@
           100 + // Halved
           (state.mode === "boss" && state.bossChoice
             ? state.bossChoice.age === 6
-              ? state.bossChoice.age * 125 // Halved
+              ? state.bossChoice.age * 200 // Halved
               : state.bossChoice.age >= 5
               ? state.bossChoice.age * 100 // Halved
               : state.bossChoice.age === 4
@@ -2186,6 +2854,9 @@
         buildBossList();
         menu.style.display = "none";
         updateHackUI();
+
+        // Start age music
+        playAgeMusic(state.playerAge);
       }
 
       /* ----------------- update hack UI (hide hack button when disallowed) ----------------- */
@@ -2198,8 +2869,6 @@
         }
       }
 
-      /* ----------------- render, UI update ----------------- */
-      /* ----------------- render, UI update ----------------- */
       /* ----------------- render, UI update ----------------- */
       function updateUI() {
         $("gold").textContent = state.infiniteGold
@@ -2218,7 +2887,7 @@
           const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
 
           // Update button text to show current XP and required XP
-          upgradeAge.innerHTML = `Upgrade Age <span id="ageCost">(${cost})</span>`;
+          ageCost.textContent = `(${currentXP}/${cost})`;
 
           // Add blinking animation if player has enough XP
           if (state.xp >= cost || state.infiniteXP) {
@@ -2227,6 +2896,9 @@
             upgradeAge.classList.remove("upgrade-age-blink");
           }
         }
+
+        // Re-check if unit buttons fit
+        setTimeout(checkUnitButtonsFit, 100);
       }
 
       /* ----------------- init ----------------- */
@@ -2253,6 +2925,20 @@
         updateHackUI();
         localizeText();
 
+        // Set initial music volume for all audio elements
+        mainMusic.volume = state.volume;
+        bossMusic.volume = state.volume;
+        ancientMusic.volume = state.volume;
+        antiquityMusic.volume = state.volume;
+        medievalMusic.volume = state.volume;
+        enlightenmentMusic.volume = state.volume;
+        modernMusic.volume = state.volume;
+        futureMusic.volume = state.volume;
+        menuMusic.volume = state.volume;
+
+        // Start menu music
+        playMenuMusic();
+
         // Orientation detection
         function checkOrientation() {
           if (window.innerHeight > window.innerWidth) {
@@ -2265,6 +2951,9 @@
         window.addEventListener("resize", checkOrientation);
         window.addEventListener("orientationchange", checkOrientation);
         checkOrientation();
+
+        // Also check unit buttons fit on resize
+        window.addEventListener("resize", checkUnitButtonsFit);
       }
       init();
 
@@ -2277,12 +2966,64 @@
         $("startNormal").textContent = L("startNormal");
         $("startBoss").textContent = L("startBoss");
         $("lblDiff").textContent = L("difficulty");
-        $("resetProg").textContent =
-          state.lang === "ru" ? I18N.ru.progressReset : I18N.en.progressReset;
-        $("upgradeAge").textContent =
-          state.lang === "ru" ? "Улучшить эпоху" : "Upgrade Age";
-        $("menuBtn").textContent = state.lang === "ru" ? "Меню" : "Menu";
-        $("hackBtn").textContent = state.lang === "ru" ? "Хак" : "Hack";
+        $("upgradeAge").innerHTML =
+          L("upgradeAge") + ' <span id="ageCost"></span>';
+        $("menuBtn").textContent = L("menu");
+        $("hackBtn").textContent = L("hack");
+
+        // Update settings labels
+        $("lblLang").textContent = L("language");
+        $("lblVolume").textContent = L("volume");
+
+        // Update difficulty options
+        document.querySelector('.diff-btn[data-diff="easy"]').textContent =
+          L("easy");
+        document.querySelector('.diff-btn[data-diff="medium"]').textContent =
+          L("medium");
+        document.querySelector('.diff-btn[data-diff="hard"]').textContent =
+          L("hard");
+
+        // Update hack popup texts
+        document.querySelector(
+          "#hackPopup label:nth-child(1) .small"
+        ).textContent = L("infiniteGold");
+        document.querySelector(
+          "#hackPopup label:nth-child(2) .small"
+        ).textContent = L("infiniteXP");
+        document.querySelector(
+          "#hackPopup label:nth-child(3) .small" // ← CHANGED FROM 6 TO 3
+        ).textContent = L("enemyNoSpawn");
+        pauseTimeBtn.textContent = L("pauseTime");
+        killEnemyBtn.textContent = L("killEnemyUnits");
+        killPlayerBtn.textContent = L("killPlayerUnits");
+
+        // Update stats
+        document.querySelector("#statGold").innerHTML =
+          L("gold") + '<br><strong id="gold">0</strong>';
+        document.querySelector("#statXP").innerHTML =
+          L("xp") + '<br><strong id="xp">0</strong>';
+        document.querySelector("#statAge").innerHTML =
+          L("age") +
+          '<br><strong id="ageText">' +
+          (state.lang === "ru"
+            ? AGES[state.playerAge - 1].ru
+            : AGES[state.playerAge - 1].name) +
+          "</strong>";
+
+        // Update base labels
+        $("lblYou").textContent = L("you");
+        $("lblEnemy").textContent = L("enemy");
+
+        // Update pause and finish modals
+        pauseCancel.textContent = L("resume");
+        pauseMenu.textContent = L("returnMenu");
+        finishRestart.textContent = L("restart");
+        finishToMenu.textContent = L("toMenu");
+
+        // Update orientation warning
+        orientationWarning.querySelector("h3").textContent = L("pleaseRotate");
+        orientationWarning.querySelector("p").textContent = L("rotateMessage");
+
         updateTop();
       }
     </script>
