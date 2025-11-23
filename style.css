@@ -22,7 +22,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Prevent text selection */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -44,26 +43,6 @@ body {
   gap: 10px;
   align-items: center;
 }
-/* Fix for age text - use more specific selectors */
-/* NUCLEAR OPTION - Add this at the VERY END of style tag */
-#ageText {
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  line-height: 1.1 !important;
-  display: block !important;
-  text-align: center !important;
-  max-width: 75px !important;
-  word-wrap: break-word !important;
-  margin: 0 auto !important;
-  transform: scale(0.9) !important; /* Force size reduction */
-}
-
-#statAge {
-  min-width: 85px !important;
-  font-size: 11px !important;
-}
-
-/* TEMPORARY FIX - Add this to your CSS */
 #gold,
 #xp,
 #ageText {
@@ -86,7 +65,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
-
 .lang-option {
   display: flex;
   align-items: center;
@@ -100,7 +78,6 @@ body {
   position: relative;
   overflow: hidden;
 }
-
 .lang-option::before {
   content: "";
   position: absolute;
@@ -116,17 +93,14 @@ body {
   );
   transition: left 0.5s;
 }
-
 .lang-option:hover::before {
   left: 100%;
 }
-
 .lang-option:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text);
   transform: translateY(-1px);
 }
-
 .lang-option.active {
   background: linear-gradient(
     135deg,
@@ -137,12 +111,10 @@ body {
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(255, 204, 0, 0.2);
 }
-
 .lang-flag {
   font-size: 15px;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
-
 .lang-text {
   font-size: 12px;
   font-weight: 500;
@@ -547,8 +519,6 @@ input[type="range"] {
   color: #ffcc00;
   font-weight: 600;
 }
-
-/* New styles for square upgrade button */
 .upgrade-age-container {
   display: flex;
   flex-direction: column;
@@ -580,10 +550,6 @@ input[type="range"] {
 }
 .upgrade-age-text {
   font-size: 11px;
-  font-weight: 6;
-}
-.upgrade-age-text {
-  font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: 4px;
@@ -593,8 +559,6 @@ input[type="range"] {
   color: #ffcc00;
   font-weight: 700;
 }
-
-/* Menu background with moving units */
 #menuBackground {
   position: fixed;
   top: 0;
@@ -615,16 +579,12 @@ input[type="range"] {
   height: 100%;
   object-fit: contain;
 }
-
-/* Special positioning for tank and Hitler boss */
+.unit[data-unit-type="tank"],
 .bossUnit[data-boss="hitler"] {
-  bottom: 9% !important; /* Lower than other units */
+  bottom: 8% !important;
 }
 
-.unit[data-unit-type="tank"] {
-  bottom: 6% !important;
-}
-
+/* Mobile Responsive Improvements */
 @media (max-width: 900px) {
   .battle {
     height: 440px;
@@ -652,6 +612,26 @@ input[type="range"] {
     font-size: 10px;
   }
 }
+
+@media (max-width: 768px) {
+  .bottomBar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .unitButtons {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .stat {
+    min-width: 80px;
+    font-size: 12px;
+  }
+  #ageText {
+    font-size: 11px !important;
+  }
+}
+
 @media (max-width: 520px) and (orientation: portrait) {
   .orientation-warning {
     display: flex;
@@ -662,21 +642,100 @@ input[type="range"] {
     display: none;
   }
 }
+
 @media (max-width: 520px) and (orientation: landscape) {
+  body {
+    padding: 6px;
+  }
+  .card {
+    padding: 6px;
+  }
   .battle {
-    height: 360px;
+    height: 300px;
+  }
+  .base {
+    width: 80px;
+    height: 80px;
+    font-size: 12px;
   }
   .bottomBar {
     flex-direction: column;
     gap: 8px;
-    align-items: stretch;
+    padding: 8px;
   }
   .stat {
     min-width: auto;
+    width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+  }
+  .stat br {
+    display: none;
   }
   .unitButtons {
     order: 2;
+    width: 100%;
+    overflow-x: auto;
+    padding: 4px 0;
+  }
+  .unit-btn {
+    width: 65px;
+    height: 55px;
+    padding: 6px;
+  }
+  .unit-btn .unit-name {
+    font-size: 10px;
+  }
+  .unit-btn .unit-cost {
+    font-size: 10px;
+  }
+  .topBossInfo {
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .topBossInfo .small {
+    font-size: 11px;
+  }
+  .upgrade-age-square {
+    width: 65px;
+    height: 65px;
+  }
+  .upgrade-age-text {
+    font-size: 9px;
+  }
+  .upgrade-age-cost {
+    font-size: 9px;
+  }
+
+  /* Menu improvements for mobile */
+  #menu > div {
+    padding: 15px;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+  #bossList {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  #startBoss {
+    margin-top: 10px;
+  }
+}
+
+@media (max-height: 400px) and (orientation: landscape) {
+  .battle {
+    height: 250px;
+  }
+  .base {
+    width: 70px;
+    height: 70px;
+    font-size: 11px;
+  }
+  .bottomBar {
+    padding: 6px;
   }
 }

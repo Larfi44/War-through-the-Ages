@@ -21,7 +21,6 @@
       </div>
     </div>
 
-    <!-- Audio elements for music -->
     <audio id="mainMusic" loop preload="auto">
       <source src="music/main.mp3" type="audio/mpeg" />
     </audio>
@@ -51,7 +50,6 @@
     </audio>
 
     <div class="card" id="root">
-      <!-- MENU overlay -->
       <div
         id="menu"
         style="
@@ -71,6 +69,8 @@
             border-radius: 12px;
             width: 920px;
             max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
           "
         >
           <h2 id="title" style="text-align: center; margin-bottom: 20px">
@@ -135,12 +135,12 @@
                   <div class="setting-control">
                     <div class="language-switcher">
                       <div class="lang-option" data-lang="en">
-                        <span class="lang-flag">🇺🇸</span>
-                        <span class="lang-text">English</span>
+                        <span class="lang-flag">🇺🇸</span
+                        ><span class="lang-text">English</span>
                       </div>
                       <div class="lang-option" data-lang="ru">
-                        <span class="lang-flag">🇷🇺</span>
-                        <span class="lang-text">Русский</span>
+                        <span class="lang-flag">🇷🇺</span
+                        ><span class="lang-text">Русский</span>
                       </div>
                     </div>
                   </div>
@@ -157,14 +157,12 @@
         </div>
       </div>
 
-      <!-- Battle -->
       <div class="battleWrap">
         <div class="battle" id="battle">
           <div class="topBossInfo" id="topInfo">
             <div id="topLeft">Without boss</div>
             <div id="topMid" class="small">Difficulty: medium</div>
             <div id="topAge" class="small">Enemy age: Ancient World</div>
-            <!-- Removed Boss HP display -->
           </div>
 
           <div id="battleArea" class="battleArea">
@@ -184,7 +182,6 @@
           </div>
         </div>
 
-        <!-- bottom bar centered -->
         <div class="bottomBar">
           <div style="display: flex; gap: 8px; align-items: center">
             <div class="stat" id="statGold">
@@ -201,7 +198,6 @@
           <div class="unitButtons" id="unitButtons"></div>
 
           <div style="display: flex; gap: 8px; align-items: center">
-            <!-- Square Upgrade Age Button -->
             <div class="upgrade-age-container">
               <div id="upgradeAge" class="upgrade-age-square">
                 <div class="upgrade-age-text">Upgrade Age</div>
@@ -215,26 +211,23 @@
               <button class="btn speedBtn" data-speed="2">x2</button>
             </div>
 
-            <!-- Hack controls in-game -->
             <div style="position: relative">
               <button id="hackBtn" class="btn">Hack</button>
               <div class="hackPopup" id="hackPopup">
-                <label style="display: flex; gap: 6px; align-items: center"
-                  ><input id="infGold" type="checkbox" />
-                  <span class="small" id="hackLabelGold"
-                    >Infinite Gold</span
-                  ></label
-                >
-                <label style="display: flex; gap: 6px; align-items: center"
-                  ><input id="infXP" type="checkbox" />
-                  <span class="small" id="hackLabelXP">Infinite XP</span></label
-                >
-                <label style="display: flex; gap: 6px; align-items: center"
-                  ><input id="stopEnemySpawn" type="checkbox" />
+                <label style="display: flex; gap: 6px; align-items: center">
+                  <input id="infGold" type="checkbox" />
+                  <span class="small" id="hackLabelGold">Infinite Gold</span>
+                </label>
+                <label style="display: flex; gap: 6px; align-items: center">
+                  <input id="infXP" type="checkbox" />
+                  <span class="small" id="hackLabelXP">Infinite XP</span>
+                </label>
+                <label style="display: flex; gap: 6px; align-items: center">
+                  <input id="stopEnemySpawn" type="checkbox" />
                   <span class="small" id="hackLabelNoSpawn"
                     >Enemy doesn't spawn</span
-                  ></label
-                >
+                  >
+                </label>
                 <button id="pauseTimeBtn" class="btn">Pause Time</button>
                 <button id="killEnemyBtn" class="btn">
                   Kill All Enemy Units
@@ -251,7 +244,6 @@
       </div>
     </div>
 
-    <!-- Pause modal -->
     <div id="pauseModal">
       <div id="pauseCard">
         <h3 id="pauseTitle">Paused</h3>
@@ -269,7 +261,6 @@
       </div>
     </div>
 
-    <!-- Finish overlay (win/lose) -->
     <div id="finishOverlay">
       <div id="finishCard">
         <h2 id="finishTitle">Result</h2>
