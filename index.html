@@ -33,6 +33,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        /* Prevent text selection */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
       .card {
         width: 100%;
@@ -49,6 +54,16 @@
         flex-direction: column;
         gap: 10px;
         align-items: center;
+      }
+      /* TEMPORARY FIX - Add this to your CSS */
+      #gold,
+      #xp,
+      #ageText {
+        color: #ffcc00 !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        opacity: 1 !important;
+        visibility: visible !important;
       }
       .language-switcher {
         display: flex;
@@ -563,6 +578,10 @@
       }
       .upgrade-age-text {
         font-size: 11px;
+        font-weight: 6;
+      }
+      .upgrade-age-text {
+        font-size: 11px;
         font-weight: 600;
         line-height: 1.2;
         margin-bottom: 4px;
@@ -593,6 +612,12 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
+      }
+
+      /* Special positioning for tank and Hitler boss */
+      .unit[data-unit-type="tank"],
+      .bossUnit[data-boss="hitler"] {
+        bottom: 8% !important; /* Lower than other units */
       }
 
       @media (max-width: 900px) {
@@ -806,7 +831,7 @@
             <div id="topLeft">Without boss</div>
             <div id="topMid" class="small">Difficulty: medium</div>
             <div id="topAge" class="small">Enemy age: Ancient World</div>
-            <div id="topHP" class="small" style="display: none">Boss HP: 0</div>
+            <!-- Removed Boss HP display -->
           </div>
 
           <div id="battleArea" class="battleArea">
@@ -1103,8 +1128,8 @@
             atkSpeed: 1.1,
             type: "melee",
             tier: 1,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 65,
+            imgHeight: 65,
           },
           {
             id: "u2_s",
@@ -1132,8 +1157,8 @@
               },
             },
             tier: 2,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 70,
+            imgHeight: 70,
           },
           {
             id: "u2_h",
@@ -1146,8 +1171,8 @@
             atkSpeed: 1.3,
             type: "melee",
             tier: 3,
-            imgWidth: 70,
-            imgHeight: 70,
+            imgWidth: 75,
+            imgHeight: 75,
           },
         ],
         3: [
@@ -1162,8 +1187,8 @@
             atkSpeed: 1.1,
             type: "melee",
             tier: 1,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 65,
+            imgHeight: 65,
           },
           {
             id: "u3_s",
@@ -1191,8 +1216,8 @@
               },
             },
             tier: 2,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 70,
+            imgHeight: 70,
           },
           {
             id: "u3_h",
@@ -1205,8 +1230,8 @@
             atkSpeed: 1.7,
             type: "melee",
             tier: 3,
-            imgWidth: 70,
-            imgHeight: 70,
+            imgWidth: 75,
+            imgHeight: 75,
           },
         ],
         4: [
@@ -1221,8 +1246,8 @@
             atkSpeed: 1.1,
             type: "melee",
             tier: 1,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 75,
+            imgHeight: 75,
           },
           {
             id: "u4_s",
@@ -1250,8 +1275,8 @@
               },
             },
             tier: 2,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 75,
+            imgHeight: 75,
           },
           {
             id: "u4_h",
@@ -1264,8 +1289,8 @@
             atkSpeed: 2.0,
             type: "melee",
             tier: 3,
-            imgWidth: 70,
-            imgHeight: 70,
+            imgWidth: 80,
+            imgHeight: 80,
           },
         ],
         5: [
@@ -1280,8 +1305,8 @@
             atkSpeed: 1.0,
             type: "melee",
             tier: 1,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 65,
+            imgHeight: 65,
           },
           {
             id: "u5_s",
@@ -1301,8 +1326,8 @@
               enemy: { src: "images/modernBullet.svg", width: 5, height: 5 },
             },
             tier: 2,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 65,
+            imgHeight: 65,
           },
           {
             id: "u5_h",
@@ -1317,6 +1342,7 @@
             tier: 3,
             imgWidth: 80,
             imgHeight: 80,
+            unitType: "tank", // Added for special positioning
           },
         ],
         6: [
@@ -1331,8 +1357,8 @@
             atkSpeed: 1.0,
             type: "melee",
             tier: 1,
-            imgWidth: 60,
-            imgHeight: 60,
+            imgWidth: 65,
+            imgHeight: 65,
           },
           {
             id: "u6_s",
@@ -1451,8 +1477,7 @@
       const volRange = $("vol");
       const topLeft = $("topLeft"),
         topMid = $("topMid"),
-        topAge = $("topAge"),
-        topHP = $("topHP");
+        topAge = $("topAge");
       const battleUnits = $("battleUnits"),
         battleEl = $("battle"),
         pHP = $("pHP"),
@@ -1520,7 +1545,6 @@
           resetConfirm: "Reset progression?",
           progressReset: "Progress reset",
           killMsg: "Killed: ",
-          hpBoss: "Boss HP: ",
           withoutBoss: "Without boss",
           difficulty: "Difficulty: ",
           infiniteGold: "Infinite Gold",
@@ -1576,7 +1600,6 @@
           resetConfirm: "Сбросить прогресс?",
           progressReset: "Прогресс сброшен",
           killMsg: "Убит: ",
-          hpBoss: "HP босса: ",
           withoutBoss: "Без босса",
           difficulty: "Сложность: ",
           infiniteGold: "Бесконечное золото",
@@ -1831,6 +1854,7 @@
       }
 
       function spawnMenuUnits() {
+        updateUI();
         if (!state.running && document.getElementById("menuBackground")) {
           // Get all unit templates (non-boss)
           const allUnits = [];
@@ -2107,7 +2131,7 @@
       }
 
       function updateTop() {
-        if (!topLeft || !topMid || !topAge || !topHP) return;
+        if (!topLeft || !topMid || !topAge) return;
 
         if (state.mode === "boss" && state.bossChoice && state.bossActive) {
           topLeft.textContent =
@@ -2118,9 +2142,6 @@
             (state.lang === "ru"
               ? AGES[state.bossChoice.age - 1].ru
               : AGES[state.bossChoice.age - 1].name);
-          topHP.style.display = "inline-block";
-          topHP.textContent =
-            L("hpBoss") + Math.max(0, Math.round(state.bossHP));
         } else {
           topLeft.textContent =
             state.mode === "none"
@@ -2148,7 +2169,6 @@
             (state.lang === "ru"
               ? AGES[state.enemyAge - 1].ru
               : AGES[state.enemyAge - 1].name);
-          topHP.style.display = "none";
         }
       }
 
@@ -2195,6 +2215,7 @@
       }
 
       function spawnUnit(side, template) {
+        updateUI();
         if (side === "player") {
           const costMultiplier = 1 + (state.playerAge - 1) * 0.18;
           const effectiveCost = Math.round(
@@ -2205,6 +2226,7 @@
             return;
           }
           if (!state.infiniteGold) state.gold -= effectiveCost;
+          updateUI(); // Update UI immediately after spending gold
         }
 
         const battleRect = battleEl.getBoundingClientRect();
@@ -2212,6 +2234,11 @@
         el.className = "unit " + (side === "player" ? "player" : "enemy");
         el.style.width = (template.imgWidth || 60) + "px";
         el.style.height = (template.imgHeight || 60) + "px";
+
+        // Add data attributes for special positioning
+        if (template.unitType === "tank") {
+          el.setAttribute("data-unit-type", "tank");
+        }
 
         // Create image element
         const img = document.createElement("img");
@@ -2602,6 +2629,7 @@
                   " XP",
                 900
               );
+              updateUI(); // Update UI immediately after gaining XP and gold
             }
           }
         }
@@ -2691,6 +2719,11 @@
         el.className = "bossUnit";
         el.style.width = (state.bossChoice.imgWidth || 100) + "px";
         el.style.height = (state.bossChoice.imgHeight || 100) + "px";
+
+        // Add data attribute for Hitler boss positioning
+        if (state.bossChoice.name === "Adolf Hitler") {
+          el.setAttribute("data-boss", "hitler");
+        }
 
         // Create boss image
         const img = document.createElement("img");
@@ -2872,7 +2905,7 @@
           const lbl = document.createElement("div");
           lbl.style.position = "absolute";
           lbl.style.right = "110px";
-          lbl.style.top = "6%";
+          lbl.style.top = "12%";
           lbl.style.padding = "6px 10px";
           lbl.style.background = "rgba(255,120,120,0.12)";
           lbl.style.borderRadius = "8px";
@@ -2890,8 +2923,88 @@
         if (pHP) pHP.textContent = Math.max(0, Math.round(state.playerBaseHP));
         if (eHP) eHP.textContent = Math.max(0, Math.round(state.enemyBaseHP));
         updateTop();
+
+        // Update UI every render
         updateUI();
       }
+
+      // Add debug version of updateUI
+      function updateUI() {
+        console.log(
+          "🔄 UPDATE UI - Gold:",
+          Math.floor(state.gold),
+          "XP:",
+          Math.floor(state.xp),
+          "Age:",
+          state.playerAge
+        );
+
+        // Force update with visible changes
+        if (goldEl) {
+          const displayGold = state.infiniteGold ? "∞" : Math.floor(state.gold);
+          goldEl.textContent = displayGold;
+          goldEl.style.color = "#FFD700"; // Bright gold
+          goldEl.style.fontWeight = "bold";
+          goldEl.style.fontSize = "16px";
+        }
+
+        if (xpEl) {
+          const displayXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
+          xpEl.textContent = displayXP;
+          xpEl.style.color = "#00FF00"; // Bright green
+          xpEl.style.fontWeight = "bold";
+          xpEl.style.fontSize = "16px";
+        }
+
+        if (ageText) {
+          const ageName =
+            state.lang === "ru"
+              ? AGES[state.playerAge - 1].ru
+              : AGES[state.playerAge - 1].name;
+          ageText.textContent = ageName;
+          ageText.style.color = "#FFFFFF"; // Bright white
+          ageText.style.fontWeight = "bold";
+          ageText.style.fontSize = "16px";
+        }
+      }
+
+      // Test if elements exist
+      console.log("Gold element exists:", !!goldEl);
+      console.log("XP element exists:", !!xpEl);
+      console.log("Age element exists:", !!ageText);
+
+      // Force update UI on start
+      setTimeout(() => {
+        console.log("Forcing UI update...");
+        updateUI();
+      }, 1000);
+
+      // SIMPLE TEST - Run this in the browser console
+      function testUI() {
+        console.log("=== TESTING UI ===");
+
+        // Test 1: Check if elements exist
+        console.log("Gold element:", document.getElementById("gold"));
+        console.log("XP element:", document.getElementById("xp"));
+        console.log("Age element:", document.getElementById("ageText"));
+
+        // Test 2: Try to manually change the text
+        const goldEl = document.getElementById("gold");
+        if (goldEl) {
+          console.log("Before change:", goldEl.textContent);
+          goldEl.textContent = "TEST123";
+          console.log("After change:", goldEl.textContent);
+          console.log("Is it visible?", goldEl.offsetParent !== null);
+        }
+
+        // Test 3: Check if parent elements exist
+        console.log("statGold element:", document.getElementById("statGold"));
+        console.log("statXP element:", document.getElementById("statXP"));
+        console.log("statAge element:", document.getElementById("statAge"));
+      }
+
+      // Run the test
+      testUI();
 
       /* ----------------- Main Game Loop ----------------- */
       let last = performance.now();
@@ -2912,9 +3025,10 @@
           const newGold = Math.floor(state.gold);
 
           // Update UI immediately when gold changes
-          if (newGold !== oldGold) {
-            updateUI();
-          }
+          // if (newGold !== oldGold) {
+          //   updateUI();
+          // }
+          updateUI();
         }
 
         if (state.mode === "boss") bossWaveTick(dt);
@@ -2927,11 +3041,8 @@
         updateProjectiles(dt);
         renderAll();
 
-        // Also update UI periodically to catch any missed updates
-        if (Math.floor(state.time) % 2 === 0) {
-          // Every 2 seconds
-          updateUI();
-        }
+        // Update UI every frame to ensure it's always current
+        updateUI();
 
         if (state.enemyBaseHP <= 0 && !state.enemyBaseDestroyed) {
           state.enemyBaseDestroyed = true;
@@ -2947,7 +3058,14 @@
       }
       requestAnimationFrame(loop);
 
-      /* ----------------- UI Functions ----------------- */
+      function showFinish(win, message) {
+        state.running = false;
+        stopAllMusic();
+        if (finishTitle)
+          finishTitle.textContent = win ? L("victory") : L("defeat");
+        if (finishMessage) finishMessage.textContent = message;
+        if (finishOverlay) finishOverlay.style.display = "flex";
+      }
       function updateHackUI() {
         if (!hackBtn) return;
         if (!state.hackEnabled) {
@@ -2958,69 +3076,8 @@
         }
       }
 
-      function updateUI() {
-        // Update gold display
-        if (goldEl) {
-          const displayGold = state.infiniteGold ? "∞" : Math.floor(state.gold);
-          if (goldEl.textContent !== String(displayGold)) {
-            goldEl.textContent = displayGold;
-          }
-        }
-
-        // Update XP display
-        if (xpEl) {
-          const displayXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
-          if (xpEl.textContent !== String(displayXP)) {
-            xpEl.textContent = displayXP;
-          }
-        }
-
-        // Update age text
-        if (ageText) {
-          const newAgeText =
-            state.lang === "ru"
-              ? AGES[state.playerAge - 1].ru
-              : AGES[state.playerAge - 1].name;
-          if (ageText.textContent !== newAgeText) {
-            ageText.textContent = newAgeText;
-          }
-        }
-
-        // Update upgrade age button
-        if (upgradeAge && ageCost) {
-          if (state.playerAge >= AGES.length) {
-            upgradeAge.style.display = "none";
-          } else {
-            upgradeAge.style.display = "flex";
-            const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
-            const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
-            const newAgeCost = `${currentXP}/${cost}`;
-
-            if (ageCost.textContent !== newAgeCost) {
-              ageCost.textContent = newAgeCost;
-            }
-
-            if (state.xp >= cost || state.infiniteXP) {
-              upgradeAge.classList.add("upgrade-age-blink");
-            } else {
-              upgradeAge.classList.remove("upgrade-age-blink");
-            }
-          }
-        }
-
-        setTimeout(checkUnitButtonsFit, 100);
-      }
-
-      function showFinish(win, message) {
-        state.running = false;
-        stopAllMusic();
-        if (finishTitle)
-          finishTitle.textContent = win ? L("victory") : L("defeat");
-        if (finishMessage) finishMessage.textContent = message;
-        if (finishOverlay) finishOverlay.style.display = "flex";
-      }
-
       function startGame() {
+        updateUI();
         if (state.mode === null) {
           showToast(state.lang === "ru" ? "Выберите режим" : "Choose mode");
           return;
@@ -3258,6 +3315,7 @@
               state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
               buildUnitButtons();
               playAgeMusic(state.playerAge);
+              updateUI(); // Update UI immediately after age upgrade
               showToast(
                 (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
                   (state.lang === "ru"
@@ -3352,7 +3410,7 @@
         buildBossList();
         buildUnitButtons();
         updateTop();
-        updateUI();
+        updateUI(); // Force initial UI update
 
         if (menu) menu.style.display = "flex";
 
@@ -3398,6 +3456,32 @@
 
       // Start the game
       init();
+
+      // Add this debug to find what's actually showing the numbers
+      console.log("=== FINDING REAL DISPLAY ELEMENTS ===");
+
+      // Check all elements that might contain the numbers
+      const possibleGoldElements = [
+        document.querySelector("#gold"),
+        document.querySelector("#statGold strong"),
+        document.querySelector('.bottomBar [id*="gold"]'),
+        document.querySelector('.bottomBar [class*="gold"]'),
+        document.querySelector(".stat:first-child strong"),
+      ];
+
+      console.log("Possible gold elements:", possibleGoldElements);
+
+      // Look for any element containing "Gold" text
+      const allElements = document.querySelectorAll("*");
+      allElements.forEach((el) => {
+        if (
+          el.textContent.includes("Gold") ||
+          el.textContent.includes("0") ||
+          el.textContent.includes("110")
+        ) {
+          console.log("Element with gold-related text:", el, el.textContent);
+        }
+      });
     </script>
   </body>
 </html>
