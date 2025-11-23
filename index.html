@@ -1181,13 +1181,13 @@
             bulletSprite: {
               player: {
                 src: "images/medievalBullet.svg",
-                width: 20,
-                height: 20,
+                width: 30,
+                height: 30,
               },
               enemy: {
                 src: "images/medievalBulletE.svg",
-                width: 20,
-                height: 20,
+                width: 30,
+                height: 30,
               },
             },
             tier: 2,
@@ -1196,8 +1196,8 @@
           },
           {
             id: "u3_h",
-            name: "Dragoon",
-            ru: "Драгун",
+            name: "Cavalry",
+            ru: "Всадник",
             cost: 130,
             hp: 350,
             atk: 48,
@@ -1240,13 +1240,13 @@
             bulletSprite: {
               player: {
                 src: "images/enlightenmentBullet.svg",
-                width: 20,
-                height: 20,
+                width: 5,
+                height: 5,
               },
               enemy: {
                 src: "images/enlightenmentBullet.svg",
-                width: 20,
-                height: 20,
+                width: 5,
+                height: 5,
               },
             },
             tier: 2,
@@ -1255,8 +1255,8 @@
           },
           {
             id: "u4_h",
-            name: "Artillery",
-            ru: "Гренадёр",
+            name: "Dragoon",
+            ru: "Драгун",
             cost: 210,
             hp: 600,
             atk: 110,
@@ -1297,8 +1297,8 @@
             bulletSpeed: 520,
             bulletSize: 20,
             bulletSprite: {
-              player: { src: "images/modernBullet.svg", width: 20, height: 20 },
-              enemy: { src: "images/modernBullet.svg", width: 20, height: 20 },
+              player: { src: "images/modernBullet.svg", width: 5, height: 5 },
+              enemy: { src: "images/modernBullet.svg", width: 5, height: 5 },
             },
             tier: 2,
             imgWidth: 60,
@@ -1348,8 +1348,8 @@
             bulletSpeed: 620,
             bulletSize: 20,
             bulletSprite: {
-              player: { src: "images/futureBullet.svg", width: 20, height: 20 },
-              enemy: { src: "images/futureBullet.svg", width: 20, height: 20 },
+              player: { src: "images/futureBullet.svg", width: 15, height: 15 },
+              enemy: { src: "images/futureBullet.svg", width: 15, height: 15 },
             },
             tier: 2,
             imgWidth: 60,
@@ -2263,7 +2263,7 @@
         el.style.height = (fromUnit.template.bulletSize || 20) + "px";
         el.style.left = startX + "px";
         // Position bullets closer to the ground
-        el.style.bottom = fromUnit.isBoss ? "16%" : "14%";
+        el.style.bottom = fromUnit.isBoss ? "20%" : "18%";
 
         // Create bullet image
         const img = document.createElement("img");
@@ -2906,8 +2906,16 @@
         state.time += dt;
 
         const incomeMultiplier = DIFF[state.difficulty].incomeMultiplier || 1.0;
-        if (!state.infiniteGold)
+        if (!state.infiniteGold) {
+          const oldGold = Math.floor(state.gold);
           state.gold += 3 * dt * (state.playerAge * 1.6) * incomeMultiplier;
+          const newGold = Math.floor(state.gold);
+
+          // Update UI immediately when gold changes
+          if (newGold !== oldGold) {
+            updateUI();
+          }
+        }
 
         if (state.mode === "boss") bossWaveTick(dt);
         else {
@@ -2918,6 +2926,12 @@
         updateUnits(dt);
         updateProjectiles(dt);
         renderAll();
+
+        // Also update UI periodically to catch any missed updates
+        if (Math.floor(state.time) % 2 === 0) {
+          // Every 2 seconds
+          updateUI();
+        }
 
         if (state.enemyBaseHP <= 0 && !state.enemyBaseDestroyed) {
           state.enemyBaseDestroyed = true;
@@ -2945,18 +2959,34 @@
       }
 
       function updateUI() {
-        if (goldEl)
-          goldEl.textContent = state.infiniteGold
-            ? "∞"
-            : Math.floor(state.gold);
-        if (xpEl)
-          xpEl.textContent = state.infiniteXP ? "∞" : Math.floor(state.xp);
-        if (ageText)
-          ageText.textContent =
+        // Update gold display
+        if (goldEl) {
+          const displayGold = state.infiniteGold ? "∞" : Math.floor(state.gold);
+          if (goldEl.textContent !== String(displayGold)) {
+            goldEl.textContent = displayGold;
+          }
+        }
+
+        // Update XP display
+        if (xpEl) {
+          const displayXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
+          if (xpEl.textContent !== String(displayXP)) {
+            xpEl.textContent = displayXP;
+          }
+        }
+
+        // Update age text
+        if (ageText) {
+          const newAgeText =
             state.lang === "ru"
               ? AGES[state.playerAge - 1].ru
               : AGES[state.playerAge - 1].name;
+          if (ageText.textContent !== newAgeText) {
+            ageText.textContent = newAgeText;
+          }
+        }
 
+        // Update upgrade age button
         if (upgradeAge && ageCost) {
           if (state.playerAge >= AGES.length) {
             upgradeAge.style.display = "none";
@@ -2964,7 +2994,11 @@
             upgradeAge.style.display = "flex";
             const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
             const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
-            ageCost.textContent = `${currentXP}/${cost}`;
+            const newAgeCost = `${currentXP}/${cost}`;
+
+            if (ageCost.textContent !== newAgeCost) {
+              ageCost.textContent = newAgeCost;
+            }
 
             if (state.xp >= cost || state.infiniteXP) {
               upgradeAge.classList.add("upgrade-age-blink");
