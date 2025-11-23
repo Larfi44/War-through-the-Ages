@@ -277,7 +277,7 @@
         text-align: center;
       }
       #ageText {
-        font-size: 14px; /* Reduced from default */
+        font-size: 14px;
       }
       .unitButtons {
         flex: 1;
@@ -425,7 +425,6 @@
         padding: 20px;
         font-size: 18px;
       }
-      /* Settings panel styles */
       .settings-container {
         display: flex;
         flex-direction: column;
@@ -464,7 +463,6 @@
       input[type="range"] {
         width: 140px;
       }
-      /* Boss list styles */
       .boss-item {
         display: flex;
         justify-content: space-between;
@@ -501,7 +499,6 @@
         font-size: 12px;
         color: #9fb0d0;
       }
-      /* Difficulty switcher styles */
       .difficulty-switcher {
         display: flex;
         gap: 4px;
@@ -525,6 +522,49 @@
         color: #ffcc00;
         font-weight: 600;
       }
+
+      /* New styles for square upgrade button */
+      .upgrade-age-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .upgrade-age-square {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background: linear-gradient(180deg, #0f1724, #08101a);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        padding: 8px;
+      }
+      .upgrade-age-square:hover {
+        background: linear-gradient(180deg, #1e293b, #0f1724);
+      }
+      .upgrade-age-square.upgrade-age-blink {
+        animation: upgradeBlink 1s infinite;
+        background: linear-gradient(180deg, #ffcc00, #ffaa00) !important;
+        color: #07122a !important;
+      }
+      .upgrade-age-text {
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.2;
+        margin-bottom: 4px;
+      }
+      .upgrade-age-cost {
+        font-size: 10px;
+        color: #ffcc00;
+        font-weight: 700;
+      }
+
       @media (max-width: 900px) {
         .battle {
           height: 440px;
@@ -543,6 +583,13 @@
         }
         .unit-btn .unit-name {
           font-size: 11px;
+        }
+        .upgrade-age-square {
+          width: 70px;
+          height: 70px;
+        }
+        .upgrade-age-text {
+          font-size: 10px;
         }
       }
       @media (max-width: 520px) and (orientation: portrait) {
@@ -586,32 +633,66 @@
       </div>
     </div>
 
+    <!-- Click to start overlay -->
+    <div
+      id="clickToStartOverlay"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(2, 6, 23, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+      "
+    >
+      <div
+        style="
+          text-align: center;
+          padding: 20px;
+          background: var(--panel);
+          border-radius: 12px;
+        "
+      >
+        <h3 style="color: var(--accent); margin-bottom: 10px">
+          Нажмите чтобы начать игру
+        </h3>
+        <p style="color: var(--text)">
+          Нажмите в любом месте чтобы начать играть со звуком
+        </p>
+      </div>
+    </div>
+
     <!-- Audio elements for music -->
-    <audio id="mainMusic" loop>
+    <audio id="mainMusic" loop preload="auto">
       <source src="music/main.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="bossMusic" loop>
+    <audio id="bossMusic" loop preload="auto">
       <source src="music/boss.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="ancientMusic" loop>
+    <audio id="ancientMusic" loop preload="auto">
       <source src="music/ancient.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="antiquityMusic" loop>
+    <audio id="antiquityMusic" loop preload="auto">
       <source src="music/antiquity.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="medievalMusic" loop>
+    <audio id="medievalMusic" loop preload="auto">
       <source src="music/medieval.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="enlightenmentMusic" loop>
+    <audio id="enlightenmentMusic" loop preload="auto">
       <source src="music/enlightenment.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="modernMusic" loop>
+    <audio id="modernMusic" loop preload="auto">
       <source src="music/modern.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="futureMusic" loop>
+    <audio id="futureMusic" loop preload="auto">
       <source src="music/future.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="menuMusic" loop>
+    <audio id="menuMusic" loop preload="auto">
       <source src="music/menu.mp3" type="audio/mpeg" />
     </audio>
 
@@ -766,11 +847,16 @@
           <div class="unitButtons" id="unitButtons"></div>
 
           <div style="display: flex; gap: 8px; align-items: center">
-            <button id="upgradeAge" class="btn">
-              Upgrade Age <span id="ageCost"></span>
-            </button>
+            <!-- Square Upgrade Age Button -->
+            <div class="upgrade-age-container">
+              <div id="upgradeAge" class="upgrade-age-square">
+                <div class="upgrade-age-text">Upgrade Age</div>
+                <div class="upgrade-age-cost" id="ageCost">0/200</div>
+              </div>
+            </div>
+
             <div style="display: flex; gap: 6px; align-items: center">
-              <button class="btn speedBtn" data-speed="1">x1</button>
+              <button class="btn speedBtn active" data-speed="1">x1</button>
               <button class="btn speedBtn" data-speed="1.5">x1.5</button>
               <button class="btn speedBtn" data-speed="2">x2</button>
             </div>
@@ -849,47 +935,12 @@
     </div>
 
     <script>
-      /* ----------------- BALANCING & DATA -----------------
-        Tuning points:
-        - UNIT_TEMPLATES[*].atk, hp, atkSpeed, cost
-        - BOSSES[*].baseHP and spawnRules: allowMediumAfter, allowHeavyAfter
-        - HP_PER_AGE: base HP values
-        - DIFF.*.enemySpawnRate: lower => faster spawning
-        - Income scaling: in main loop (income formula)
-        - Player unit cost multiplier: in spawnUnit() (currently 1 + 0.18*(age-1))
-      -----------------------------------------------------*/
-      // Language switcher functionality
-      document.querySelectorAll(".lang-option").forEach((option) => {
-        option.onclick = () => {
-          // Remove active class from all options
-          document.querySelectorAll(".lang-option").forEach((opt) => {
-            opt.classList.remove("active");
-          });
-
-          // Add active class to clicked option
-          option.classList.add("active");
-
-          // Update language
-          state.lang = option.dataset.lang;
-          saveLang(); // This saves to localStorage
-
-          // Update everything
-          buildBossList();
-          updateTop();
-          buildUnitButtons();
-          updateUI();
-          localizeText();
-
-          // Show confirmation
-          showToast(
-            state.lang === "ru"
-              ? "Язык изменен на Русский"
-              : "Language changed to English",
-            1500
-          );
-        };
+      // Global error handler
+      window.addEventListener("error", function (e) {
+        console.error("Global error:", e.error);
       });
-      /* Ages */
+
+      /* ----------------- BALANCING & DATA ----------------- */
       const AGES = [
         { id: 1, name: "Ancient World", ru: "Каменный век" },
         { id: 2, name: "Antiquity", ru: "Античность" },
@@ -899,8 +950,6 @@
         { id: 6, name: "Future", ru: "Будущее" },
       ];
 
-      /* Bosses with spawnRules (times in seconds from match start) */
-      /* Adjust baseHP here to make them easier/harder */
       const BOSSES = [
         {
           id: 1,
@@ -976,17 +1025,15 @@
         },
       ];
 
-      /* Base HP per age (ONLY base) - increased so bases are tougher */
       const HP_PER_AGE = [100, 200, 400, 800, 1600, 3000];
 
-      /* Units templates - unit HP set independently - ALL COSTS HALVED */
       const UNIT_TEMPLATES = {
         1: [
           {
             id: "u1_m",
             name: "Warrior",
             ru: "Воин",
-            cost: 25, // Halved
+            cost: 25,
             hp: 60,
             atk: 10,
             spd: 0.6,
@@ -998,7 +1045,7 @@
             id: "u1_s",
             name: "Hunter",
             ru: "Охотник",
-            cost: 45, // Halved
+            cost: 45,
             hp: 36,
             atk: 12,
             spd: 0.6,
@@ -1014,7 +1061,7 @@
             id: "u1_h",
             name: "Brute",
             ru: "Громила",
-            cost: 65, // Halved
+            cost: 65,
             hp: 140,
             atk: 20,
             spd: 0.48,
@@ -1028,7 +1075,7 @@
             id: "u2_m",
             name: "Legionary",
             ru: "Легионер",
-            cost: 40, // Halved
+            cost: 40,
             hp: 95,
             atk: 16,
             spd: 0.55,
@@ -1040,7 +1087,7 @@
             id: "u2_s",
             name: "Spearman",
             ru: "Копейщик",
-            cost: 55, // Halved
+            cost: 55,
             hp: 56,
             atk: 18,
             spd: 0.48,
@@ -1056,7 +1103,7 @@
             id: "u2_h",
             name: "Veteran",
             ru: "Ветеран",
-            cost: 100, // Halved
+            cost: 100,
             hp: 230,
             atk: 30,
             spd: 0.48,
@@ -1070,7 +1117,7 @@
             id: "u3_m",
             name: "Knight",
             ru: "Рыцарь",
-            cost: 60, // Halved
+            cost: 60,
             hp: 140,
             atk: 26,
             spd: 0.45,
@@ -1082,7 +1129,7 @@
             id: "u3_s",
             name: "Archer",
             ru: "Лучник",
-            cost: 75, // Halved
+            cost: 75,
             hp: 76,
             atk: 28,
             spd: 0.55,
@@ -1098,7 +1145,7 @@
             id: "u3_h",
             name: "Dragoon",
             ru: "Драгун",
-            cost: 130, // Halved
+            cost: 130,
             hp: 350,
             atk: 48,
             spd: 0.36,
@@ -1112,7 +1159,7 @@
             id: "u4_m",
             name: "Line",
             ru: "Линейный",
-            cost: 80, // Halved
+            cost: 80,
             hp: 200,
             atk: 36,
             spd: 0.5,
@@ -1124,7 +1171,7 @@
             id: "u4_s",
             name: "Musketeer",
             ru: "Мушкетёр",
-            cost: 120, // Halved
+            cost: 120,
             hp: 98,
             atk: 45,
             spd: 0.5,
@@ -1140,7 +1187,7 @@
             id: "u4_h",
             name: "Artillery",
             ru: "Гренадёр",
-            cost: 210, // Halved
+            cost: 210,
             hp: 600,
             atk: 110,
             spd: 0.33,
@@ -1154,7 +1201,7 @@
             id: "u5_m",
             name: "Rifle",
             ru: "Ружейник",
-            cost: 110, // Halved
+            cost: 110,
             hp: 320,
             atk: 46,
             spd: 0.5,
@@ -1166,7 +1213,7 @@
             id: "u5_s",
             name: "Gunner",
             ru: "Пулемётчик",
-            cost: 200, // Halved
+            cost: 200,
             hp: 200,
             atk: 50,
             spd: 0.36,
@@ -1182,7 +1229,7 @@
             id: "u5_h",
             name: "Tank",
             ru: "Танк",
-            cost: 450, // Halved
+            cost: 450,
             hp: 1600,
             atk: 220,
             spd: 0.2,
@@ -1196,7 +1243,7 @@
             id: "u6_m",
             name: "Jedi",
             ru: "Джедай",
-            cost: 175, // Halved
+            cost: 175,
             hp: 420,
             atk: 80,
             spd: 0.75,
@@ -1208,7 +1255,7 @@
             id: "u6_s",
             name: "Drone",
             ru: "Дрон",
-            cost: 350, // Halved
+            cost: 350,
             hp: 360,
             atk: 180,
             spd: 0.37,
@@ -1224,7 +1271,7 @@
             id: "u6_h",
             name: "Mech",
             ru: "Мех",
-            cost: 750, // Halved
+            cost: 750,
             hp: 3000,
             atk: 420,
             spd: 0.32,
@@ -1235,7 +1282,6 @@
         ],
       };
 
-      /* Difficulty - Made normal mode harder */
       const DIFF = {
         easy: {
           enemySpawnRate: 3.3,
@@ -1257,7 +1303,6 @@
         },
       };
 
-      /* XP required to upgrade age */
       const XP_REQUIRED = [200, 400, 800, 1500, 3000];
 
       /* ----------------- STATE ----------------- */
@@ -1267,7 +1312,7 @@
         chosenBossId: 1,
         bossChoice: null,
         running: false,
-        gold: 110, // Halved
+        gold: 110,
         xp: 0,
         playerAge: 1,
         enemyAge: 1,
@@ -1297,6 +1342,7 @@
         timePaused: false,
         stopEnemySpawn: false,
         currentMusic: null,
+        audioEnabled: false,
       };
 
       /* ----------------- DOM ----------------- */
@@ -1309,12 +1355,9 @@
         btnBosses = $("btnBosses"),
         btnSettings = $("btnSettings");
       const startNormal = $("startNormal"),
-        startBoss = $("startBoss"),
-        normalDiff = $("normalDiff"),
-        bossListEl = $("bossList");
-      const langSelect = $("lang"),
-        volRange = $("vol"),
-        resetProg = $("resetProg");
+        startBoss = $("startBoss");
+      const bossListEl = $("bossList");
+      const volRange = $("vol");
       const topLeft = $("topLeft"),
         topMid = $("topMid"),
         topAge = $("topAge"),
@@ -1349,6 +1392,7 @@
         finishRestart = $("finishRestart"),
         finishToMenu = $("finishToMenu");
       const orientationWarning = $("orientationWarning");
+      const clickToStartOverlay = $("clickToStartOverlay");
 
       // Audio elements
       const mainMusic = $("mainMusic");
@@ -1418,6 +1462,8 @@
           volume: "Volume",
           unlocked: "Unlocked",
           locked: "Locked",
+          clickToStart: "Click to Start Game",
+          clickAnywhere: "Click anywhere to begin playing with sound",
         },
         ru: {
           title: "Эпоха Войн",
@@ -1475,17 +1521,88 @@
           volume: "Громкость",
           unlocked: "Открыт",
           locked: "Закрыт",
+          clickToStart: "Нажмите чтобы начать игру",
+          clickAnywhere: "Нажмите в любом месте чтобы начать играть со звуком",
         },
       };
+
       function L(key) {
         return I18N[state.lang][key] || key;
       }
 
       /* ----------------- Music Management ----------------- */
-      function playAgeMusic(age) {
-        if (state.currentMusic === age) return;
+      function enableAudio() {
+        state.audioEnabled = true;
 
-        // Stop all music first
+        // Set volume for all audio elements
+        const allMusic = [
+          mainMusic,
+          bossMusic,
+          ancientMusic,
+          antiquityMusic,
+          medievalMusic,
+          enlightenmentMusic,
+          modernMusic,
+          futureMusic,
+          menuMusic,
+        ];
+        allMusic.forEach((music) => {
+          if (music) {
+            music.volume = state.volume;
+          }
+        });
+
+        // Hide the click to start overlay
+        if (clickToStartOverlay) {
+          clickToStartOverlay.style.display = "none";
+        }
+
+        // Start menu music
+        playMenuMusic();
+
+        console.log("Audio enabled and menu music started");
+      }
+
+      function playMenuMusic() {
+        if (!state.audioEnabled || state.currentMusic === "menu") return;
+
+        stopAllMusic();
+
+        const menuMusicOptions = [
+          ancientMusic,
+          antiquityMusic,
+          medievalMusic,
+          enlightenmentMusic,
+          modernMusic,
+          futureMusic,
+          mainMusic,
+          menuMusic,
+        ].filter((music) => music !== null);
+
+        if (menuMusicOptions.length > 0) {
+          const randomMusic =
+            menuMusicOptions[
+              Math.floor(Math.random() * menuMusicOptions.length)
+            ];
+          randomMusic.volume = state.volume;
+          randomMusic.loop = true;
+
+          // Try to play the music
+          const playPromise = randomMusic.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.log("Menu music play failed:", error);
+              // If music fails to play, don't break the game
+              state.currentMusic = null;
+            });
+          }
+
+          state.currentMusic = "menu";
+        }
+      }
+
+      function playAgeMusic(age) {
+        if (!state.audioEnabled || state.currentMusic === age) return;
         stopAllMusic();
 
         let musicElement;
@@ -1512,49 +1629,25 @@
             musicElement = mainMusic;
         }
 
-        musicElement.volume = state.volume;
-        musicElement.play().catch((e) => console.log("Audio play failed:", e));
-        state.currentMusic = age;
+        if (musicElement) {
+          musicElement.volume = state.volume;
+          musicElement
+            .play()
+            .catch((e) => console.log("Age music play failed:", e));
+          state.currentMusic = age;
+        }
       }
 
       function playBossMusic() {
-        if (state.currentMusic === "boss") return;
-
+        if (!state.audioEnabled || state.currentMusic === "boss") return;
         stopAllMusic();
 
-        bossMusic.volume = state.volume;
-        bossMusic.play().catch((e) => console.log("Audio play failed:", e));
-        state.currentMusic = "boss";
-      }
-
-      function playMenuMusic() {
-        if (state.currentMusic === "menu") return;
-
-        stopAllMusic();
-
-        // Use only the music files you actually have
-        const availableMusic = [];
-
-        // Add only the music files that exist
-        if (mainMusic) availableMusic.push(mainMusic);
-        if (ancientMusic) availableMusic.push(ancientMusic);
-        if (antiquityMusic) availableMusic.push(antiquityMusic);
-        if (medievalMusic) availableMusic.push(medievalMusic);
-        if (enlightenmentMusic) availableMusic.push(enlightenmentMusic);
-        if (modernMusic) availableMusic.push(modernMusic);
-        if (futureMusic) availableMusic.push(futureMusic);
-        if (menuMusic) availableMusic.push(menuMusic);
-
-        // Pick random music from available options
-        if (availableMusic.length > 0) {
-          const randomMusic =
-            availableMusic[Math.floor(Math.random() * availableMusic.length)];
-
-          randomMusic.volume = state.volume;
-          randomMusic
+        if (bossMusic) {
+          bossMusic.volume = state.volume;
+          bossMusic
             .play()
-            .catch((e) => console.log("Menu music play failed:", e));
-          state.currentMusic = "menu";
+            .catch((e) => console.log("Boss music play failed:", e));
+          state.currentMusic = "boss";
         }
       }
 
@@ -1570,17 +1663,19 @@
           futureMusic,
           menuMusic,
         ];
-
         allMusic.forEach((music) => {
-          music.pause();
-          music.currentTime = 0;
+          if (music) {
+            music.pause();
+            music.currentTime = 0;
+          }
         });
-
         state.currentMusic = null;
       }
 
-      /* ----------------- small utilities ----------------- */
+      /* ----------------- Utilities ----------------- */
       function beep(freq = 440, dur = 0.06) {
+        if (!state.audioEnabled) return;
+
         try {
           if (!window.audioCtx)
             window.audioCtx = new (window.AudioContext ||
@@ -1599,24 +1694,178 @@
           }, dur * 1000);
         } catch (e) {}
       }
+
       function saveLang() {
         localStorage.setItem("aow_lang", state.lang);
       }
+
       function saveUnlocked() {
         localStorage.setItem("aow_unlocked", JSON.stringify(state.unlocked));
       }
 
-      /* ----------------- BUILD BOSS LIST ----------------- */
+      function showToast(text, t = 1400) {
+        const el = document.createElement("div");
+        el.style.position = "fixed";
+        el.style.left = "50%";
+        el.style.transform = "translateX(-50%)";
+        el.style.bottom = "12%";
+        el.style.background = "rgba(0,0,0,0.7)";
+        el.style.padding = "8px 12px";
+        el.style.borderRadius = "8px";
+        el.style.zIndex = 9999;
+        el.textContent = text;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), t);
+      }
+
+      /* ----------------- Initialization Functions ----------------- */
+      function initializeLanguageSwitcher() {
+        const langOptions = document.querySelectorAll(".lang-option");
+
+        // Remove active class from all options first
+        langOptions.forEach((option) => {
+          option.classList.remove("active");
+        });
+
+        // Set active class only to the current language
+        langOptions.forEach((option) => {
+          if (option.dataset.lang === state.lang) {
+            option.classList.add("active");
+          }
+
+          option.onclick = () => {
+            document.querySelectorAll(".lang-option").forEach((opt) => {
+              opt.classList.remove("active");
+            });
+            option.classList.add("active");
+            state.lang = option.dataset.lang;
+            saveLang();
+            buildBossList();
+            updateTop();
+            buildUnitButtons();
+            updateUI();
+            localizeText();
+            showToast(
+              state.lang === "ru"
+                ? "Язык изменен на Русский"
+                : "Language changed to English",
+              1500
+            );
+          };
+        });
+      }
+
+      function initializeHackMenu() {
+        if (!hackBtn || !hackPopup) return;
+
+        hackBtn.onclick = () => {
+          if (!state.hackEnabled) {
+            showToast(state.lang === "ru" ? "Хак недоступен" : "Hack locked");
+            return;
+          }
+          hackPopup.style.display =
+            hackPopup.style.display === "flex" ? "none" : "flex";
+        };
+
+        if (infGold) {
+          infGold.onchange = () => {
+            state.infiniteGold = infGold.checked;
+            showToast(state.infiniteGold ? "Infinite Gold" : "Gold normal");
+          };
+        }
+
+        if (infXP) {
+          infXP.onchange = () => {
+            state.infiniteXP = infXP.checked;
+            showToast(state.infiniteXP ? "Infinite XP" : "XP normal");
+          };
+        }
+
+        if (stopEnemySpawn) {
+          stopEnemySpawn.onchange = () => {
+            state.stopEnemySpawn = stopEnemySpawn.checked;
+            showToast(
+              state.stopEnemySpawn
+                ? "Enemy spawn stopped"
+                : "Enemy spawn enabled"
+            );
+          };
+        }
+
+        if (pauseTimeBtn) {
+          pauseTimeBtn.onclick = () => {
+            state.timePaused = !state.timePaused;
+            pauseTimeBtn.textContent = state.timePaused
+              ? "Continue"
+              : "Pause Time";
+            showToast(state.timePaused ? "Time Paused" : "Time Resumed");
+          };
+        }
+
+        if (killEnemyBtn) {
+          killEnemyBtn.onclick = () => {
+            for (let i = state.units.length - 1; i >= 0; i--) {
+              if (state.units[i].side === "enemy") {
+                try {
+                  state.units[i].el.remove();
+                } catch (e) {}
+                state.units.splice(i, 1);
+              }
+            }
+            showToast("All enemy units killed");
+          };
+        }
+
+        if (killPlayerBtn) {
+          killPlayerBtn.onclick = () => {
+            for (let i = state.units.length - 1; i >= 0; i--) {
+              if (state.units[i].side === "player") {
+                try {
+                  state.units[i].el.remove();
+                } catch (e) {}
+                state.units.splice(i, 1);
+              }
+            }
+            showToast("All player units killed");
+          };
+        }
+      }
+
+      function initializeSpeedButtons() {
+        speedBtns.forEach((btn) => {
+          btn.onclick = () => {
+            state.timeMultiplier = parseFloat(btn.dataset.speed);
+            document
+              .querySelectorAll(".speedBtn")
+              .forEach((x) => x.classList.remove("active"));
+            btn.classList.add("active");
+            showToast("x" + btn.dataset.speed, 700);
+          };
+        });
+      }
+
+      function initializeMenuButton() {
+        if (menuBtn) {
+          menuBtn.onclick = () => {
+            pauseTitle.textContent = L("paused");
+            pauseModal.style.display = "flex";
+            pauseModal._wasRunning = state.running;
+            state.running = false;
+          };
+        }
+      }
+
+      /* ----------------- Game Functions ----------------- */
       function buildBossList() {
+        if (!bossListEl) return;
         bossListEl.innerHTML = "";
         BOSSES.forEach((b, i) => {
           const unlocked = state.unlocked.includes(b.id);
           const row = document.createElement("div");
           row.className =
             "boss-item" + (state.chosenBossId === b.id ? " selected" : "");
-          if (!unlocked) {
-            row.classList.add("locked");
-          }
+          if (!unlocked) row.classList.add("locked");
+
           row.onclick = () => {
             if (!unlocked) {
               showToast(
@@ -1660,6 +1909,7 @@
       }
 
       function highlightSelected() {
+        if (!bossListEl) return;
         Array.from(bossListEl.children).forEach((el, i) => {
           const boss = BOSSES[i];
           if (boss && boss.id === state.chosenBossId) {
@@ -1670,12 +1920,13 @@
         });
       }
 
-      /* ----------------- UI update (top info) ----------------- */
       function updateTop() {
+        if (!topLeft || !topMid || !topAge || !topHP) return;
+
         if (state.mode === "boss" && state.bossChoice && state.bossActive) {
           topLeft.textContent =
             state.lang === "ru" ? state.bossChoice.ru : state.bossChoice.name;
-          topMid.textContent = ""; // Remove difficulty display in boss regime
+          topMid.textContent = "";
           topAge.textContent =
             (state.lang === "ru" ? "Эпоха врага: " : "Enemy age: ") +
             (state.lang === "ru"
@@ -1693,7 +1944,7 @@
                 ? state.bossChoice.ru
                 : state.bossChoice.name
               : L("withoutBoss");
-          // Show difficulty in Russian for non-boss mode
+
           const diffText =
             state.lang === "ru"
               ? state.difficulty === "easy"
@@ -1705,6 +1956,7 @@
           topMid.textContent =
             (state.mode === "boss" ? "" : L("difficulty")) +
             (state.mode === "boss" ? "" : diffText);
+
           topAge.textContent =
             (state.lang === "ru" ? "Эпоха врага: " : "Enemy age: ") +
             (state.lang === "ru"
@@ -1714,8 +1966,8 @@
         }
       }
 
-      /* ----------------- Build unit buttons at bottom ----------------- */
       function buildUnitButtons() {
+        if (!unitButtons) return;
         unitButtons.innerHTML = "";
         const list = UNIT_TEMPLATES[state.playerAge] || [];
         const costMultiplier = 1 + (state.playerAge - 1) * 0.18;
@@ -1738,22 +1990,17 @@
           b.onclick = () => spawnUnit("player", t);
           unitButtons.appendChild(b);
         });
-
-        // Check if buttons fit without scrolling
         checkUnitButtonsFit();
       }
 
       function checkUnitButtonsFit() {
+        if (!unitButtons) return;
         const buttons = unitButtons.querySelectorAll(".unit-btn");
         let totalWidth = 0;
-
         buttons.forEach((btn) => {
-          totalWidth += btn.offsetWidth + 8; // 8px for gap
+          totalWidth += btn.offsetWidth + 8;
         });
-
-        // Add some padding
         totalWidth += 16;
-
         if (totalWidth <= unitButtons.offsetWidth) {
           unitButtons.classList.add("no-scroll");
         } else {
@@ -1761,7 +2008,6 @@
         }
       }
 
-      /* ----------------- SPAWN UNIT ----------------- */
       function spawnUnit(side, template) {
         if (side === "player") {
           const costMultiplier = 1 + (state.playerAge - 1) * 0.18;
@@ -1774,18 +2020,22 @@
           }
           if (!state.infiniteGold) state.gold -= effectiveCost;
         }
+
         const battleRect = battleEl.getBoundingClientRect();
         const el = document.createElement("div");
         el.className = "unit " + (side === "player" ? "player" : "enemy");
         el.style.width = template.tier === 3 ? "42px" : "36px";
         el.style.height = template.tier === 3 ? "42px" : "36px";
+
         const hpBar = document.createElement("div");
         hpBar.className = "hpBar";
         const hpFill = document.createElement("div");
         hpFill.className = "hpFill";
         hpBar.appendChild(hpFill);
         el.appendChild(hpBar);
-        battleUnits.appendChild(el);
+
+        if (battleUnits) battleUnits.appendChild(el);
+
         const startX = side === "player" ? 100 : battleRect.width - 160;
         const unitHP = template.hp || 60;
         const u = {
@@ -1804,13 +2054,12 @@
           isBoss: false,
           age: side === "player" ? state.playerAge : state.enemyAge,
           attackingBase: false,
-          target: null, // Track current target
+          target: null,
         };
         state.units.push(u);
         renderAll();
       }
 
-      /* ----------------- PROJECTILES ----------------- */
       function createProjectile(fromUnit, target) {
         const br = battleEl.getBoundingClientRect();
         const startX =
@@ -1823,7 +2072,8 @@
         el.style.bottom = fromUnit.isBoss ? "22%" : "18%";
         el.style.background =
           fromUnit.side === "player" ? "#ffd27a" : "#ffd2d2";
-        battleUnits.appendChild(el);
+
+        if (battleUnits) battleUnits.appendChild(el);
 
         let targetRef = null;
         let targetX = null;
@@ -1842,7 +2092,6 @@
         } else if (typeof target === "number") targetX = target;
         else targetX = fromUnit.side === "player" ? br.width - 160 : 140;
 
-        // reduce projectile damage slightly to balance shooters
         const proj = {
           el,
           x: startX,
@@ -1919,13 +2168,12 @@
         }
       }
 
-      /* ----------------- FIND NEAREST ----------------- */
       function findNearest(u) {
         let best = null,
           bd = Infinity;
         for (const o of state.units) {
           if (o.side === u.side) continue;
-          if (o.hp <= 0) continue; // Skip dead units
+          if (o.hp <= 0) continue;
           const d = Math.abs(o.x - u.x);
           if (d < bd) {
             bd = d;
@@ -1946,13 +2194,10 @@
         return best;
       }
 
-      /* ----------------- UNIT UPDATES ----------------- */
       function updateUnits(dt) {
         const bw = battleEl.clientWidth;
 
-        // First update all units and clear dead targets
         for (const u of state.units) {
-          // Clear target if it's dead or doesn't exist
           if (
             u.target &&
             (u.target.hp <= 0 || !state.units.includes(u.target))
@@ -1964,7 +2209,6 @@
 
         for (const u of state.units) {
           if (u.attackingBase) {
-            // Unit is already attacking base, continue attacking
             u.atkTimer += dt;
             if (u.atkTimer >= u.atkSpeed) {
               if (u.side === "player") {
@@ -1986,7 +2230,7 @@
 
           if (u.side === "player") {
             const target = findNearest(u);
-            u.target = target; // Store current target
+            u.target = target;
 
             if (u.template.type === "shoot") {
               const aim = target || null;
@@ -2020,15 +2264,14 @@
               } else {
                 u.x += u.spd * 60 * dt;
                 if (u.x + u.width >= bw - 160) {
-                  // Player unit reached enemy base - start attacking it
                   u.attackingBase = true;
-                  u.x = bw - 160 - u.width; // Position at base
+                  u.x = bw - 160 - u.width;
                 }
               }
             }
           } else {
             const target = findNearest(u);
-            u.target = target; // Store current target
+            u.target = target;
 
             if (u.template.type === "shoot") {
               const aim = target || null;
@@ -2059,16 +2302,14 @@
               } else {
                 u.x -= u.spd * 60 * dt;
                 if (u.x <= 100) {
-                  // Enemy unit reached player base - start attacking it
                   u.attackingBase = true;
-                  u.x = 100; // Position at base
+                  u.x = 100;
                 }
               }
             }
           }
         }
 
-        // contact smoothing
         for (let i = 0; i < state.units.length; i++) {
           for (let j = i + 1; j < state.units.length; j++) {
             const a = state.units[i],
@@ -2087,10 +2328,8 @@
           }
         }
 
-        // Fix for boss getting stuck - ensure boss can always move and attack
         const boss = state.units.find((u) => u.isBoss);
         if (boss) {
-          // Clear boss target if it's dead
           if (
             boss.target &&
             (boss.target.hp <= 0 || !state.units.includes(boss.target))
@@ -2105,11 +2344,9 @@
 
             if (target) {
               if (Math.abs(target.x - boss.x) > 50) {
-                // Boss should move toward target
                 boss.x -= boss.spd * 60 * dt;
               }
             } else {
-              // No target, move toward player base
               boss.x -= boss.spd * 60 * dt;
               if (boss.x <= 100) {
                 boss.attackingBase = true;
@@ -2119,7 +2356,6 @@
           }
         }
 
-        // cleanup dead and rewards
         for (let k = state.units.length - 1; k >= 0; k--) {
           const u = state.units[k];
           if (u.hp <= 0) {
@@ -2133,22 +2369,18 @@
             } else if (died.side === "enemy" && !state.infiniteXP) {
               const baseCost = died.template.cost || 60;
               let xpMul = 0.4;
-              if (state.bossChoice && state.bossChoice.age >= 4) {
-                xpMul = 0.55;
-              }
-              if (state.bossChoice && state.bossChoice.age === 6) {
-                xpMul = 1.2;
-              }
+              if (state.bossChoice && state.bossChoice.age >= 4) xpMul = 0.55;
+              if (state.bossChoice && state.bossChoice.age === 6) xpMul = 1.2;
 
               const xpGain = Math.round(baseCost * xpMul);
               const goldGain = Math.round(
-                baseCost * (0.15 * (died.template.tier || 1)) + // Halved gold from kills
-                  (died.age * 2.5 || 1) * 6 // Halved
+                baseCost * (0.15 * (died.template.tier || 1)) +
+                  (died.age * 2.5 || 1) * 6
               );
               state.xp += xpGain;
               state.gold += goldGain;
               showToast(
-                (state.lang === "ru" ? I18N.ru.killMsg : I18N.en.killMsg) +
+                L("killMsg") +
                   (state.lang === "ru" && died.template.ru
                     ? died.template.ru
                     : died.template.name) +
@@ -2162,12 +2394,6 @@
         }
       }
 
-      /* ----------------- Boss waves from match start -----------------
-         Important: For boss mode, enemy waves spawn from match start following boss.spawnRules:
-         - allowMediumAfter: after that seconds mediums allowed,
-         - allowHeavyAfter: after that heavies allowed.
-         When enemy base destroyed and boss unit appears, waves stop.
-      --------------------------------------------------------------*/
       let bossWaveTimer = 0;
       function bossWaveTick(dt) {
         if (state.mode !== "boss") return;
@@ -2193,51 +2419,30 @@
         const templates =
           UNIT_TEMPLATES[state.bossChoice.age] || UNIT_TEMPLATES[1];
 
-        // Apply special spawn distributions for specific bosses
         let pool = [];
         if (state.bossChoice.id >= 4) {
-          // Bosses 4, 5, 6
           if (allowedTiers.length === 2) {
-            // 65% tier 1, 35% tier 2
             const rand = Math.random();
-            if (rand < 0.65) {
-              pool = templates.filter((t) => t.tier === 1);
-            } else {
-              pool = templates.filter((t) => t.tier === 2);
-            }
+            if (rand < 0.65) pool = templates.filter((t) => t.tier === 1);
+            else pool = templates.filter((t) => t.tier === 2);
           } else if (allowedTiers.length === 3) {
-            // 50% tier 1, 30% tier 2, 20% tier 3
             const rand = Math.random();
-            if (rand < 0.5) {
-              pool = templates.filter((t) => t.tier === 1);
-            } else if (rand < 0.8) {
-              pool = templates.filter((t) => t.tier === 2);
-            } else {
-              pool = templates.filter((t) => t.tier === 3);
-            }
+            if (rand < 0.5) pool = templates.filter((t) => t.tier === 1);
+            else if (rand < 0.8) pool = templates.filter((t) => t.tier === 2);
+            else pool = templates.filter((t) => t.tier === 3);
           } else {
             pool = templates.filter((t) => allowedTiers.includes(t.tier));
           }
         } else {
-          // Bosses 1, 2, 3
           if (allowedTiers.length === 2) {
-            // 50% tier 1, 50% tier 2
             const rand = Math.random();
-            if (rand < 0.5) {
-              pool = templates.filter((t) => t.tier === 1);
-            } else {
-              pool = templates.filter((t) => t.tier === 2);
-            }
+            if (rand < 0.5) pool = templates.filter((t) => t.tier === 1);
+            else pool = templates.filter((t) => t.tier === 2);
           } else if (allowedTiers.length === 3) {
-            // 33% tier 1, 33% tier 2, 33% tier 3
             const rand = Math.random();
-            if (rand < 0.33) {
-              pool = templates.filter((t) => t.tier === 1);
-            } else if (rand < 0.66) {
-              pool = templates.filter((t) => t.tier === 2);
-            } else {
-              pool = templates.filter((t) => t.tier === 3);
-            }
+            if (rand < 0.33) pool = templates.filter((t) => t.tier === 1);
+            else if (rand < 0.66) pool = templates.filter((t) => t.tier === 2);
+            else pool = templates.filter((t) => t.tier === 3);
           } else {
             pool = templates.filter((t) => allowedTiers.includes(t.tier));
           }
@@ -2246,17 +2451,10 @@
         const templ = pool.length
           ? pool[Math.floor(Math.random() * pool.length)]
           : templates[0];
-
         const bossAgeFactor = 1 + state.bossChoice.age * 0.3;
-        // Time-based acceleration (the longer game runs, the faster boss spawns)
         const bossAccel = state.bossChoice.accel || 1.0;
-
-        // base interval depending on boss age
         let interval = 1.6 * bossAgeFactor * (0.7 + Math.random() * 0.9);
-
-        // APPLY ACCELERATION (easy bosses = more spawn)
         interval /= bossAccel;
-
         const diffFactor =
           { easy: 1.25, medium: 1.0, hard: 0.78 }[state.difficulty] || 1.0;
         interval *= diffFactor;
@@ -2265,7 +2463,6 @@
         spawnUnit("enemy", templ);
       }
 
-      /* ----------------- Boss activation (after enemy base destroyed) ----------------- */
       function activateBoss() {
         state.bossActive = true;
         state.bossChoice =
@@ -2274,7 +2471,6 @@
         state.bossHP = Math.round(state.bossChoice.baseHP * diffMul);
         state.enemyBaseDestroyed = true;
 
-        // Switch to boss music
         playBossMusic();
 
         const br = battleEl.getBoundingClientRect();
@@ -2286,7 +2482,9 @@
         hpFill.className = "hpFill";
         hpBar.appendChild(hpFill);
         el.appendChild(hpBar);
-        battleUnits.appendChild(el);
+
+        if (battleUnits) battleUnits.appendChild(el);
+
         const bossObj = {
           id: "BOSS",
           template: state.bossChoice,
@@ -2308,7 +2506,6 @@
         updateTop();
       }
 
-      /* ----------------- Boss defeated ----------------- */
       function onBossDefeated() {
         if (state.bossDefeated) return;
         state.bossDefeated = true;
@@ -2328,9 +2525,7 @@
             state.unlocked.push(next);
             saveUnlocked();
             showToast(
-              (state.lang === "ru"
-                ? I18N.ru.unlockedBoss
-                : I18N.en.unlockedBoss) +
+              L("unlockedBoss") +
                 (state.lang === "ru"
                   ? BOSSES[idx + 1].ru
                   : BOSSES[idx + 1].name)
@@ -2341,17 +2536,11 @@
           updateHackUI();
         }
 
-        // Switch back to current age music
         playAgeMusic(state.playerAge);
-
         updateTop();
-        showFinish(
-          true,
-          state.lang === "ru" ? I18N.ru.bossDefeated : I18N.en.bossDefeated
-        );
+        showFinish(true, L("bossDefeated"));
       }
 
-      /* ----------------- Normal enemy spawn ----------------- */
       function enemySpawnNormal(dt) {
         if (state.mode === "boss") return;
         if (state.bossActive || state.enemyBaseDestroyed) return;
@@ -2359,16 +2548,13 @@
         state.enemySpawnTimer -= dt;
         if (state.enemySpawnTimer > 0) return;
 
-        // Make normal mode harder - increased spawn rate and more aggressive spawning
-        const ramp = Math.min(state.time / 25000, 1); // Faster ramp-up
-        const spawnChance = 0.4 + 0.9 * ramp; // Higher base chance
+        const ramp = Math.min(state.time / 25000, 1);
+        const spawnChance = 0.4 + 0.9 * ramp;
         if (Math.random() < spawnChance) {
           const templates = UNIT_TEMPLATES[state.enemyAge] || UNIT_TEMPLATES[1];
-
-          // More likely to spawn higher tier units in normal mode
-          let tierWeights = [1, 1, 1]; // Default weights
-          if (state.time > 45) tierWeights = [1, 2, 1.5]; // After 45 seconds, favor tier 2
-          if (state.time > 90) tierWeights = [1, 1.5, 2]; // After 90 seconds, favor tier 3
+          let tierWeights = [1, 1, 1];
+          if (state.time > 45) tierWeights = [1, 2, 1.5];
+          if (state.time > 90) tierWeights = [1, 1.5, 2];
 
           let weightedTemplates = [];
           templates.forEach((t, i) => {
@@ -2384,20 +2570,17 @@
           spawnUnit("enemy", t);
         }
 
-        // Reduced interval for more frequent spawning
         const baseInterval =
           DIFF[state.difficulty].enemySpawnRate * (0.4 + Math.random() * 0.5);
         state.enemySpawnTimer = Math.max(0.06, baseInterval);
       }
 
-      /* ----------------- Enemy age tick (normal mode) ----------------- */
       function enemyAgeTick(dt) {
         if (state.mode !== "none") return;
         if (state.enemyAge >= AGES.length) return;
         state.enemyAgeUpgradeCooldown -= dt;
         if (state.enemyAgeUpgradeCooldown <= 0) {
-          // Make enemy age up faster in normal mode
-          const upgradeChance = 0.4 + state.enemyAge * 0.06; // Higher chance to upgrade
+          const upgradeChance = 0.4 + state.enemyAge * 0.06;
           if (Math.random() < upgradeChance) {
             state.enemyAge++;
             state.enemyBaseHP = HP_PER_AGE[state.enemyAge - 1];
@@ -2407,7 +2590,6 @@
                 : "Enemy age increased"
             );
           }
-          // Shorter cooldown for more frequent upgrades
           const speedMultiplier =
             DIFF[state.difficulty].enemyAgeUpgradeSpeed || 1.0;
           state.enemyAgeUpgradeCooldown =
@@ -2415,8 +2597,8 @@
         }
       }
 
-      /* ----------------- render ----------------- */
       function renderAll() {
+        if (!battleUnits) return;
         battleUnits.innerHTML = "";
         const bw = battleEl.clientWidth;
         for (const u of state.units) {
@@ -2486,13 +2668,13 @@
           battleUnits.appendChild(lbl);
         }
 
-        pHP.textContent = Math.max(0, Math.round(state.playerBaseHP));
-        eHP.textContent = Math.max(0, Math.round(state.enemyBaseHP));
+        if (pHP) pHP.textContent = Math.max(0, Math.round(state.playerBaseHP));
+        if (eHP) eHP.textContent = Math.max(0, Math.round(state.enemyBaseHP));
         updateTop();
         updateUI();
       }
 
-      /* ----------------- main loop ----------------- */
+      /* ----------------- Main Game Loop ----------------- */
       let last = performance.now();
       function loop(now) {
         const rawDt = (now - last) / 1000;
@@ -2504,8 +2686,6 @@
         const dt = rawDt * state.timeMultiplier;
         state.time += dt;
 
-        // income (reduced growth so later ages are not OP) - HALVED
-        // Apply difficulty multiplier to income
         const incomeMultiplier = DIFF[state.difficulty].incomeMultiplier || 1.0;
         if (!state.infiniteGold)
           state.gold += 3 * dt * (state.playerAge * 1.6) * incomeMultiplier;
@@ -2522,298 +2702,71 @@
 
         if (state.enemyBaseHP <= 0 && !state.enemyBaseDestroyed) {
           state.enemyBaseDestroyed = true;
-          showToast(
-            state.lang === "ru"
-              ? I18N.ru.enemyBaseDestroyed
-              : I18N.en.enemyBaseDestroyed,
-            1000
-          );
+          showToast(L("enemyBaseDestroyed"), 1000);
           if (state.mode === "boss") {
             activateBoss();
-          } else
-            showFinish(
-              true,
-              state.lang === "ru" ? I18N.ru.victoryBase : I18N.en.victoryBase
-            );
+          } else showFinish(true, L("victoryBase"));
         }
 
-        if (state.playerBaseHP <= 0)
-          showFinish(
-            false,
-            state.lang === "ru" ? I18N.ru.defeatBase : I18N.en.defeatBase
-          );
+        if (state.playerBaseHP <= 0) showFinish(false, L("defeatBase"));
 
         requestAnimationFrame(loop);
       }
       requestAnimationFrame(loop);
 
-      /* ----------------- game end overlay ----------------- */
+      /* ----------------- UI Functions ----------------- */
+      function updateHackUI() {
+        if (!hackBtn) return;
+        if (!state.hackEnabled) {
+          hackBtn.style.display = "none";
+          if (hackPopup) hackPopup.style.display = "none";
+        } else {
+          hackBtn.style.display = "inline-block";
+        }
+      }
+
+      function updateUI() {
+        if (goldEl)
+          goldEl.textContent = state.infiniteGold
+            ? "∞"
+            : Math.floor(state.gold);
+        if (xpEl)
+          xpEl.textContent = state.infiniteXP ? "∞" : Math.floor(state.xp);
+        if (ageText)
+          ageText.textContent =
+            state.lang === "ru"
+              ? AGES[state.playerAge - 1].ru
+              : AGES[state.playerAge - 1].name;
+
+        if (upgradeAge && ageCost) {
+          if (state.playerAge >= AGES.length) {
+            upgradeAge.style.display = "none";
+          } else {
+            upgradeAge.style.display = "flex";
+            const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
+            const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
+            ageCost.textContent = `${currentXP}/${cost}`;
+
+            if (state.xp >= cost || state.infiniteXP) {
+              upgradeAge.classList.add("upgrade-age-blink");
+            } else {
+              upgradeAge.classList.remove("upgrade-age-blink");
+            }
+          }
+        }
+
+        setTimeout(checkUnitButtonsFit, 100);
+      }
+
       function showFinish(win, message) {
         state.running = false;
         stopAllMusic();
-        finishTitle.textContent = win ? L("victory") : L("defeat");
-        finishMessage.textContent = message;
-        finishOverlay.style.display = "flex";
-      }
-      finishRestart.onclick = () => {
-        finishOverlay.style.display = "none";
-        startGame();
-      };
-      finishToMenu.onclick = () => {
-        finishOverlay.style.display = "none";
-        state.running = false;
-        menu.style.display = "flex";
-        playMenuMusic();
-      };
-
-      /* ----------------- helpers ----------------- */
-      function showToast(text, t = 1400) {
-        const el = document.createElement("div");
-        el.style.position = "fixed";
-        el.style.left = "50%";
-        el.style.transform = "translateX(-50%)";
-        el.style.bottom = "12%";
-        el.style.background = "rgba(0,0,0,0.7)";
-        el.style.padding = "8px 12px";
-        el.style.borderRadius = "8px";
-        el.style.zIndex = 9999;
-        el.textContent = text;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), t);
-      }
-      function endGame(win, msg) {
-        showFinish(win, msg);
+        if (finishTitle)
+          finishTitle.textContent = win ? L("victory") : L("defeat");
+        if (finishMessage) finishMessage.textContent = message;
+        if (finishOverlay) finishOverlay.style.display = "flex";
       }
 
-      /* ----------------- UI ACTIONS ----------------- */
-      btnNormal.onclick = () => {
-        panelNormal.style.display = "block";
-        panelBosses.style.display = "none";
-        panelSettings.style.display = "none";
-        state.mode = "none";
-        // Update button states
-        btnNormal.classList.add("active");
-        btnBosses.classList.remove("active");
-        btnSettings.classList.remove("active");
-      };
-      btnBosses.onclick = () => {
-        panelBosses.style.display = "block";
-        panelNormal.style.display = "none";
-        panelSettings.style.display = "none";
-        state.mode = "boss";
-        buildBossList();
-        // Update button states
-        btnNormal.classList.remove("active");
-        btnBosses.classList.add("active");
-        btnSettings.classList.remove("active");
-      };
-      btnSettings.onclick = () => {
-        panelSettings.style.display = "block";
-        panelNormal.style.display = "none";
-        panelBosses.style.display = "none";
-        // Update button states
-        btnNormal.classList.remove("active");
-        btnBosses.classList.remove("active");
-        btnSettings.classList.add("active");
-      };
-
-      // Difficulty switcher
-      document.querySelectorAll(".diff-btn").forEach((btn) => {
-        btn.onclick = () => {
-          document
-            .querySelectorAll(".diff-btn")
-            .forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          state.difficulty = btn.dataset.diff;
-        };
-      });
-
-      startNormal.onclick = () => {
-        state.mode = "none";
-        startGame();
-      };
-      startBoss.onclick = () => {
-        if (!state.unlocked.includes(state.chosenBossId)) {
-          showToast(
-            state.lang === "ru"
-              ? I18N.ru.chooseBossLocked
-              : I18N.en.chooseBossLocked
-          );
-          return;
-        }
-        state.mode = "boss";
-        state.bossChoice = BOSSES.find((b) => b.id === state.chosenBossId);
-        startGame();
-      };
-
-      langSelect.value = state.lang;
-      langSelect.onchange = () => {
-        state.lang = langSelect.value;
-        saveLang();
-        buildBossList();
-        updateTop();
-        buildUnitButtons();
-        updateUI();
-        localizeText();
-      };
-      volRange.oninput = () => {
-        state.volume = parseFloat(volRange.value) / 100;
-        // Update all music volumes
-        mainMusic.volume = state.volume;
-        bossMusic.volume = state.volume;
-        ancientMusic.volume = state.volume;
-        antiquityMusic.volume = state.volume;
-        medievalMusic.volume = state.volume;
-        enlightenmentMusic.volume = state.volume;
-        modernMusic.volume = state.volume;
-        futureMusic.volume = state.volume;
-        menuMusic.volume = state.volume;
-      };
-
-      upgradeAge.onclick = () => {
-        const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
-        if (state.infiniteXP || state.xp >= cost) {
-          if (!state.infiniteXP) state.xp -= cost;
-          state.playerAge++;
-          state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
-          buildUnitButtons();
-          // Play new age music
-          playAgeMusic(state.playerAge);
-          showToast(
-            (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
-              (state.lang === "ru"
-                ? AGES[state.playerAge - 1].ru
-                : AGES[state.playerAge - 1].name)
-          );
-        } else showToast(L("notEnoughXP"));
-      };
-
-      Array.from(speedBtns).forEach((b) => {
-        b.onclick = () => {
-          state.timeMultiplier = parseFloat(b.dataset.speed);
-          Array.from(speedBtns).forEach((x) => x.classList.remove("active"));
-          b.classList.add("active");
-          showToast("x" + b.dataset.speed, 700);
-        };
-      });
-      document
-        .querySelector('.speedBtn[data-speed="1"]')
-        .classList.add("active");
-
-      hackBtn.onclick = () => {
-        if (!state.hackEnabled) {
-          showToast(
-            state.lang === "ru" ? I18N.ru.hackLocked : I18N.en.hackLocked
-          );
-          return;
-        }
-        hackPopup.style.display =
-          hackPopup.style.display === "flex" ? "none" : "flex";
-      };
-      infGold.onchange = () => {
-        state.infiniteGold = infGold.checked;
-        showToast(
-          state.infiniteGold
-            ? L("infiniteGold")
-            : state.lang === "ru"
-            ? "Золото нормальное"
-            : "Gold normal"
-        );
-      };
-      infXP.onchange = () => {
-        state.infiniteXP = infXP.checked;
-        showToast(
-          state.infiniteXP
-            ? L("infiniteXP")
-            : state.lang === "ru"
-            ? "XP нормальное"
-            : "XP normal"
-        );
-      };
-
-      // New hack buttons
-      pauseTimeBtn.onclick = () => {
-        state.timePaused = !state.timePaused;
-        pauseTimeBtn.textContent = state.timePaused
-          ? state.lang === "ru"
-            ? "Продолжить"
-            : "Continue"
-          : L("pauseTime");
-        showToast(
-          state.timePaused
-            ? state.lang === "ru"
-              ? "Время остановлено"
-              : "Time Paused"
-            : state.lang === "ru"
-            ? "Время возобновлено"
-            : "Time Resumed"
-        );
-      };
-
-      killEnemyBtn.onclick = () => {
-        for (let i = state.units.length - 1; i >= 0; i--) {
-          if (state.units[i].side === "enemy") {
-            try {
-              state.units[i].el.remove();
-            } catch (e) {}
-            state.units.splice(i, 1);
-          }
-        }
-        showToast(
-          state.lang === "ru" ? "Все враги убиты" : "All enemy units killed"
-        );
-      };
-
-      killPlayerBtn.onclick = () => {
-        for (let i = state.units.length - 1; i >= 0; i--) {
-          if (state.units[i].side === "player") {
-            try {
-              state.units[i].el.remove();
-            } catch (e) {}
-            state.units.splice(i, 1);
-          }
-        }
-        showToast(
-          state.lang === "ru"
-            ? "Все ваши юниты убиты"
-            : "All player units killed"
-        );
-      };
-
-      stopEnemySpawn.onchange = () => {
-        state.stopEnemySpawn = stopEnemySpawn.checked;
-        showToast(
-          state.stopEnemySpawn
-            ? state.lang === "ru"
-              ? "Появление врагов остановлено"
-              : "Enemy spawn stopped"
-            : state.lang === "ru"
-            ? "Появление врагов включено"
-            : "Enemy spawn enabled"
-        );
-      };
-
-      menuBtn.onclick = () => {
-        pauseTitle.textContent = L("paused");
-        pauseModal.style.display = "flex";
-        pauseModal._wasRunning = state.running;
-        state.running = false;
-      };
-      pauseCancel.onclick = () => {
-        pauseModal.style.display = "none";
-        if (pauseModal._wasRunning) {
-          state.running = true;
-          requestAnimationFrame(loop);
-        }
-      };
-      pauseMenu.onclick = () => {
-        pauseModal.style.display = "none";
-        state.running = false;
-        menu.style.display = "flex";
-        playMenuMusic();
-      };
-
-      /* ----------------- Start game ----------------- */
       function startGame() {
         if (state.mode === null) {
           showToast(state.lang === "ru" ? "Выберите режим" : "Choose mode");
@@ -2821,15 +2774,15 @@
         }
         state.running = true;
         state.gold =
-          100 + // Halved
+          100 +
           (state.mode === "boss" && state.bossChoice
             ? state.bossChoice.age === 6
-              ? state.bossChoice.age * 200 // Halved
+              ? state.bossChoice.age * 200
               : state.bossChoice.age >= 5
-              ? state.bossChoice.age * 100 // Halved
+              ? state.bossChoice.age * 100
               : state.bossChoice.age === 4
-              ? state.bossChoice.age * 50 // Halved
-              : state.bossChoice.age * 25 // Halved
+              ? state.bossChoice.age * 50
+              : state.bossChoice.age * 25
             : 0);
         state.xp = 0;
         state.playerAge = 1;
@@ -2849,102 +2802,269 @@
         state.timePaused = false;
         state.stopEnemySpawn = false;
         bossWaveTimer = 0;
+
         buildUnitButtons();
         updateUI();
         buildBossList();
-        menu.style.display = "none";
+        if (menu) menu.style.display = "none";
         updateHackUI();
 
-        // Start age music
         playAgeMusic(state.playerAge);
       }
 
-      /* ----------------- update hack UI (hide hack button when disallowed) ----------------- */
-      function updateHackUI() {
-        if (!state.hackEnabled) {
-          hackBtn.style.display = "none";
-          hackPopup.style.display = "none";
-        } else {
-          hackBtn.style.display = "inline-block";
-        }
-      }
+      function localizeText() {
+        const elements = {
+          title: L("title"),
+          btnNormal: L("normal"),
+          btnBosses: L("bosses"),
+          btnSettings: L("settings"),
+          startNormal: L("startNormal"),
+          startBoss: L("startBoss"),
+          lblDiff: L("difficulty"),
+          menuBtn: L("menu"),
+          hackBtn: L("hack"),
+          lblLang: L("language"),
+          lblVolume: L("volume"),
+          pauseTitle: L("paused"),
+          pauseCancel: L("resume"),
+          pauseMenu: L("returnMenu"),
+          finishRestart: L("restart"),
+          finishToMenu: L("toMenu"),
+          lblYou: L("you"),
+          lblEnemy: L("enemy"),
+        };
 
-      /* ----------------- render, UI update ----------------- */
-      function updateUI() {
-        $("gold").textContent = state.infiniteGold
-          ? "∞"
-          : Math.floor(state.gold);
-        $("xp").textContent = state.infiniteXP ? "∞" : Math.floor(state.xp);
-        $("ageText").textContent =
-          state.lang === "ru"
-            ? AGES[state.playerAge - 1].ru
-            : AGES[state.playerAge - 1].name;
-        if (state.playerAge >= AGES.length) {
-          upgradeAge.style.display = "none";
-        } else {
-          upgradeAge.style.display = "inline-block";
-          const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
-          const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
+        Object.keys(elements).forEach((id) => {
+          const element = document.getElementById(id);
+          if (element) element.innerHTML = elements[id];
+        });
 
-          // Update button text to show current XP and required XP
-          ageCost.textContent = `(${currentXP}/${cost})`;
+        // Update hack labels
+        const hackLabels = {
+          hackLabelGold: L("infiniteGold"),
+          hackLabelXP: L("infiniteXP"),
+          hackLabelNoSpawn: L("enemyNoSpawn"),
+        };
 
-          // Add blinking animation if player has enough XP
-          if (state.xp >= cost || state.infiniteXP) {
-            upgradeAge.classList.add("upgrade-age-blink");
-          } else {
-            upgradeAge.classList.remove("upgrade-age-blink");
+        Object.keys(hackLabels).forEach((id) => {
+          const element = document.getElementById(id);
+          if (element) element.textContent = hackLabels[id];
+        });
+
+        // Update hack buttons
+        if (pauseTimeBtn) pauseTimeBtn.textContent = L("pauseTime");
+        if (killEnemyBtn) killEnemyBtn.textContent = L("killEnemyUnits");
+        if (killPlayerBtn) killPlayerBtn.textContent = L("killPlayerUnits");
+
+        // Update stats
+        const statElements = {
+          statGold: L("gold"),
+          statXP: L("xp"),
+          statAge: L("age"),
+        };
+
+        Object.keys(statElements).forEach((id) => {
+          const element = document.getElementById(id);
+          if (element) {
+            const strong = element.querySelector("strong");
+            if (strong) {
+              element.innerHTML =
+                statElements[id] +
+                "<br><strong>" +
+                (strong.id === "ageText"
+                  ? state.lang === "ru"
+                    ? AGES[state.playerAge - 1].ru
+                    : AGES[state.playerAge - 1].name
+                  : strong.textContent) +
+                "</strong>";
+            }
           }
+        });
+
+        // Update upgrade age button
+        if (upgradeAge) {
+          const upgradeText = upgradeAge.querySelector(".upgrade-age-text");
+          if (upgradeText) upgradeText.textContent = L("upgradeAge");
         }
 
-        // Re-check if unit buttons fit
-        setTimeout(checkUnitButtonsFit, 100);
-      }
+        // Update difficulty buttons
+        document.querySelectorAll(".diff-btn").forEach((btn) => {
+          const diff = btn.dataset.diff;
+          if (diff === "easy") btn.textContent = L("easy");
+          else if (diff === "medium") btn.textContent = L("medium");
+          else if (diff === "hard") btn.textContent = L("hard");
+        });
 
-      /* ----------------- init ----------------- */
-      function init() {
-        // load unlocked
-        try {
-          const raw = localStorage.getItem("aow_unlocked");
-          if (raw) {
-            const arr = JSON.parse(raw);
-            if (Array.isArray(arr) && arr.length) state.unlocked = arr;
-          }
-        } catch (e) {}
-        langSelect.value = state.lang;
-        buildBossList();
-        buildUnitButtons();
+        // Update orientation warning
+        if (orientationWarning) {
+          const h3 = orientationWarning.querySelector("h3");
+          const p = orientationWarning.querySelector("p");
+          if (h3) h3.textContent = L("pleaseRotate");
+          if (p) p.textContent = L("rotateMessage");
+        }
+
+        // Update click to start overlay
+        if (clickToStartOverlay) {
+          const h3 = clickToStartOverlay.querySelector("h3");
+          const p = clickToStartOverlay.querySelector("p");
+          if (h3) h3.textContent = L("clickToStart");
+          if (p) p.textContent = L("clickAnywhere");
+        }
+
         updateTop();
-        updateUI();
-        menu.style.display = "flex";
+      }
 
-        // Enable hack if all bosses are defeated
-        if (state.unlocked.length >= BOSSES.length) {
-          state.hackEnabled = true;
+      /* ----------------- Event Listeners ----------------- */
+      function initializeEventListeners() {
+        // Click to start overlay
+        if (clickToStartOverlay) {
+          clickToStartOverlay.onclick = enableAudio;
         }
-        updateHackUI();
-        localizeText();
 
-        // Set initial music volume for all audio elements
-        mainMusic.volume = state.volume;
-        bossMusic.volume = state.volume;
-        ancientMusic.volume = state.volume;
-        antiquityMusic.volume = state.volume;
-        medievalMusic.volume = state.volume;
-        enlightenmentMusic.volume = state.volume;
-        modernMusic.volume = state.volume;
-        futureMusic.volume = state.volume;
-        menuMusic.volume = state.volume;
+        // Menu buttons
+        if (btnNormal)
+          btnNormal.onclick = () => {
+            panelNormal.style.display = "block";
+            panelBosses.style.display = "none";
+            panelSettings.style.display = "none";
+            state.mode = "none";
+            btnNormal.classList.add("active");
+            btnBosses.classList.remove("active");
+            btnSettings.classList.remove("active");
+          };
 
-        // Start menu music
-        playMenuMusic();
+        if (btnBosses)
+          btnBosses.onclick = () => {
+            panelBosses.style.display = "block";
+            panelNormal.style.display = "none";
+            panelSettings.style.display = "none";
+            state.mode = "boss";
+            buildBossList();
+            btnNormal.classList.remove("active");
+            btnBosses.classList.add("active");
+            btnSettings.classList.remove("active");
+          };
+
+        if (btnSettings)
+          btnSettings.onclick = () => {
+            panelSettings.style.display = "block";
+            panelNormal.style.display = "none";
+            panelBosses.style.display = "none";
+            btnNormal.classList.remove("active");
+            btnBosses.classList.remove("active");
+            btnSettings.classList.add("active");
+          };
+
+        // Difficulty buttons
+        document.querySelectorAll(".diff-btn").forEach((btn) => {
+          btn.onclick = () => {
+            document
+              .querySelectorAll(".diff-btn")
+              .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            state.difficulty = btn.dataset.diff;
+          };
+        });
+
+        // Start buttons
+        if (startNormal)
+          startNormal.onclick = () => {
+            state.mode = "none";
+            startGame();
+          };
+
+        if (startBoss)
+          startBoss.onclick = () => {
+            if (!state.unlocked.includes(state.chosenBossId)) {
+              showToast(L("chooseBossLocked"));
+              return;
+            }
+            state.mode = "boss";
+            state.bossChoice = BOSSES.find((b) => b.id === state.chosenBossId);
+            startGame();
+          };
+
+        // Volume control
+        if (volRange) {
+          volRange.oninput = () => {
+            state.volume = parseFloat(volRange.value) / 100;
+            const allMusic = [
+              mainMusic,
+              bossMusic,
+              ancientMusic,
+              antiquityMusic,
+              medievalMusic,
+              enlightenmentMusic,
+              modernMusic,
+              futureMusic,
+              menuMusic,
+            ];
+            allMusic.forEach((music) => {
+              if (music) music.volume = state.volume;
+            });
+          };
+        }
+
+        // Upgrade age button
+        if (upgradeAge)
+          upgradeAge.onclick = () => {
+            const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
+            if (state.infiniteXP || state.xp >= cost) {
+              if (!state.infiniteXP) state.xp -= cost;
+              state.playerAge++;
+              state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
+              buildUnitButtons();
+              playAgeMusic(state.playerAge);
+              showToast(
+                (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
+                  (state.lang === "ru"
+                    ? AGES[state.playerAge - 1].ru
+                    : AGES[state.playerAge - 1].name)
+              );
+            } else showToast(L("notEnoughXP"));
+          };
+
+        // Pause modal
+        if (pauseCancel)
+          pauseCancel.onclick = () => {
+            pauseModal.style.display = "none";
+            if (pauseModal._wasRunning) {
+              state.running = true;
+              requestAnimationFrame(loop);
+            }
+          };
+
+        if (pauseMenu)
+          pauseMenu.onclick = () => {
+            pauseModal.style.display = "none";
+            state.running = false;
+            if (menu) menu.style.display = "flex";
+            playMenuMusic();
+          };
+
+        // Finish overlay
+        if (finishRestart)
+          finishRestart.onclick = () => {
+            if (finishOverlay) finishOverlay.style.display = "none";
+            startGame();
+          };
+
+        if (finishToMenu)
+          finishToMenu.onclick = () => {
+            if (finishOverlay) finishOverlay.style.display = "none";
+            state.running = false;
+            if (menu) menu.style.display = "flex";
+            playMenuMusic();
+          };
 
         // Orientation detection
         function checkOrientation() {
-          if (window.innerHeight > window.innerWidth) {
-            orientationWarning.style.display = "flex";
-          } else {
-            orientationWarning.style.display = "none";
+          if (orientationWarning) {
+            if (window.innerHeight > window.innerWidth) {
+              orientationWarning.style.display = "flex";
+            } else {
+              orientationWarning.style.display = "none";
+            }
           }
         }
 
@@ -2952,80 +3072,72 @@
         window.addEventListener("orientationchange", checkOrientation);
         checkOrientation();
 
-        // Also check unit buttons fit on resize
+        // Unit buttons fit on resize
         window.addEventListener("resize", checkUnitButtonsFit);
       }
-      init();
 
-      /* ----------------- localize static text ----------------- */
-      function localizeText() {
-        $("title").textContent = L("title");
-        document.querySelector("#btnNormal").textContent = L("normal");
-        document.querySelector("#btnBosses").textContent = L("bosses");
-        document.querySelector("#btnSettings").textContent = L("settings");
-        $("startNormal").textContent = L("startNormal");
-        $("startBoss").textContent = L("startBoss");
-        $("lblDiff").textContent = L("difficulty");
-        $("upgradeAge").innerHTML =
-          L("upgradeAge") + ' <span id="ageCost"></span>';
-        $("menuBtn").textContent = L("menu");
-        $("hackBtn").textContent = L("hack");
+      /* ----------------- Initialization ----------------- */
+      function init() {
+        console.log("=== INITIALIZING GAME ===");
 
-        // Update settings labels
-        $("lblLang").textContent = L("language");
-        $("lblVolume").textContent = L("volume");
+        try {
+          const raw = localStorage.getItem("aow_unlocked");
+          if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr) && arr.length) state.unlocked = arr;
+          }
+        } catch (e) {
+          console.error("Error loading unlocked bosses:", e);
+        }
 
-        // Update difficulty options
-        document.querySelector('.diff-btn[data-diff="easy"]').textContent =
-          L("easy");
-        document.querySelector('.diff-btn[data-diff="medium"]').textContent =
-          L("medium");
-        document.querySelector('.diff-btn[data-diff="hard"]').textContent =
-          L("hard");
-
-        // Update hack popup texts
-        document.querySelector(
-          "#hackPopup label:nth-child(1) .small"
-        ).textContent = L("infiniteGold");
-        document.querySelector(
-          "#hackPopup label:nth-child(2) .small"
-        ).textContent = L("infiniteXP");
-        document.querySelector(
-          "#hackPopup label:nth-child(3) .small" // ← CHANGED FROM 6 TO 3
-        ).textContent = L("enemyNoSpawn");
-        pauseTimeBtn.textContent = L("pauseTime");
-        killEnemyBtn.textContent = L("killEnemyUnits");
-        killPlayerBtn.textContent = L("killPlayerUnits");
-
-        // Update stats
-        document.querySelector("#statGold").innerHTML =
-          L("gold") + '<br><strong id="gold">0</strong>';
-        document.querySelector("#statXP").innerHTML =
-          L("xp") + '<br><strong id="xp">0</strong>';
-        document.querySelector("#statAge").innerHTML =
-          L("age") +
-          '<br><strong id="ageText">' +
-          (state.lang === "ru"
-            ? AGES[state.playerAge - 1].ru
-            : AGES[state.playerAge - 1].name) +
-          "</strong>";
-
-        // Update base labels
-        $("lblYou").textContent = L("you");
-        $("lblEnemy").textContent = L("enemy");
-
-        // Update pause and finish modals
-        pauseCancel.textContent = L("resume");
-        pauseMenu.textContent = L("returnMenu");
-        finishRestart.textContent = L("restart");
-        finishToMenu.textContent = L("toMenu");
-
-        // Update orientation warning
-        orientationWarning.querySelector("h3").textContent = L("pleaseRotate");
-        orientationWarning.querySelector("p").textContent = L("rotateMessage");
-
+        console.log("Initializing UI components...");
+        initializeLanguageSwitcher();
+        buildBossList();
+        buildUnitButtons();
         updateTop();
+        updateUI();
+
+        if (menu) menu.style.display = "flex";
+
+        if (state.unlocked.length >= BOSSES.length) {
+          state.hackEnabled = true;
+        }
+        updateHackUI();
+
+        initializeHackMenu();
+        initializeSpeedButtons();
+        initializeMenuButton();
+        initializeEventListeners();
+
+        localizeText();
+
+        // Set initial music volume (will be applied when audio is enabled)
+        const allMusic = [
+          mainMusic,
+          bossMusic,
+          ancientMusic,
+          antiquityMusic,
+          medievalMusic,
+          enlightenmentMusic,
+          modernMusic,
+          futureMusic,
+          menuMusic,
+        ];
+        allMusic.forEach((music) => {
+          if (music) music.volume = 0; // Start with volume 0 until user enables audio
+        });
+
+        console.log("=== GAME INITIALIZED SUCCESSFULLY ===");
+        console.log("Current state:", {
+          lang: state.lang,
+          unlocked: state.unlocked,
+          hackEnabled: state.hackEnabled,
+          audioEnabled: state.audioEnabled,
+        });
       }
+
+      // Start the game
+      init();
     </script>
   </body>
 </html>
