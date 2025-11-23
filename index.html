@@ -55,6 +55,25 @@
         gap: 10px;
         align-items: center;
       }
+      /* Fix for age text - use more specific selectors */
+      /* NUCLEAR OPTION - Add this at the VERY END of style tag */
+      #ageText {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        line-height: 1.1 !important;
+        display: block !important;
+        text-align: center !important;
+        max-width: 75px !important;
+        word-wrap: break-word !important;
+        margin: 0 auto !important;
+        transform: scale(0.9) !important; /* Force size reduction */
+      }
+
+      #statAge {
+        min-width: 85px !important;
+        font-size: 11px !important;
+      }
+
       /* TEMPORARY FIX - Add this to your CSS */
       #gold,
       #xp,
@@ -615,9 +634,12 @@
       }
 
       /* Special positioning for tank and Hitler boss */
-      .unit[data-unit-type="tank"],
       .bossUnit[data-boss="hitler"] {
-        bottom: 8% !important; /* Lower than other units */
+        bottom: 9% !important; /* Lower than other units */
+      }
+
+      .unit[data-unit-type="tank"] {
+        bottom: 6% !important;
       }
 
       @media (max-width: 900px) {
@@ -1039,8 +1061,8 @@
             allowMediumAfter: 40,
             allowHeavyAfter: 70,
           },
-          imgWidth: 100,
-          imgHeight: 100,
+          imgWidth: 150,
+          imgHeight: 150,
         },
         {
           id: 6,
@@ -1340,8 +1362,8 @@
             atkSpeed: 2.6,
             type: "melee",
             tier: 3,
-            imgWidth: 80,
-            imgHeight: 80,
+            imgWidth: 120,
+            imgHeight: 130,
             unitType: "tank", // Added for special positioning
           },
         ],
@@ -2939,32 +2961,89 @@
           state.playerAge
         );
 
-        // Force update with visible changes
-        if (goldEl) {
+        // Use more reliable element selection
+        const goldDisplay = document.getElementById("gold");
+        const xpDisplay = document.getElementById("xp");
+        const ageDisplay = document.getElementById("ageText");
+        const ageCostDisplay = document.getElementById("ageCost");
+
+        // Update Gold
+        if (goldDisplay) {
           const displayGold = state.infiniteGold ? "∞" : Math.floor(state.gold);
-          goldEl.textContent = displayGold;
-          goldEl.style.color = "#FFD700"; // Bright gold
-          goldEl.style.fontWeight = "bold";
-          goldEl.style.fontSize = "16px";
+          goldDisplay.textContent = displayGold;
+          console.log("✅ Gold updated to:", displayGold);
+        } else {
+          console.log("❌ Gold element not found");
         }
 
-        if (xpEl) {
+        // Update XP
+        if (xpDisplay) {
           const displayXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
-          xpEl.textContent = displayXP;
-          xpEl.style.color = "#00FF00"; // Bright green
-          xpEl.style.fontWeight = "bold";
-          xpEl.style.fontSize = "16px";
+          xpDisplay.textContent = displayXP;
+          console.log("✅ XP updated to:", displayXP);
+        } else {
+          console.log("❌ XP element not found");
         }
 
-        if (ageText) {
+        // Update Age
+        if (ageDisplay) {
           const ageName =
             state.lang === "ru"
               ? AGES[state.playerAge - 1].ru
               : AGES[state.playerAge - 1].name;
-          ageText.textContent = ageName;
-          ageText.style.color = "#FFFFFF"; // Bright white
-          ageText.style.fontWeight = "bold";
-          ageText.style.fontSize = "16px";
+          ageDisplay.textContent = ageName;
+          console.log("✅ Age updated to:", ageName);
+        } else {
+          console.log("❌ Age element not found");
+        }
+
+        // Update Age Cost
+        if (ageCostDisplay) {
+          const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
+          const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
+          ageCostDisplay.textContent = `${currentXP}/${cost}`;
+
+          // Add blinking effect if can upgrade
+          if (state.xp >= cost || state.infiniteXP) {
+            upgradeAge.classList.add("upgrade-age-blink");
+          } else {
+            upgradeAge.classList.remove("upgrade-age-blink");
+          }
+        }
+
+        // Also update the stat labels
+        updateStatLabels();
+      }
+
+      // Add this helper function
+      function updateStatLabels() {
+        const statGold = document.getElementById("statGold");
+        const statXP = document.getElementById("statXP");
+        const statAge = document.getElementById("statAge");
+
+        if (statGold) {
+          statGold.innerHTML =
+            L("gold") +
+            "<br><strong id='gold'>" +
+            (state.infiniteGold ? "∞" : Math.floor(state.gold)) +
+            "</strong>";
+        }
+
+        if (statXP) {
+          statXP.innerHTML =
+            L("xp") +
+            "<br><strong id='xp'>" +
+            (state.infiniteXP ? "∞" : Math.floor(state.xp)) +
+            "</strong>";
+        }
+
+        if (statAge) {
+          const ageName =
+            state.lang === "ru"
+              ? AGES[state.playerAge - 1].ru
+              : AGES[state.playerAge - 1].name;
+          statAge.innerHTML =
+            L("age") + "<br><strong id='ageText'>" + ageName + "</strong>";
         }
       }
 
@@ -3306,8 +3385,18 @@
         }
 
         // Upgrade age button
-        if (upgradeAge)
+        if (upgradeAge) {
           upgradeAge.onclick = () => {
+            // Check if already at max age (Future)
+            if (state.playerAge >= AGES.length) {
+              showToast(
+                state.lang === "ru"
+                  ? "Максимальная эпоха достигнута!"
+                  : "Maximum age reached!"
+              );
+              return;
+            }
+
             const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
             if (state.infiniteXP || state.xp >= cost) {
               if (!state.infiniteXP) state.xp -= cost;
@@ -3315,15 +3404,28 @@
               state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
               buildUnitButtons();
               playAgeMusic(state.playerAge);
-              updateUI(); // Update UI immediately after age upgrade
+              updateUI();
               showToast(
                 (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
                   (state.lang === "ru"
                     ? AGES[state.playerAge - 1].ru
                     : AGES[state.playerAge - 1].name)
               );
-            } else showToast(L("notEnoughXP"));
+
+              // Hide upgrade button if reached max age
+              if (state.playerAge >= AGES.length) {
+                upgradeAge.style.display = "none";
+                showToast(
+                  state.lang === "ru"
+                    ? "Технологический предел достигнут!"
+                    : "Technological limit reached!"
+                );
+              }
+            } else {
+              showToast(L("notEnoughXP"));
+            }
           };
+        }
 
         // Pause modal
         if (pauseCancel)
