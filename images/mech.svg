@@ -1,0 +1,36 @@
+<svg width="64" height="90" viewBox="0 0 64 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="38.4074" y="22.4683" width="18.8771" height="5.41514" transform="rotate(47.2113 38.4074 22.4683)" fill="#242424"/>
+<rect x="59" y="36" width="4" height="2" fill="#00D0FF"/>
+<rect x="63" y="37" width="1" height="1" fill="#00D0FF"/>
+<path d="M47 34H60V40H47V34Z" fill="#242424"/>
+<rect x="4" y="57" width="5" height="12" fill="#242424"/>
+<rect width="4.30582" height="8.44811" transform="matrix(0.809336 0.587346 -0.759998 0.649925 10.5664 69.3521)" fill="#242424"/>
+<rect width="3.73265" height="10.1648" transform="matrix(0.000732809 -1 1 0.000454786 3.96912 72.1526)" fill="#242424"/>
+<rect x="4" y="74" width="5" height="13" fill="#242424"/>
+<rect width="1.87875" height="5.30828" transform="matrix(0.186411 -0.982472 0.993138 0.116944 6.51495 86.595)" fill="#242424"/>
+<rect width="2.10171" height="4.86673" transform="matrix(0.746545 -0.665335 0.820634 0.571454 5.33044 87.0808)" fill="#242424"/>
+<rect width="1.92726" height="5.2195" transform="matrix(0.405007 -0.914313 0.964229 0.265072 0 85.5781)" fill="#242424"/>
+<rect x="23" y="57" width="5" height="12" fill="#242424"/>
+<rect width="4.27861" height="8.40105" transform="matrix(0.806612 0.591081 -0.756869 0.653566 29.4643 69.3521)" fill="#242424"/>
+<rect width="3.73265" height="10.0653" transform="matrix(0.000725727 -1 1 0.000459224 22.932 72.1526)" fill="#242424"/>
+<rect x="23" y="74" width="5" height="13" fill="#242424"/>
+<rect width="1.87812" height="5.25768" transform="matrix(0.184671 -0.9828 0.993005 0.118069 25.452 86.595)" fill="#242424"/>
+<rect width="2.09041" height="4.8351" transform="matrix(0.743325 -0.66893 0.818019 0.575192 24.2789 87.0808)" fill="#242424"/>
+<rect width="1.92421" height="5.17262" transform="matrix(0.401727 -0.915759 0.963565 0.267475 19 85.5781)" fill="#242424"/>
+<rect x="12" y="56" width="8" height="7" fill="#242424"/>
+<rect x="9" y="59" width="3" height="2" fill="#242424"/>
+<rect x="20" y="59" width="3" height="2" fill="#242424"/>
+<rect x="13" y="54" width="6" height="2" fill="black"/>
+<rect x="13" y="41" width="21" height="13" fill="#242424"/>
+<rect x="13" y="24" width="29" height="17" fill="#909090"/>
+<rect x="6" y="24" width="7" height="23" fill="#909090"/>
+<rect x="1" y="15" width="22" height="9" fill="#909090"/>
+<path d="M42 24L23 15V24H42Z" fill="#00D0FF"/>
+<rect x="32.6996" y="28.7197" width="21.623" height="6" transform="rotate(47.2113 32.6996 28.7197)" fill="#242424"/>
+<rect x="56" y="44" width="4" height="3" fill="#00D0FF"/>
+<rect x="60" y="45" width="1" height="1" fill="#00D0FF"/>
+<path d="M42.5 42.5H57.5V48.5H42.5V42.5Z" fill="#242424"/>
+<rect x="8" y="6" width="5" height="9" fill="#909090"/>
+<rect x="3" width="15" height="6" fill="#909090"/>
+<rect x="18" width="2" height="6" fill="#00D0FF"/>
+</svg>

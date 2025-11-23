@@ -1,0 +1,19 @@
+<svg width="49" height="84" viewBox="0 0 49 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line y1="-3" x2="28.5071" y2="-3" transform="matrix(-0.18778 -0.982211 -0.982211 0.18778 27.1909 83)" stroke="#EFE9C9" stroke-width="6"/>
+<line x1="9.8912" y1="82.4367" x2="15.2443" y2="54.4367" stroke="#EFE9C9" stroke-width="6"/>
+<line y1="-2.5" x2="26.1725" y2="-2.5" transform="matrix(0.465788 -0.884896 -0.884896 -0.465788 0 50.1227)" stroke="#EFE9C9" stroke-width="5"/>
+<rect width="16" height="31" transform="matrix(-1 0 0 1 28.1909 26)" fill="#FF2020"/>
+<line y1="-3" x2="9.89949" y2="-3" transform="matrix(0.469815 -0.882765 -0.882765 -0.469815 7.26947 34.7389)" stroke="#9F9F9F" stroke-width="6"/>
+<line y1="-2.5" x2="26.1725" y2="-2.5" transform="matrix(-0.703775 0.710423 0.710423 0.703775 47.1909 13)" stroke="#EFE9C9" stroke-width="5"/>
+<line y1="-3" x2="9.89949" y2="-3" transform="matrix(-0.707004 0.70721 0.70721 0.707004 35.078 25.7882)" stroke="#9F9F9F" stroke-width="6"/>
+<path d="M26.1909 79L33.048 78L34.1909 82L27.3337 83L26.1909 79Z" fill="#632323" stroke="#632323" stroke-width="0.1"/>
+<path d="M14.1909 79L7.33371 78L6.19086 82L13.048 83L14.1909 79Z" fill="#632323" stroke="#632323" stroke-width="0.1"/>
+<path d="M22.1909 57L23.6909 64.5H27.1909H29.6909L28.6909 57H22.1909Z" fill="#FF2020" stroke="#FF2020" stroke-width="0.1"/>
+<path d="M18.1909 57L16.5909 65H12.8575H10.1909L11.2575 57H18.1909Z" fill="#FF2020"/>
+<path d="M12.1909 54L11.1909 57H12.1909V54Z" fill="#FF2020"/>
+<path d="M28.1909 56L28.6909 57H28.1909V56Z" fill="#FF2020" stroke="#FF2020" stroke-width="0.1"/>
+<rect width="16" height="23" transform="matrix(-1 0 0 1 28.1909 26)" fill="#9F9F9F"/>
+<circle cx="7.5" cy="7.5" r="7.5" transform="matrix(-1 0 0 1 27.1909 12)" fill="#EFE9C9"/>
+<rect width="17.1102" height="1.15899" transform="matrix(-0.824935 -0.565228 -0.565228 0.824935 48.1909 17.2925)" fill="#832222"/>
+<path d="M26.4004 2.73003L32.7078 10.5259L35.9477 5.79735L26.4004 2.73003Z" fill="#AB9F9F"/>
+</svg>

@@ -1,0 +1,19 @@
+<svg width="49" height="84" viewBox="0 0 49 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="18.0534" y1="82.4367" x2="23.4064" y2="54.4367" stroke="#EFE9C9" stroke-width="6"/>
+<line y1="-3" x2="28.5071" y2="-3" transform="matrix(-0.18778 -0.982211 -0.982211 0.18778 35.3531 83)" stroke="#EFE9C9" stroke-width="6"/>
+<line x1="45.9786" y1="51.2872" x2="33.7878" y2="28.1272" stroke="#EFE9C9" stroke-width="5"/>
+<rect x="20" y="26" width="16" height="31" fill="#FF2020"/>
+<line x1="38.2731" y1="36.1484" x2="33.6221" y2="27.4094" stroke="#9F9F9F" stroke-width="6"/>
+<line x1="2.77606" y1="11.2406" x2="21.1956" y2="29.8341" stroke="#EFE9C9" stroke-width="5"/>
+<line x1="15.2345" y1="23.6671" x2="22.2335" y2="30.6682" stroke="#9F9F9F" stroke-width="6"/>
+<path d="M22 79L15.1429 78L14 82L20.8571 83L22 79Z" fill="#632323" stroke="#632323" stroke-width="0.1"/>
+<path d="M34 79L40.8571 78L42 82L35.1429 83L34 79Z" fill="#632323" stroke="#632323" stroke-width="0.1"/>
+<path d="M26 57L24.5 64.5H21H18.5L19.5 57H26Z" fill="#FF2020" stroke="#FF2020" stroke-width="0.1"/>
+<path d="M30 57L31.6 65H35.3333H38L36.9333 57H30Z" fill="#FF2020"/>
+<path d="M36 54L37 57H36V54Z" fill="#FF2020"/>
+<path d="M20 56L19.5 57H20V56Z" fill="#FF2020" stroke="#FF2020" stroke-width="0.1"/>
+<rect x="20" y="26" width="16" height="23" fill="#9F9F9F"/>
+<circle cx="28.5" cy="19.5" r="7.5" fill="#EFE9C9"/>
+<rect y="17.2925" width="17.1102" height="1.15899" transform="rotate(-34.4181 0 17.2925)" fill="#832222"/>
+<path d="M21.7904 2.73003L15.4831 10.5259L12.2432 5.79735L21.7904 2.73003Z" fill="#AB9F9F"/>
+</svg>

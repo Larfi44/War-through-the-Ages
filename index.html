@@ -6,7 +6,8 @@
       name="viewport"
       content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Age of War — Balanced Build</title>
+    <title>War through the Ages</title>
+    <link rel="icon" type="image/svg+xml" href="images/avatar.svg" />
     <style>
       :root {
         --bg: #071022;
@@ -198,33 +199,35 @@
       }
       .unit {
         position: absolute;
-        width: 36px;
-        height: 36px;
-        border-radius: 6px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
         z-index: 32;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: visible;
+        pointer-events: none;
+      }
+      .unit img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
       }
       .unit.player {
-        background: #9ae6b4;
+        /* Default player unit styles */
       }
       .unit.enemy {
-        background: #fecaca;
-        transform: scaleX(-1);
+        /* Removed transform: scaleX(-1); - images are already correctly oriented */
       }
       .bossUnit {
         position: absolute;
-        width: 72px;
-        height: 72px;
-        border-radius: 6px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
         z-index: 35;
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+      .bossUnit img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
       }
       .hpBar {
         position: absolute;
@@ -248,10 +251,15 @@
       .proj {
         position: absolute;
         pointer-events: none;
-        border-radius: 50%;
         z-index: 33;
-        width: 12px;
-        height: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .proj img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
       }
       .bottomBar {
         width: 100%;
@@ -565,6 +573,28 @@
         font-weight: 700;
       }
 
+      /* Menu background with moving units */
+      #menuBackground {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: -1;
+        overflow: hidden;
+      }
+      .menu-unit {
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .menu-unit img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
       @media (max-width: 900px) {
         .battle {
           height: 440px;
@@ -633,40 +663,6 @@
       </div>
     </div>
 
-    <!-- Click to start overlay -->
-    <div
-      id="clickToStartOverlay"
-      style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(2, 6, 23, 0.85);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        cursor: pointer;
-      "
-    >
-      <div
-        style="
-          text-align: center;
-          padding: 20px;
-          background: var(--panel);
-          border-radius: 12px;
-        "
-      >
-        <h3 style="color: var(--accent); margin-bottom: 10px">
-          Нажмите чтобы начать игру
-        </h3>
-        <p style="color: var(--text)">
-          Нажмите в любом месте чтобы начать играть со звуком
-        </p>
-      </div>
-    </div>
-
     <!-- Audio elements for music -->
     <audio id="mainMusic" loop preload="auto">
       <source src="music/main.mp3" type="audio/mpeg" />
@@ -720,7 +716,7 @@
           "
         >
           <h2 id="title" style="text-align: center; margin-bottom: 20px">
-            Age of War
+            War through the Ages
           </h2>
           <div
             style="
@@ -962,6 +958,8 @@
             allowMediumAfter: 10,
             allowHeavyAfter: 20,
           },
+          imgWidth: 100,
+          imgHeight: 100,
         },
         {
           id: 2,
@@ -974,6 +972,8 @@
             allowMediumAfter: 15,
             allowHeavyAfter: 30,
           },
+          imgWidth: 100,
+          imgHeight: 100,
         },
         {
           id: 3,
@@ -986,6 +986,8 @@
             allowMediumAfter: 25,
             allowHeavyAfter: 40,
           },
+          imgWidth: 100,
+          imgHeight: 100,
         },
         {
           id: 4,
@@ -998,6 +1000,8 @@
             allowMediumAfter: 30,
             allowHeavyAfter: 45,
           },
+          imgWidth: 100,
+          imgHeight: 100,
         },
         {
           id: 5,
@@ -1010,6 +1014,8 @@
             allowMediumAfter: 40,
             allowHeavyAfter: 70,
           },
+          imgWidth: 100,
+          imgHeight: 100,
         },
         {
           id: 6,
@@ -1022,6 +1028,8 @@
             allowMediumAfter: 45,
             allowHeavyAfter: 75,
           },
+          imgWidth: 100,
+          imgHeight: 100,
         },
       ];
 
@@ -1040,6 +1048,8 @@
             atkSpeed: 1.0,
             type: "melee",
             tier: 1,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u1_s",
@@ -1053,9 +1063,18 @@
             type: "shoot",
             range: 200,
             bulletSpeed: 420,
-            bulletSize: 10,
-            bulletSprite: null,
+            bulletSize: 20,
+            bulletSprite: {
+              player: {
+                src: "images/ancientBullet.svg",
+                width: 20,
+                height: 20,
+              },
+              enemy: { src: "images/ancientBullet.svg", width: 20, height: 20 },
+            },
             tier: 2,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u1_h",
@@ -1068,6 +1087,8 @@
             atkSpeed: 1.4,
             type: "melee",
             tier: 3,
+            imgWidth: 70,
+            imgHeight: 70,
           },
         ],
         2: [
@@ -1082,6 +1103,8 @@
             atkSpeed: 1.1,
             type: "melee",
             tier: 1,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u2_s",
@@ -1095,9 +1118,22 @@
             type: "shoot",
             range: 250,
             bulletSpeed: 360,
-            bulletSize: 12,
-            bulletSprite: null,
+            bulletSize: 20,
+            bulletSprite: {
+              player: {
+                src: "images/antiquityBullet.svg",
+                width: 20,
+                height: 20,
+              },
+              enemy: {
+                src: "images/antiquityBulletE.svg",
+                width: 20,
+                height: 20,
+              },
+            },
             tier: 2,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u2_h",
@@ -1110,6 +1146,8 @@
             atkSpeed: 1.3,
             type: "melee",
             tier: 3,
+            imgWidth: 70,
+            imgHeight: 70,
           },
         ],
         3: [
@@ -1124,6 +1162,8 @@
             atkSpeed: 1.1,
             type: "melee",
             tier: 1,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u3_s",
@@ -1137,9 +1177,22 @@
             type: "shoot",
             range: 300,
             bulletSpeed: 420,
-            bulletSize: 10,
-            bulletSprite: null,
+            bulletSize: 20,
+            bulletSprite: {
+              player: {
+                src: "images/medievalBullet.svg",
+                width: 20,
+                height: 20,
+              },
+              enemy: {
+                src: "images/medievalBulletE.svg",
+                width: 20,
+                height: 20,
+              },
+            },
             tier: 2,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u3_h",
@@ -1152,6 +1205,8 @@
             atkSpeed: 1.7,
             type: "melee",
             tier: 3,
+            imgWidth: 70,
+            imgHeight: 70,
           },
         ],
         4: [
@@ -1166,6 +1221,8 @@
             atkSpeed: 1.1,
             type: "melee",
             tier: 1,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u4_s",
@@ -1179,9 +1236,22 @@
             type: "shoot",
             range: 350,
             bulletSpeed: 440,
-            bulletSize: 12,
-            bulletSprite: null,
+            bulletSize: 20,
+            bulletSprite: {
+              player: {
+                src: "images/enlightenmentBullet.svg",
+                width: 20,
+                height: 20,
+              },
+              enemy: {
+                src: "images/enlightenmentBullet.svg",
+                width: 20,
+                height: 20,
+              },
+            },
             tier: 2,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u4_h",
@@ -1194,6 +1264,8 @@
             atkSpeed: 2.0,
             type: "melee",
             tier: 3,
+            imgWidth: 70,
+            imgHeight: 70,
           },
         ],
         5: [
@@ -1208,6 +1280,8 @@
             atkSpeed: 1.0,
             type: "melee",
             tier: 1,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u5_s",
@@ -1221,9 +1295,14 @@
             type: "shoot",
             range: 400,
             bulletSpeed: 520,
-            bulletSize: 14,
-            bulletSprite: null,
+            bulletSize: 20,
+            bulletSprite: {
+              player: { src: "images/modernBullet.svg", width: 20, height: 20 },
+              enemy: { src: "images/modernBullet.svg", width: 20, height: 20 },
+            },
             tier: 2,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u5_h",
@@ -1236,6 +1315,8 @@
             atkSpeed: 2.6,
             type: "melee",
             tier: 3,
+            imgWidth: 80,
+            imgHeight: 80,
           },
         ],
         6: [
@@ -1250,6 +1331,8 @@
             atkSpeed: 1.0,
             type: "melee",
             tier: 1,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u6_s",
@@ -1263,9 +1346,14 @@
             type: "shoot",
             range: 450,
             bulletSpeed: 620,
-            bulletSize: 12,
-            bulletSprite: null,
+            bulletSize: 20,
+            bulletSprite: {
+              player: { src: "images/futureBullet.svg", width: 20, height: 20 },
+              enemy: { src: "images/futureBullet.svg", width: 20, height: 20 },
+            },
             tier: 2,
+            imgWidth: 60,
+            imgHeight: 60,
           },
           {
             id: "u6_h",
@@ -1278,6 +1366,8 @@
             atkSpeed: 2.8,
             type: "melee",
             tier: 3,
+            imgWidth: 80,
+            imgHeight: 80,
           },
         ],
       };
@@ -1343,6 +1433,7 @@
         stopEnemySpawn: false,
         currentMusic: null,
         audioEnabled: false,
+        menuUnits: [],
       };
 
       /* ----------------- DOM ----------------- */
@@ -1392,7 +1483,6 @@
         finishRestart = $("finishRestart"),
         finishToMenu = $("finishToMenu");
       const orientationWarning = $("orientationWarning");
-      const clickToStartOverlay = $("clickToStartOverlay");
 
       // Audio elements
       const mainMusic = $("mainMusic");
@@ -1408,7 +1498,7 @@
       /* ----------------- i18n strings ----------------- */
       const I18N = {
         en: {
-          title: "Age of War",
+          title: "War through the Ages",
           normal: "Normal",
           bosses: "Bosses",
           settings: "Settings",
@@ -1462,11 +1552,9 @@
           volume: "Volume",
           unlocked: "Unlocked",
           locked: "Locked",
-          clickToStart: "Click to Start Game",
-          clickAnywhere: "Click anywhere to begin playing with sound",
         },
         ru: {
-          title: "Эпоха Войн",
+          title: "Война сквозь века",
           normal: "Обычный",
           bosses: "Боссы",
           settings: "Настройки",
@@ -1521,8 +1609,6 @@
           volume: "Громкость",
           unlocked: "Открыт",
           locked: "Закрыт",
-          clickToStart: "Нажмите чтобы начать игру",
-          clickAnywhere: "Нажмите в любом месте чтобы начать играть со звуком",
         },
       };
 
@@ -1552,11 +1638,6 @@
           }
         });
 
-        // Hide the click to start overlay
-        if (clickToStartOverlay) {
-          clickToStartOverlay.style.display = "none";
-        }
-
         // Start menu music
         playMenuMusic();
 
@@ -1567,6 +1648,19 @@
         if (!state.audioEnabled || state.currentMusic === "menu") return;
 
         stopAllMusic();
+
+        // Create an audio context if needed
+        if (!window.audioContext) {
+          window.audioContext = new (window.AudioContext ||
+            window.webkitAudioContext)();
+        }
+
+        // Try to resume the audio context if it's suspended
+        if (window.audioContext.state === "suspended") {
+          window.audioContext.resume().then(() => {
+            console.log("Audio context resumed");
+          });
+        }
 
         const menuMusicOptions = [
           ancientMusic,
@@ -1587,17 +1681,20 @@
           randomMusic.volume = state.volume;
           randomMusic.loop = true;
 
-          // Try to play the music
+          // Try to play the music with a user gesture fallback
           const playPromise = randomMusic.play();
           if (playPromise !== undefined) {
-            playPromise.catch((error) => {
-              console.log("Menu music play failed:", error);
-              // If music fails to play, don't break the game
-              state.currentMusic = null;
-            });
+            playPromise
+              .then(() => {
+                console.log("Menu music started successfully");
+                state.currentMusic = "menu";
+              })
+              .catch((error) => {
+                console.log("Menu music play failed:", error);
+                // If music fails to play, don't break the game
+                state.currentMusic = null;
+              });
           }
-
-          state.currentMusic = "menu";
         }
       }
 
@@ -1633,8 +1730,10 @@
           musicElement.volume = state.volume;
           musicElement
             .play()
+            .then(() => {
+              state.currentMusic = age;
+            })
             .catch((e) => console.log("Age music play failed:", e));
-          state.currentMusic = age;
         }
       }
 
@@ -1646,8 +1745,10 @@
           bossMusic.volume = state.volume;
           bossMusic
             .play()
+            .then(() => {
+              state.currentMusic = "boss";
+            })
             .catch((e) => console.log("Boss music play failed:", e));
-          state.currentMusic = "boss";
         }
       }
 
@@ -1716,6 +1817,91 @@
         el.textContent = text;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), t);
+      }
+
+      /* ----------------- Menu Background Animation ----------------- */
+      function createMenuBackground() {
+        // Create the background element
+        const menuBackground = document.createElement("div");
+        menuBackground.id = "menuBackground";
+        document.body.appendChild(menuBackground);
+
+        // Start spawning menu units
+        spawnMenuUnits();
+      }
+
+      function spawnMenuUnits() {
+        if (!state.running && document.getElementById("menuBackground")) {
+          // Get all unit templates (non-boss)
+          const allUnits = [];
+          for (let age = 1; age <= 6; age++) {
+            const ageUnits = UNIT_TEMPLATES[age] || [];
+            ageUnits.forEach((unit) => allUnits.push(unit));
+          }
+
+          // Pick a random unit
+          const unitTemplate =
+            allUnits[Math.floor(Math.random() * allUnits.length)];
+
+          // Create the unit element
+          const unitEl = document.createElement("div");
+          unitEl.className = "menu-unit";
+
+          const img = document.createElement("img");
+          // Use player version for menu background
+          img.src = `images/${unitTemplate.name.toLowerCase()}.svg`;
+          img.alt = unitTemplate.name;
+          unitEl.appendChild(img);
+
+          // Set larger size for menu background (between 80 and 150px)
+          const size = 80 + Math.random() * 70;
+          unitEl.style.width = `${size}px`;
+          unitEl.style.height = `${size}px`;
+
+          // Set random starting position (left side, random y)
+          unitEl.style.left = `-${size}px`;
+          unitEl.style.top = `${10 + Math.random() * 80}%`;
+
+          // Add to menu background
+          document.getElementById("menuBackground").appendChild(unitEl);
+
+          // Animate the unit
+          const duration = 15 + Math.random() * 25; // seconds
+          unitEl.style.transition = `left ${duration}s linear`;
+          setTimeout(() => {
+            unitEl.style.left = "100%";
+          }, 10);
+
+          // Remove after animation completes
+          setTimeout(() => {
+            if (unitEl.parentNode) {
+              unitEl.parentNode.removeChild(unitEl);
+            }
+          }, duration * 1000 + 10);
+
+          // Add to state for tracking
+          state.menuUnits.push(unitEl);
+
+          // Schedule next spawn
+          const nextSpawn = 500 + Math.random() * 2000; // 0.5 to 2.5 seconds
+          setTimeout(spawnMenuUnits, nextSpawn);
+        }
+      }
+
+      function clearMenuBackground() {
+        // Remove all menu units
+        state.menuUnits.forEach((unit) => {
+          if (unit.parentNode) {
+            unit.parentNode.removeChild(unit);
+          }
+        });
+        state.menuUnits = [];
+
+        // Remove background element
+        const menuBackground = document.getElementById("menuBackground");
+        if (menuBackground) {
+          menuBackground.parentNode.removeChild(menuBackground);
+        }
       }
 
       /* ----------------- Initialization Functions ----------------- */
@@ -2024,8 +2210,15 @@
         const battleRect = battleEl.getBoundingClientRect();
         const el = document.createElement("div");
         el.className = "unit " + (side === "player" ? "player" : "enemy");
-        el.style.width = template.tier === 3 ? "42px" : "36px";
-        el.style.height = template.tier === 3 ? "42px" : "36px";
+        el.style.width = (template.imgWidth || 60) + "px";
+        el.style.height = (template.imgHeight || 60) + "px";
+
+        // Create image element
+        const img = document.createElement("img");
+        const imageName = template.name.toLowerCase();
+        img.src = `images/${imageName}${side === "enemy" ? "E" : ""}.svg`;
+        img.alt = template.name;
+        el.appendChild(img);
 
         const hpBar = document.createElement("div");
         hpBar.className = "hpBar";
@@ -2047,7 +2240,7 @@
           atk: template.atk,
           spd: template.spd,
           x: startX,
-          width: template.tier === 3 ? 42 : 36,
+          width: template.imgWidth || 60,
           el,
           atkTimer: 0,
           atkSpeed: template.atkSpeed || 1.0,
@@ -2066,12 +2259,32 @@
           fromUnit.x + (fromUnit.side === "player" ? fromUnit.width : -6);
         const el = document.createElement("div");
         el.className = "proj";
-        el.style.width = (fromUnit.template.bulletSize || 12) + "px";
-        el.style.height = (fromUnit.template.bulletSize || 12) + "px";
+        el.style.width = (fromUnit.template.bulletSize || 20) + "px";
+        el.style.height = (fromUnit.template.bulletSize || 20) + "px";
         el.style.left = startX + "px";
-        el.style.bottom = fromUnit.isBoss ? "22%" : "18%";
-        el.style.background =
-          fromUnit.side === "player" ? "#ffd27a" : "#ffd2d2";
+        // Position bullets closer to the ground
+        el.style.bottom = fromUnit.isBoss ? "16%" : "14%";
+
+        // Create bullet image
+        const img = document.createElement("img");
+        const bulletSprite = fromUnit.template.bulletSprite;
+        if (bulletSprite) {
+          if (bulletSprite.player && bulletSprite.enemy) {
+            img.src =
+              fromUnit.side === "player"
+                ? bulletSprite.player.src
+                : bulletSprite.enemy.src;
+          } else {
+            img.src = bulletSprite.src;
+          }
+          img.alt = "bullet";
+          el.appendChild(img);
+        } else {
+          // Fallback to colored circle if no sprite
+          el.style.background =
+            fromUnit.side === "player" ? "#ffd27a" : "#ffd2d2";
+          el.style.borderRadius = "50%";
+        }
 
         if (battleUnits) battleUnits.appendChild(el);
 
@@ -2476,6 +2689,15 @@
         const br = battleEl.getBoundingClientRect();
         const el = document.createElement("div");
         el.className = "bossUnit";
+        el.style.width = (state.bossChoice.imgWidth || 100) + "px";
+        el.style.height = (state.bossChoice.imgHeight || 100) + "px";
+
+        // Create boss image
+        const img = document.createElement("img");
+        img.src = `images/${state.bossChoice.name.toLowerCase()}.svg`;
+        img.alt = state.bossChoice.name;
+        el.appendChild(img);
+
         const hpBar = document.createElement("div");
         hpBar.className = "hpBar";
         const hpFill = document.createElement("div");
@@ -2494,7 +2716,7 @@
           atk: Math.max(50, Math.floor(state.bossChoice.baseHP / 20)),
           spd: 0.25,
           x: br.width - 200,
-          width: 72,
+          width: state.bossChoice.imgWidth || 100,
           el,
           atkTimer: 0,
           atkSpeed: 1.2,
@@ -2613,20 +2835,17 @@
             else hpFill.classList.remove("low");
           }
           el.style.left = Math.max(60, Math.min(bw - 200, u.x)) + "px";
-          el.style.bottom = u.isBoss ? "16%" : "18%";
-          el.style.width = u.isBoss
-            ? "72px"
-            : u.template.tier === 3
-            ? "42px"
-            : "36px";
-          el.style.height = u.isBoss
-            ? "72px"
-            : u.template.tier === 3
-            ? "42px"
-            : "36px";
-          if (u.side === "enemy" && !u.isBoss)
-            el.style.transform = "scaleX(-1)";
-          else el.style.transform = "scaleX(1)";
+          // Position units closer to the ground
+          el.style.bottom = u.isBoss ? "16%" : "14%";
+          el.style.width =
+            (u.isBoss
+              ? u.template.imgWidth || 100
+              : u.template.imgWidth || 60) + "px";
+          el.style.height =
+            (u.isBoss
+              ? u.template.imgHeight || 100
+              : u.template.imgHeight || 60) + "px";
+          // Removed transform for enemy units - images are already correctly oriented
           if (state.showHPNumbers) {
             let num = el.querySelector(".hpNum");
             if (!num) {
@@ -2803,6 +3022,9 @@
         state.stopEnemySpawn = false;
         bossWaveTimer = 0;
 
+        // Clear menu background when game starts
+        clearMenuBackground();
+
         buildUnitButtons();
         updateUI();
         buildBossList();
@@ -2903,24 +3125,11 @@
           if (p) p.textContent = L("rotateMessage");
         }
 
-        // Update click to start overlay
-        if (clickToStartOverlay) {
-          const h3 = clickToStartOverlay.querySelector("h3");
-          const p = clickToStartOverlay.querySelector("p");
-          if (h3) h3.textContent = L("clickToStart");
-          if (p) p.textContent = L("clickAnywhere");
-        }
-
         updateTop();
       }
 
       /* ----------------- Event Listeners ----------------- */
       function initializeEventListeners() {
-        // Click to start overlay
-        if (clickToStartOverlay) {
-          clickToStartOverlay.onclick = enableAudio;
-        }
-
         // Menu buttons
         if (btnNormal)
           btnNormal.onclick = () => {
@@ -3039,6 +3248,9 @@
             pauseModal.style.display = "none";
             state.running = false;
             if (menu) menu.style.display = "flex";
+            // Restart menu background animation
+            clearMenuBackground();
+            createMenuBackground();
             playMenuMusic();
           };
 
@@ -3054,6 +3266,9 @@
             if (finishOverlay) finishOverlay.style.display = "none";
             state.running = false;
             if (menu) menu.style.display = "flex";
+            // Restart menu background animation
+            clearMenuBackground();
+            createMenuBackground();
             playMenuMusic();
           };
 
@@ -3074,6 +3289,14 @@
 
         // Unit buttons fit on resize
         window.addEventListener("resize", checkUnitButtonsFit);
+
+        // Enable audio on first user interaction
+        document.addEventListener("click", function enableAudioOnInteraction() {
+          if (!state.audioEnabled) {
+            enableAudio();
+          }
+          document.removeEventListener("click", enableAudioOnInteraction);
+        });
       }
 
       /* ----------------- Initialization ----------------- */
@@ -3126,6 +3349,9 @@
         allMusic.forEach((music) => {
           if (music) music.volume = 0; // Start with volume 0 until user enables audio
         });
+
+        // Create menu background
+        createMenuBackground();
 
         console.log("=== GAME INITIALIZED SUCCESSFULLY ===");
         console.log("Current state:", {

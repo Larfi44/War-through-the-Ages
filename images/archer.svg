@@ -1,0 +1,17 @@
+<svg width="48" height="83" viewBox="0 0 48 83" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="36.8933" y="23" width="3" height="15" fill="#632323"/>
+<rect x="24.8933" y="30" width="20" height="1" fill="#832222"/>
+<rect x="28.8933" y="15" width="1" height="31" fill="white"/>
+<line x1="2.94663" y1="82.4367" x2="8.29969" y2="54.4367" stroke="#006810" stroke-width="6"/>
+<line y1="-3" x2="28.5071" y2="-3" transform="matrix(-0.18778 -0.982211 -0.982211 0.18778 20.2463 83)" stroke="#006810" stroke-width="6"/>
+<line x1="33.3133" y1="31.8276" x2="7.2292" y2="29.6788" stroke="#EFE9C9" stroke-width="5"/>
+<line x1="17.6515" y1="30.677" x2="7.82239" y2="29.4989" stroke="#006810" stroke-width="6"/>
+<rect x="4.89326" y="26" width="16" height="31" fill="#018016"/>
+<circle cx="13.3933" cy="19.5" r="7.5" fill="#EFE9C9"/>
+<rect x="30.0146" y="14" width="14" height="3" transform="rotate(45 30.0146 14)" fill="#632323"/>
+<rect width="14" height="3" transform="matrix(-0.707107 0.707107 0.707107 0.707107 37.7928 35)" fill="#632323"/>
+<path d="M47.8933 30.5L44.1433 32.6651L44.1433 28.3349L47.8933 30.5Z" fill="#AB9F9F"/>
+<line x1="29.4081" y1="43.4027" x2="6.65738" y2="30.4642" stroke="#EFE9C9" stroke-width="5"/>
+<line x1="15.0967" y1="35.4236" x2="6.43868" y2="30.6237" stroke="#006810" stroke-width="6"/>
+<path d="M13.3933 0L22.4865 15.75H4.3L13.3933 0Z" fill="#006810"/>
+</svg>
