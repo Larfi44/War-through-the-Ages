@@ -584,7 +584,195 @@ input[type="range"] {
   bottom: 8% !important;
 }
 
-/* Mobile Responsive Improvements */
+/* Mobile Optimizations */
+.mobile-controls {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(2, 6, 23, 0.95);
+  padding: 10px;
+  z-index: 100;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-stats {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(2, 6, 23, 0.95);
+  padding: 8px;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+}
+
+.mobile-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.mobile-stat-value {
+  font-weight: bold;
+  color: #ffcc00;
+  font-size: 14px;
+}
+
+.mobile-boss-info {
+  display: none;
+  position: fixed;
+  top: 50px;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 6px;
+  z-index: 99;
+  text-align: center;
+  font-size: 11px;
+}
+
+.mobile-unit-buttons {
+  display: none;
+  position: fixed;
+  bottom: 70px;
+  left: 0;
+  right: 0;
+  background: rgba(2, 6, 23, 0.9);
+  padding: 8px;
+  z-index: 90;
+  overflow-x: auto;
+  gap: 6px;
+}
+
+.mobile-unit-btn {
+  background: linear-gradient(180deg, #0f1724, #08101a);
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  white-space: nowrap;
+  flex-shrink: 0;
+  width: 60px;
+  height: 45px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  font-size: 10px;
+}
+
+.mobile-unit-btn .unit-name {
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.mobile-unit-btn .unit-cost {
+  font-size: 8px;
+  color: #ffcc00;
+  font-weight: 700;
+}
+
+.mobile-upgrade-btn {
+  background: linear-gradient(180deg, #0f1724, #08101a);
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 60px;
+}
+
+.mobile-upgrade-btn .upgrade-text {
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.mobile-upgrade-btn .upgrade-cost {
+  font-size: 8px;
+  color: #ffcc00;
+  font-weight: 700;
+}
+
+.mobile-controls-row {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-speed-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.mobile-speed-btn {
+  background: linear-gradient(180deg, #0f1724, #08101a);
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 10px;
+}
+
+.mobile-speed-btn.active {
+  background: linear-gradient(180deg, #1e293b, #0f1724);
+  outline: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.mobile-action-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.mobile-action-btn {
+  background: linear-gradient(180deg, #0f1724, #08101a);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Double click animation */
+.boss-double-click {
+  animation: doubleClickPulse 0.6s ease;
+}
+
+@keyframes doubleClickPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    background: rgba(255, 204, 0, 0.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @media (max-width: 900px) {
   .battle {
     height: 440px;
@@ -614,21 +802,27 @@ input[type="range"] {
 }
 
 @media (max-width: 768px) {
-  .bottomBar {
-    flex-wrap: wrap;
-    gap: 12px;
+  .bottomBar,
+  .topBossInfo {
+    display: none !important;
   }
-  .unitButtons {
-    order: 3;
-    width: 100%;
-    justify-content: center;
+
+  .mobile-stats,
+  .mobile-boss-info,
+  .mobile-unit-buttons,
+  .mobile-controls {
+    display: flex;
   }
-  .stat {
-    min-width: 80px;
-    font-size: 12px;
+
+  .battle {
+    margin-top: 40px;
+    margin-bottom: 120px;
+    height: calc(100vh - 160px);
+    min-height: 300px;
   }
-  #ageText {
-    font-size: 11px !important;
+
+  .mobile-unit-buttons {
+    bottom: 60px;
   }
 }
 
@@ -637,105 +831,51 @@ input[type="range"] {
     display: flex;
   }
   .card,
-  .battleWrap,
-  .bottomBar {
+  .battleWrap {
     display: none;
   }
 }
 
 @media (max-width: 520px) and (orientation: landscape) {
-  body {
-    padding: 6px;
+  .bottomBar,
+  .topBossInfo {
+    display: none !important;
   }
-  .card {
-    padding: 6px;
+
+  .mobile-stats,
+  .mobile-boss-info,
+  .mobile-unit-buttons,
+  .mobile-controls {
+    display: flex;
   }
+
   .battle {
-    height: 300px;
+    margin-top: 35px;
+    margin-bottom: 50px;
+    height: calc(100vh - 85px);
+    min-height: 200px;
   }
+
+  .mobile-unit-buttons {
+    bottom: 50px;
+  }
+
   .base {
     width: 80px;
     height: 80px;
     font-size: 12px;
-  }
-  .bottomBar {
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px;
-  }
-  .stat {
-    min-width: auto;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px;
-  }
-  .stat br {
-    display: none;
-  }
-  .unitButtons {
-    order: 2;
-    width: 100%;
-    overflow-x: auto;
-    padding: 4px 0;
-  }
-  .unit-btn {
-    width: 65px;
-    height: 55px;
-    padding: 6px;
-  }
-  .unit-btn .unit-name {
-    font-size: 10px;
-  }
-  .unit-btn .unit-cost {
-    font-size: 10px;
-  }
-  .topBossInfo {
-    flex-direction: column;
-    gap: 4px;
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-  .topBossInfo .small {
-    font-size: 11px;
-  }
-  .upgrade-age-square {
-    width: 65px;
-    height: 65px;
-  }
-  .upgrade-age-text {
-    font-size: 9px;
-  }
-  .upgrade-age-cost {
-    font-size: 9px;
-  }
-
-  /* Menu improvements for mobile */
-  #menu > div {
-    padding: 15px;
-    max-height: 95vh;
-    overflow-y: auto;
-  }
-  #bossList {
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  #startBoss {
-    margin-top: 10px;
   }
 }
 
 @media (max-height: 400px) and (orientation: landscape) {
   .battle {
     height: 250px;
+    margin-top: 30px;
+    margin-bottom: 45px;
   }
   .base {
     width: 70px;
     height: 70px;
     font-size: 11px;
-  }
-  .bottomBar {
-    padding: 6px;
   }
 }
