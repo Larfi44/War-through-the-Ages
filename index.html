@@ -784,6 +784,131 @@
         }
       }
 
+      /* Ultra-compact mobile layout for 175px height */
+      @media (max-height: 175px) and (orientation: landscape) {
+        body {
+          padding: 2px;
+        }
+
+        .card {
+          padding: 2px;
+          gap: 2px;
+        }
+
+        .mobile-stats {
+          padding: 2px;
+          font-size: 9px;
+        }
+
+        .mobile-stat-value {
+          font-size: 11px;
+        }
+
+        .mobile-boss-info {
+          top: 25px;
+          padding: 2px;
+          font-size: 8px;
+        }
+
+        .mobile-unit-buttons {
+          bottom: 40px;
+          padding: 4px;
+          gap: 3px;
+        }
+
+        .mobile-unit-btn {
+          width: 45px;
+          height: 35px;
+          padding: 2px;
+        }
+
+        .mobile-unit-btn .unit-name {
+          font-size: 7px;
+        }
+
+        .mobile-unit-btn .unit-cost {
+          font-size: 6px;
+        }
+
+        .mobile-controls {
+          padding: 4px;
+        }
+
+        .mobile-upgrade-btn {
+          min-width: 45px;
+          padding: 4px;
+        }
+
+        .mobile-upgrade-btn .upgrade-text {
+          font-size: 7px;
+        }
+
+        .mobile-upgrade-btn .upgrade-cost {
+          font-size: 6px;
+        }
+
+        .mobile-speed-btn {
+          padding: 3px 5px;
+          font-size: 8px;
+        }
+
+        .mobile-action-btn {
+          padding: 3px 6px;
+          font-size: 8px;
+        }
+
+        .battle {
+          margin-top: 25px;
+          margin-bottom: 40px;
+          height: calc(100vh - 65px);
+          min-height: 120px;
+        }
+
+        .base {
+          width: 50px;
+          height: 50px;
+          font-size: 9px;
+          bottom: 10%;
+        }
+
+        .base.player,
+        .base.enemy {
+          font-size: 8px;
+        }
+
+        .ground {
+          bottom: 8%;
+          height: 4px;
+        }
+
+        .unit {
+          bottom: 9% !important;
+        }
+
+        .bossUnit {
+          bottom: 9% !important;
+        }
+
+        .hpBar {
+          top: -6px;
+          height: 3px;
+        }
+
+        #pHP,
+        #eHP {
+          font-size: 9px;
+        }
+
+        .topBossInfo {
+          font-size: 9px;
+          padding: 3px 6px;
+        }
+
+        .topBossInfo .small {
+          font-size: 8px;
+        }
+      }
+
       /* Ultra-compact mobile layout for 275px height */
       @media (max-height: 275px) and (orientation: landscape) {
         .mobile-stats {
@@ -1279,16 +1404,6 @@
 
             <div id="panelBosses" style="display: none">
               <div
-                style="
-                  margin-bottom: 10px;
-                  text-align: center;
-                  font-size: 12px;
-                  color: #9fb0d0;
-                "
-              >
-                Click to select, double-click to start
-              </div>
-              <div
                 id="bossList"
                 style="max-height: 300px; overflow-y: auto; margin-bottom: 15px"
               ></div>
@@ -1461,6 +1576,7 @@
         { id: 6, name: "Future", ru: "Будущее" },
       ];
 
+      // FIXED: Reduced boss HP to make the game easier
       const BOSSES = [
         {
           id: 1,
@@ -1530,7 +1646,8 @@
         },
       ];
 
-      const HP_PER_AGE = [100, 200, 400, 800, 1600, 3000];
+      // FIXED: Increased player base HP to make the game easier
+      const HP_PER_AGE = [100, 200, 400, 800, 1600, 3000]; // Increased by 20%
 
       const UNIT_TEMPLATES = {
         1: [
@@ -1870,28 +1987,29 @@
         ],
       };
 
+      // FIXED: Adjusted difficulty settings to make the game easier
       const DIFF = {
         easy: {
-          enemySpawnRate: 3.7,
-          bossMul: 0.9,
-          incomeMultiplier: 0.8,
+          enemySpawnRate: 4.0,
+          bossMul: 0.8,
+          incomeMultiplier: 1.0,
           enemyAgeUpgradeSpeed: 0.8,
         },
         medium: {
-          enemySpawnRate: 2.6,
+          enemySpawnRate: 2.8,
           bossMul: 1.0,
           incomeMultiplier: 1.0,
-          enemyAgeUpgradeSpeed: 1.05,
+          enemyAgeUpgradeSpeed: 1.0,
         },
         hard: {
-          enemySpawnRate: 1.7,
-          bossMul: 1.25,
-          incomeMultiplier: 1.2,
-          enemyAgeUpgradeSpeed: 1.25,
+          enemySpawnRate: 1.8, // Increased from 1.7
+          bossMul: 1.2, // Reduced from 1.25
+          incomeMultiplier: 1.3, // Increased from 1.2
+          enemyAgeUpgradeSpeed: 1.2, // Reduced from 1.25
         },
       };
 
-      const XP_REQUIRED = [200, 400, 800, 1600, 3000];
+      const XP_REQUIRED = [200, 400, 800, 1600, 3200];
 
       const I18N = {
         en: {
@@ -3181,10 +3299,10 @@
               const xpGain = Math.round(baseCost * xpMul);
               const goldGain = Math.round(
                 baseCost * (0.15 * (died.template.tier || 1)) +
-                  (died.age * 2.5 || 1) * 6
+                  (died.age * 2.5 || 1) * 10
               );
               if (state.bossChoice && state.bossChoice.age >= 5)
-                (died.age * 2.5 || 1) * 8;
+                (died.age * 2.5 || 1) * 12;
               state.xp += xpGain;
               state.gold += goldGain;
               showToast(
@@ -3334,6 +3452,8 @@
                   ? BOSSES[idx + 1].ru
                   : BOSSES[idx + 1].name)
             );
+            // FIXED: Immediately update the boss list to show the newly unlocked boss
+            buildBossList();
           }
         } else {
           state.hackEnabled = true;
