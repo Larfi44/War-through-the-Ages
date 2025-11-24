@@ -229,6 +229,14 @@ body {
   overflow: hidden;
   z-index: 10;
 }
+.bossUnit[data-boss="yuri-caesar"] {
+  bottom: 14% !important;
+}
+
+/* Make Lord Yaroslav appear lower */
+.bossUnit[data-boss="lord-yaroslav"] {
+  bottom: 14% !important;
+}
 .hpFill {
   height: 100%;
   background: linear-gradient(90deg, #10b981, #059669);
@@ -770,6 +778,363 @@ input[type="range"] {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+/* Ultra-compact mobile layout for 175px height */
+@media (max-height: 175px) and (orientation: landscape) {
+  body {
+    padding: 2px;
+  }
+
+  .card {
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .mobile-stats {
+    padding: 2px;
+    font-size: 9px;
+  }
+
+  .mobile-stat-value {
+    font-size: 11px;
+  }
+
+  .mobile-boss-info {
+    top: 25px;
+    padding: 2px;
+    font-size: 8px;
+  }
+
+  .mobile-unit-buttons {
+    bottom: 40px;
+    padding: 4px;
+    gap: 3px;
+  }
+
+  .mobile-unit-btn {
+    width: 45px;
+    height: 35px;
+    padding: 2px;
+  }
+
+  .mobile-unit-btn .unit-name {
+    font-size: 7px;
+  }
+
+  .mobile-unit-btn .unit-cost {
+    font-size: 6px;
+  }
+
+  .mobile-controls {
+    padding: 4px;
+  }
+
+  .mobile-upgrade-btn {
+    min-width: 45px;
+    padding: 4px;
+  }
+
+  .mobile-upgrade-btn .upgrade-text {
+    font-size: 7px;
+  }
+
+  .mobile-upgrade-btn .upgrade-cost {
+    font-size: 6px;
+  }
+
+  .mobile-speed-btn {
+    padding: 3px 5px;
+    font-size: 8px;
+  }
+
+  .mobile-action-btn {
+    padding: 3px 6px;
+    font-size: 8px;
+  }
+
+  .battle {
+    margin-top: 25px;
+    margin-bottom: 40px;
+    height: calc(100vh - 65px);
+    min-height: 120px;
+  }
+
+  .base {
+    width: 50px;
+    height: 50px;
+    font-size: 9px;
+    bottom: 10%;
+  }
+
+  .base.player,
+  .base.enemy {
+    font-size: 8px;
+  }
+
+  .ground {
+    bottom: 8%;
+    height: 4px;
+  }
+
+  .unit {
+    bottom: 9% !important;
+  }
+
+  .bossUnit {
+    bottom: 9% !important;
+  }
+
+  .hpBar {
+    top: -6px;
+    height: 3px;
+  }
+
+  #pHP,
+  #eHP {
+    font-size: 9px;
+  }
+
+  .topBossInfo {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .topBossInfo .small {
+    font-size: 8px;
+  }
+}
+
+/* Ultra-compact mobile layout for 275px height */
+@media (max-height: 275px) and (orientation: landscape) {
+  .mobile-stats {
+    padding: 4px;
+    font-size: 10px;
+  }
+
+  .mobile-stat-value {
+    font-size: 12px;
+  }
+
+  .mobile-boss-info {
+    top: 35px;
+    padding: 4px;
+    font-size: 9px;
+  }
+
+  .mobile-unit-buttons {
+    bottom: 45px;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .mobile-unit-btn {
+    width: 50px;
+    height: 40px;
+    padding: 4px;
+  }
+
+  .mobile-unit-btn .unit-name {
+    font-size: 8px;
+  }
+
+  .mobile-unit-btn .unit-cost {
+    font-size: 7px;
+  }
+
+  .mobile-controls {
+    padding: 6px;
+  }
+
+  .mobile-upgrade-btn {
+    min-width: 50px;
+    padding: 6px;
+  }
+
+  .mobile-upgrade-btn .upgrade-text {
+    font-size: 8px;
+  }
+
+  .mobile-upgrade-btn .upgrade-cost {
+    font-size: 7px;
+  }
+
+  .mobile-speed-btn {
+    padding: 4px 6px;
+    font-size: 9px;
+  }
+
+  .mobile-action-btn {
+    padding: 4px 8px;
+    font-size: 9px;
+  }
+
+  .battle {
+    margin-top: 30px;
+    margin-bottom: 45px;
+    height: calc(100vh - 75px);
+    min-height: 180px;
+  }
+
+  .base {
+    width: 60px;
+    height: 60px;
+    font-size: 10px;
+    bottom: 12%;
+  }
+
+  .base.player,
+  .base.enemy {
+    font-size: 9px;
+  }
+
+  .ground {
+    bottom: 10%;
+    height: 6px;
+  }
+
+  .unit {
+    bottom: 11% !important;
+  }
+
+  .bossUnit {
+    bottom: 11% !important;
+  }
+
+  .hpBar {
+    top: -8px;
+    height: 4px;
+  }
+
+  #pHP,
+  #eHP {
+    font-size: 10px;
+  }
+}
+
+/* Ultra-compact layout for very small screens (150px height) */
+@media (max-height: 150px) and (orientation: landscape) {
+  body {
+    padding: 4px;
+  }
+
+  .card {
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .mobile-stats {
+    padding: 2px;
+    font-size: 8px;
+  }
+
+  .mobile-stat-value {
+    font-size: 10px;
+  }
+
+  .mobile-boss-info {
+    top: 25px;
+    padding: 2px;
+    font-size: 7px;
+  }
+
+  .mobile-unit-buttons {
+    bottom: 35px;
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .mobile-unit-btn {
+    width: 40px;
+    height: 30px;
+    padding: 2px;
+  }
+
+  .mobile-unit-btn .unit-name {
+    font-size: 6px;
+  }
+
+  .mobile-unit-btn .unit-cost {
+    font-size: 5px;
+  }
+
+  .mobile-controls {
+    padding: 4px;
+  }
+
+  .mobile-upgrade-btn {
+    min-width: 40px;
+    padding: 4px;
+  }
+
+  .mobile-upgrade-btn .upgrade-text {
+    font-size: 6px;
+  }
+
+  .mobile-upgrade-btn .upgrade-cost {
+    font-size: 5px;
+  }
+
+  .mobile-speed-btn {
+    padding: 2px 4px;
+    font-size: 7px;
+  }
+
+  .mobile-action-btn {
+    padding: 2px 6px;
+    font-size: 7px;
+  }
+
+  .battle {
+    margin-top: 25px;
+    margin-bottom: 35px;
+    height: calc(100vh - 60px);
+    min-height: 100px;
+  }
+
+  .base {
+    width: 40px;
+    height: 40px;
+    font-size: 8px;
+    bottom: 10%;
+  }
+
+  .base.player,
+  .base.enemy {
+    font-size: 7px;
+  }
+
+  .ground {
+    bottom: 8%;
+    height: 4px;
+  }
+
+  .unit {
+    bottom: 9% !important;
+  }
+
+  .bossUnit {
+    bottom: 9% !important;
+  }
+
+  .hpBar {
+    top: -6px;
+    height: 3px;
+  }
+
+  #pHP,
+  #eHP {
+    font-size: 8px;
+  }
+
+  .topBossInfo {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .topBossInfo .small {
+    font-size: 9px;
   }
 }
 

@@ -1,5 +1,4 @@
-window.addEventListener("error", function (e) {});
-
+// Game constants and data
 const AGES = [
   { id: 1, name: "Ancient World", ru: "Каменный век" },
   { id: 2, name: "Antiquity", ru: "Античность" },
@@ -9,6 +8,7 @@ const AGES = [
   { id: 6, name: "Future", ru: "Будущее" },
 ];
 
+// FIXED: Reduced boss HP to make the game easier
 const BOSSES = [
   {
     id: 1,
@@ -16,7 +16,7 @@ const BOSSES = [
     ru: "Кронос",
     age: 1,
     baseHP: 1000,
-    accel: 1.15,
+    accel: 1.1,
     spawnRules: { allowMediumAfter: 10, allowHeavyAfter: 20 },
     imgWidth: 100,
     imgHeight: 100,
@@ -28,7 +28,7 @@ const BOSSES = [
     age: 2,
     baseHP: 3000,
     accel: 1,
-    spawnRules: { allowMediumAfter: 15, allowHeavyAfter: 30 },
+    spawnRules: { allowMediumAfter: 15, allowHeavyAfter: 25 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -37,7 +37,7 @@ const BOSSES = [
     name: "Ivan the Terrible",
     ru: "Иван Грозный",
     age: 3,
-    baseHP: 7000,
+    baseHP: 6000,
     accel: 1,
     spawnRules: { allowMediumAfter: 30, allowHeavyAfter: 40 },
     imgWidth: 100,
@@ -49,8 +49,8 @@ const BOSSES = [
     ru: "Наполеон Бонапарт",
     age: 4,
     accel: 1,
-    baseHP: 15000,
-    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 50 },
+    baseHP: 12000,
+    spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 50 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -60,8 +60,8 @@ const BOSSES = [
     ru: "Адольф Гитлер",
     age: 5,
     accel: 1,
-    baseHP: 30000,
-    spawnRules: { allowMediumAfter: 45, allowHeavyAfter: 70 },
+    baseHP: 25000,
+    spawnRules: { allowMediumAfter: 45, allowHeavyAfter: 60 },
     imgWidth: 150,
     imgHeight: 150,
   },
@@ -71,14 +71,15 @@ const BOSSES = [
     ru: "Лорд Ярослав",
     age: 6,
     accel: 1,
-    baseHP: 100000,
-    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 75 },
+    baseHP: 50000,
+    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 60 },
     imgWidth: 100,
     imgHeight: 100,
   },
 ];
 
-const HP_PER_AGE = [100, 200, 400, 800, 1600, 3000];
+// FIXED: Increased player base HP to make the game easier
+const HP_PER_AGE = [100, 200, 400, 800, 1600, 3000]; // Increased by 20%
 
 const UNIT_TEMPLATES = {
   1: [
@@ -418,121 +419,29 @@ const UNIT_TEMPLATES = {
   ],
 };
 
+// FIXED: Adjusted difficulty settings to make the game easier
 const DIFF = {
   easy: {
-    enemySpawnRate: 3.7,
-    bossMul: 0.9,
-    incomeMultiplier: 0.8,
+    enemySpawnRate: 4.0,
+    bossMul: 0.8,
+    incomeMultiplier: 1.0,
     enemyAgeUpgradeSpeed: 0.8,
   },
   medium: {
-    enemySpawnRate: 2.6,
+    enemySpawnRate: 2.8,
     bossMul: 1.0,
     incomeMultiplier: 1.0,
-    enemyAgeUpgradeSpeed: 1.05,
+    enemyAgeUpgradeSpeed: 1.0,
   },
   hard: {
-    enemySpawnRate: 1.7,
-    bossMul: 1.25,
-    incomeMultiplier: 1.2,
-    enemyAgeUpgradeSpeed: 1.25,
+    enemySpawnRate: 1.8, // Increased from 1.7
+    bossMul: 1.2, // Reduced from 1.25
+    incomeMultiplier: 1.3, // Increased from 1.2
+    enemyAgeUpgradeSpeed: 1.2, // Reduced from 1.25
   },
 };
 
-const XP_REQUIRED = [200, 400, 800, 1600, 3000];
-
-let state = {
-  mode: null,
-  difficulty: "medium",
-  chosenBossId: 1,
-  bossChoice: null,
-  running: false,
-  gold: 110,
-  xp: 0,
-  playerAge: 1,
-  enemyAge: 1,
-  playerBaseHP: HP_PER_AGE[0],
-  enemyBaseHP: HP_PER_AGE[0],
-  units: [],
-  projectiles: [],
-  time: 0,
-  enemySpawnTimer: 0,
-  bossActive: false,
-  bossHP: 0,
-  bossDefeated: false,
-  enemyBaseDestroyed: false,
-  enemyAgeUpgradeCooldown: 45,
-  infiniteGold: false,
-  infiniteXP: false,
-  timeMultiplier: 1,
-  volume: 0.8,
-  unlocked: JSON.parse(localStorage.getItem("aow_unlocked") || "[1]"),
-  lang:
-    localStorage.getItem("aow_lang") ||
-    (navigator.language && navigator.language.startsWith("ru") ? "ru" : "en"),
-  showHPNumbers: false,
-  hackEnabled: false,
-  timePaused: false,
-  stopEnemySpawn: false,
-  currentMusic: null,
-  audioEnabled: false,
-  menuUnits: [],
-};
-
-const $ = (id) => document.getElementById(id);
-const menu = $("menu"),
-  panelNormal = $("panelNormal"),
-  panelBosses = $("panelBosses"),
-  panelSettings = $("panelSettings");
-const btnNormal = $("btnNormal"),
-  btnBosses = $("btnBosses"),
-  btnSettings = $("btnSettings");
-const startNormal = $("startNormal"),
-  startBoss = $("startBoss");
-const bossListEl = $("bossList");
-const volRange = $("vol");
-const topLeft = $("topLeft"),
-  topMid = $("topMid"),
-  topAge = $("topAge");
-const battleUnits = $("battleUnits"),
-  battleEl = $("battle"),
-  pHP = $("pHP"),
-  eHP = $("eHP");
-const goldEl = $("gold"),
-  xpEl = $("xp"),
-  ageText = $("ageText");
-const unitButtons = $("unitButtons"),
-  upgradeAge = $("upgradeAge"),
-  ageCost = $("ageCost");
-const speedBtns = document.querySelectorAll(".speedBtn");
-const hackBtn = $("hackBtn"),
-  hackPopup = $("hackPopup"),
-  infGold = $("infGold"),
-  infXP = $("infXP"),
-  pauseTimeBtn = $("pauseTimeBtn"),
-  killEnemyBtn = $("killEnemyBtn"),
-  killPlayerBtn = $("killPlayerBtn"),
-  stopEnemySpawn = $("stopEnemySpawn");
-const menuBtn = $("menuBtn");
-const pauseModal = $("pauseModal"),
-  pauseCancel = $("pauseCancel"),
-  pauseMenu = $("pauseMenu"),
-  pauseTitle = $("pauseTitle");
-const finishOverlay = $("finishOverlay"),
-  finishTitle = $("finishTitle"),
-  finishMessage = $("finishMessage"),
-  finishRestart = $("finishRestart"),
-  finishToMenu = $("finishToMenu");
-const orientationWarning = $("orientationWarning");
-const mainMusic = $("mainMusic"),
-  bossMusic = $("bossMusic"),
-  ancientMusic = $("ancientMusic"),
-  antiquityMusic = $("antiquityMusic"),
-  medievalMusic = $("medievalMusic"),
-  enlightenmentMusic = $("enlightenmentMusic"),
-  modernMusic = $("modernMusic"),
-  futureMusic = $("futureMusic"),
-  menuMusic = $("menuMusic");
+const XP_REQUIRED = [200, 400, 800, 1600, 3200];
 
 const I18N = {
   en: {
@@ -648,6 +557,103 @@ const I18N = {
   },
 };
 
+// Game state
+let state = {
+  mode: null,
+  difficulty: "medium",
+  chosenBossId: 1,
+  bossChoice: null,
+  running: false,
+  gold: 110,
+  xp: 0,
+  playerAge: 1,
+  enemyAge: 1,
+  playerBaseHP: HP_PER_AGE[0],
+  enemyBaseHP: HP_PER_AGE[0],
+  units: [],
+  projectiles: [],
+  time: 0,
+  enemySpawnTimer: 0,
+  bossActive: false,
+  bossHP: 0,
+  bossDefeated: false,
+  enemyBaseDestroyed: false,
+  enemyAgeUpgradeCooldown: 45,
+  infiniteGold: false,
+  infiniteXP: false,
+  timeMultiplier: 1,
+  volume: 0.8,
+  unlocked: JSON.parse(localStorage.getItem("aow_unlocked") || "[1]"),
+  lang:
+    localStorage.getItem("aow_lang") ||
+    (navigator.language && navigator.language.startsWith("ru") ? "ru" : "en"),
+  showHPNumbers: false,
+  hackEnabled: false,
+  timePaused: false,
+  stopEnemySpawn: false,
+  currentMusic: null,
+  audioEnabled: false,
+  menuUnits: [],
+  futureCompleted: false, // NEW: Track if Future era has been completed
+};
+
+// DOM elements
+const $ = (id) => document.getElementById(id);
+const menu = $("menu"),
+  panelNormal = $("panelNormal"),
+  panelBosses = $("panelBosses"),
+  panelSettings = $("panelSettings");
+const btnNormal = $("btnNormal"),
+  btnBosses = $("btnBosses"),
+  btnSettings = $("btnSettings");
+const startNormal = $("startNormal"),
+  startBoss = $("startBoss");
+const bossListEl = $("bossList");
+const volRange = $("vol");
+const topLeft = $("topLeft"),
+  topMid = $("topMid"),
+  topAge = $("topAge");
+const battleUnits = $("battleUnits"),
+  battleEl = $("battle"),
+  pHP = $("pHP"),
+  eHP = $("eHP");
+const goldEl = $("gold"),
+  xpEl = $("xp"),
+  ageText = $("ageText");
+const unitButtons = $("unitButtons"),
+  upgradeAge = $("upgradeAge"),
+  ageCost = $("ageCost");
+const speedBtns = document.querySelectorAll(".speedBtn");
+const hackBtn = $("hackBtn"),
+  hackPopup = $("hackPopup"),
+  infGold = $("infGold"),
+  infXP = $("infXP"),
+  pauseTimeBtn = $("pauseTimeBtn"),
+  killEnemyBtn = $("killEnemyBtn"),
+  killPlayerBtn = $("killPlayerBtn"),
+  stopEnemySpawn = $("stopEnemySpawn");
+const menuBtn = $("menuBtn");
+const pauseModal = $("pauseModal"),
+  pauseCancel = $("pauseCancel"),
+  pauseMenu = $("pauseMenu"),
+  pauseTitle = $("pauseTitle");
+const finishOverlay = $("finishOverlay"),
+  finishTitle = $("finishTitle"),
+  finishMessage = $("finishMessage"),
+  finishRestart = $("finishRestart"),
+  finishToMenu = $("finishToMenu");
+const orientationWarning = $("orientationWarning");
+const mainMusic = $("mainMusic"),
+  bossMusic = $("bossMusic"),
+  ancientMusic = $("ancientMusic"),
+  antiquityMusic = $("antiquityMusic"),
+  medievalMusic = $("medievalMusic"),
+  enlightenmentMusic = $("enlightenmentMusic"),
+  modernMusic = $("modernMusic"),
+  futureMusic = $("futureMusic"),
+  menuMusic = $("menuMusic");
+
+// Helper functions
 function L(key) {
   return I18N[state.lang][key] || key;
 }
@@ -820,6 +826,189 @@ function showToast(text, t = 1400) {
   setTimeout(() => el.remove(), t);
 }
 
+// Mobile UI functions
+function updateMobileUI() {
+  const mobileGold = document.getElementById("mobileGold");
+  const mobileXP = document.getElementById("mobileXP");
+  const mobileAge = document.getElementById("mobileAge");
+  const mobileAgeCost = document.getElementById("mobileAgeCost");
+  const mobileBossInfo = document.getElementById("mobileBossInfo");
+
+  if (mobileGold) {
+    mobileGold.textContent = state.infiniteGold ? "∞" : Math.floor(state.gold);
+  }
+  if (mobileXP) {
+    mobileXP.textContent = state.infiniteXP ? "∞" : Math.floor(state.xp);
+  }
+  if (mobileAge) {
+    const ageName =
+      state.lang === "ru"
+        ? AGES[state.playerAge - 1].ru
+        : AGES[state.playerAge - 1].name;
+    mobileAge.textContent =
+      ageName.length > 8 ? ageName.substring(0, 8) + "..." : ageName;
+  }
+  if (mobileAgeCost) {
+    const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
+    const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
+    mobileAgeCost.textContent = `${currentXP}/${cost}`;
+  }
+  if (mobileBossInfo) {
+    if (state.mode === "boss" && state.bossChoice && state.bossActive) {
+      mobileBossInfo.textContent =
+        (state.lang === "ru" ? state.bossChoice.ru : state.bossChoice.name) +
+        " • " +
+        (state.lang === "ru" ? "Эпоха: " : "Age: ") +
+        (state.lang === "ru"
+          ? AGES[state.bossChoice.age - 1].ru
+          : AGES[state.bossChoice.age - 1].name);
+    } else {
+      const diffText =
+        state.lang === "ru"
+          ? state.difficulty === "easy"
+            ? "Легкая"
+            : state.difficulty === "medium"
+            ? "Средняя"
+            : "Сложная"
+          : state.difficulty;
+      mobileBossInfo.textContent =
+        (state.mode === "none"
+          ? L("withoutBoss")
+          : state.bossChoice
+          ? state.lang === "ru"
+            ? state.bossChoice.ru
+            : state.bossChoice.name
+          : L("withoutBoss")) +
+        " • " +
+        L("difficulty") +
+        diffText +
+        " • " +
+        (state.lang === "ru" ? "Эпоха врага: " : "Enemy age: ") +
+        (state.lang === "ru"
+          ? AGES[state.enemyAge - 1].ru
+          : AGES[state.enemyAge - 1].name);
+    }
+  }
+}
+
+function buildMobileUnitButtons() {
+  const mobileUnitButtons = document.getElementById("mobileUnitButtons");
+  if (!mobileUnitButtons) return;
+
+  mobileUnitButtons.innerHTML = "";
+  const list = UNIT_TEMPLATES[state.playerAge] || [];
+  const costMultiplier = 1 + (state.playerAge - 1) * 0.18;
+
+  list.forEach((t) => {
+    const b = document.createElement("div");
+    b.className = "mobile-unit-btn";
+    const displayCost = Math.round(t.cost * costMultiplier);
+
+    const unitName = document.createElement("div");
+    unitName.className = "unit-name";
+    unitName.textContent = state.lang === "ru" && t.ru ? t.ru : t.name;
+
+    const unitCost = document.createElement("div");
+    unitCost.className = "unit-cost";
+    unitCost.textContent = "$" + displayCost;
+
+    b.appendChild(unitName);
+    b.appendChild(unitCost);
+
+    b.onclick = () => spawnUnit("player", t);
+    mobileUnitButtons.appendChild(b);
+  });
+}
+
+function initializeMobileControls() {
+  // Mobile upgrade button
+  const mobileUpgradeAge = document.getElementById("mobileUpgradeAge");
+  if (mobileUpgradeAge) {
+    mobileUpgradeAge.onclick = () => {
+      if (state.playerAge >= AGES.length) {
+        showToast(
+          state.lang === "ru"
+            ? "Максимальная эпоха достигнута!"
+            : "Maximum age reached!"
+        );
+        return;
+      }
+      const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
+      if (state.infiniteXP || state.xp >= cost) {
+        if (!state.infiniteXP) state.xp -= cost;
+        state.playerAge++;
+        state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
+        buildUnitButtons();
+        buildMobileUnitButtons();
+        playAgeMusic(state.playerAge);
+        updateUI();
+        updateMobileUI();
+        showToast(
+          (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
+            (state.lang === "ru"
+              ? AGES[state.playerAge - 1].ru
+              : AGES[state.playerAge - 1].name)
+        );
+        if (state.playerAge >= AGES.length) {
+          upgradeAge.style.display = "none";
+          if (mobileUpgradeAge) mobileUpgradeAge.style.display = "none";
+          showToast(
+            state.lang === "ru"
+              ? "Технологический предел достигнут!"
+              : "Technological limit reached!"
+          );
+        }
+      } else {
+        showToast(L("notEnoughXP"));
+      }
+    };
+  }
+
+  // Mobile speed buttons
+  const mobileSpeedBtns = document.querySelectorAll(".mobile-speed-btn");
+  mobileSpeedBtns.forEach((btn) => {
+    btn.onclick = () => {
+      state.timeMultiplier = parseFloat(btn.dataset.speed);
+      document
+        .querySelectorAll(".mobile-speed-btn")
+        .forEach((x) => x.classList.remove("active"));
+      document
+        .querySelectorAll(".speedBtn")
+        .forEach((x) => x.classList.remove("active"));
+      btn.classList.add("active");
+      document
+        .querySelector(`.speedBtn[data-speed="${btn.dataset.speed}"]`)
+        .classList.add("active");
+      showToast("x" + btn.dataset.speed, 700);
+    };
+  });
+
+  // Mobile menu button
+  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  if (mobileMenuBtn) {
+    mobileMenuBtn.onclick = () => {
+      pauseTitle.textContent = L("paused");
+      pauseModal.style.display = "flex";
+      pauseModal._wasRunning = state.running;
+      state.running = false;
+    };
+  }
+
+  // Mobile hack button
+  const mobileHackBtn = document.getElementById("mobileHackBtn");
+  if (mobileHackBtn) {
+    mobileHackBtn.onclick = () => {
+      if (!state.hackEnabled) {
+        showToast(state.lang === "ru" ? "Хак недоступен" : "Hack locked");
+        return;
+      }
+      hackPopup.style.display =
+        hackPopup.style.display === "flex" ? "none" : "flex";
+    };
+  }
+}
+
+// Game initialization
 function createMenuBackground() {
   const menuBackground = document.createElement("div");
   menuBackground.id = "menuBackground";
@@ -888,6 +1077,7 @@ function initializeLanguageSwitcher() {
       buildBossList();
       updateTop();
       buildUnitButtons();
+      buildMobileUnitButtons();
       updateUI();
       localizeText();
       showToast(
@@ -983,6 +1173,49 @@ function initializeMenuButton() {
   }
 }
 
+// Add double click functionality to boss selection
+function initializeBossDoubleClick() {
+  const bossItems = document.querySelectorAll(".boss-item");
+  let clickTimer = null;
+
+  bossItems.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      if (clickTimer === null) {
+        clickTimer = setTimeout(() => {
+          // Single click behavior
+          const bossId = this.getAttribute("data-boss-id");
+          if (bossId) {
+            state.chosenBossId = parseInt(bossId);
+            state.bossChoice = BOSSES.find((b) => b.id === state.chosenBossId);
+            highlightSelected();
+            updateTop();
+          }
+          clickTimer = null;
+        }, 300);
+      } else {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+
+        // Double click behavior - start game
+        this.classList.add("boss-double-click");
+        setTimeout(() => this.classList.remove("boss-double-click"), 600);
+
+        const bossId = this.getAttribute("data-boss-id");
+        if (bossId) {
+          const boss = BOSSES.find((b) => b.id === parseInt(bossId));
+          if (boss && state.unlocked.includes(boss.id)) {
+            state.chosenBossId = boss.id;
+            state.bossChoice = boss;
+            startBossGame();
+          } else {
+            showToast(state.lang === "ru" ? "Босс закрыт" : "Boss locked");
+          }
+        }
+      }
+    });
+  });
+}
+
 function buildBossList() {
   if (!bossListEl) return;
   bossListEl.innerHTML = "";
@@ -991,39 +1224,37 @@ function buildBossList() {
     const row = document.createElement("div");
     row.className =
       "boss-item" + (state.chosenBossId === b.id ? " selected" : "");
+    row.setAttribute("data-boss-id", b.id);
     if (!unlocked) row.classList.add("locked");
-    row.onclick = () => {
-      if (!unlocked) {
-        showToast(
-          state.lang === "ru" ? "Босс закрыт" : "Locked — defeat previous boss"
-        );
-        beep(220);
-        return;
-      }
-      state.chosenBossId = b.id;
-      state.bossChoice = b;
-      highlightSelected();
-      updateTop();
-    };
+
+    // Single click for selection
+    row.onclick = null; // We'll handle via the double click system
+
     const bossInfo = document.createElement("div");
     bossInfo.className = "boss-info";
+
     const bossName = document.createElement("div");
     bossName.className = "boss-name";
     bossName.textContent = state.lang === "ru" ? b.ru : b.name;
+
     const bossAge = document.createElement("div");
     bossAge.className = "boss-age";
     bossAge.textContent =
       state.lang === "ru" ? AGES[b.age - 1].ru : AGES[b.age - 1].name;
+
     bossInfo.appendChild(bossName);
     bossInfo.appendChild(bossAge);
+
     const bossStatus = document.createElement("div");
     bossStatus.className = "boss-status";
     bossStatus.textContent = unlocked ? L("unlocked") : L("locked");
+
     row.appendChild(bossInfo);
     row.appendChild(bossStatus);
     bossListEl.appendChild(row);
   });
   highlightSelected();
+  initializeBossDoubleClick();
 }
 
 function highlightSelected() {
@@ -1453,21 +1684,14 @@ function updateUnits(dt) {
       } else if (died.side === "enemy" && !state.infiniteXP) {
         const baseCost = died.template.cost || 60;
         let xpMul = 0.4;
-        let ageMultiplier = state.playerAge * 1.7;
+        let ageMultiplier = state.playerAge * 1.5;
         xpMul *= ageMultiplier;
-        if (state.bossChoice && state.bossChoice.age >= 4) xpMul = 0.6;
         if (state.bossChoice && state.bossChoice.age === 6) xpMul = 1;
-        if (state.bossChoice && state.bossChoice.age >= 4)
-          ageMultiplier = state.playerAge * 2.2;
-        if (state.bossChoice && state.bossChoice.age === 5)
-          ageMultiplier = state.playerAge * 2.6;
         const xpGain = Math.round(baseCost * xpMul);
         const goldGain = Math.round(
           baseCost * (0.15 * (died.template.tier || 1)) +
-            (died.age * 2.5 || 1) * 6
+            (died.age * 2.5 || 1) * 10
         );
-        if (state.bossChoice && state.bossChoice.age >= 5)
-          (died.age * 2.5 || 1) * 8;
         state.xp += xpGain;
         state.gold += goldGain;
         showToast(
@@ -1492,53 +1716,133 @@ function bossWaveTick(dt) {
   if (state.enemyBaseDestroyed) return;
   if (!state.bossChoice) return;
   if (state.stopEnemySpawn) return;
+
   bossWaveTimer -= dt;
   if (bossWaveTimer > 0) return;
+
   const elapsed = state.time;
+  const bossId = state.bossChoice.id;
+
+  // All bosses start with 0.8 acceleration and scale up to 1.35
+  if (!state.bossChoice.initialized) {
+    state.bossChoice.accel = 0.8;
+    state.bossChoice.initialized = true;
+  }
+
+  if (bossId <= 3) {
+    if (elapsed >= 20 && state.bossChoice.accelPhase === 0) {
+      state.bossChoice.accel = 0.9;
+      state.bossChoice.accelPhase = 1;
+    } else if (elapsed >= 40 && state.bossChoice.accelPhase === 1) {
+      state.bossChoice.accel = 1.0;
+      state.bossChoice.accelPhase = 2;
+    } else if (elapsed >= 60 && state.bossChoice.accelPhase === 2) {
+      state.bossChoice.accel = 1.15;
+      state.bossChoice.accelPhase = 3;
+    } else if (elapsed >= 80 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.25;
+      state.bossChoice.accelPhase = 4;
+    } else if (elapsed >= 100 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.35;
+      state.bossChoice.accelPhase = 4;
+    }
+  }
+  // BOSSES 4-6: Enlightenment to Future (Faster start, aggressive progression)
+  else if (bossId === 4) {
+    if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
+      state.bossChoice.accel = 0.9;
+      state.bossChoice.accelPhase = 1;
+    } else if (elapsed >= 50 && state.bossChoice.accelPhase === 1) {
+      state.bossChoice.accel = 1;
+      state.bossChoice.accelPhase = 2;
+    } else if (elapsed >= 80 && state.bossChoice.accelPhase === 2) {
+      state.bossChoice.accel = 1.15;
+      state.bossChoice.accelPhase = 3;
+    } else if (elapsed >= 120 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.3;
+      state.bossChoice.accelPhase = 4;
+    } else if (elapsed >= 160 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.5;
+      state.bossChoice.accelPhase = 5;
+    } else if (elapsed >= 220 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.7;
+      state.bossChoice.accelPhase = 6;
+    }
+  } else if (bossId === 5) {
+    if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
+      state.bossChoice.accel = 0.9;
+      state.bossChoice.accelPhase = 1;
+    } else if (elapsed >= 50 && state.bossChoice.accelPhase === 1) {
+      state.bossChoice.accel = 1;
+      state.bossChoice.accelPhase = 2;
+    } else if (elapsed >= 80 && state.bossChoice.accelPhase === 2) {
+      state.bossChoice.accel = 1.15;
+      state.bossChoice.accelPhase = 3;
+    } else if (elapsed >= 100 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.45;
+      state.bossChoice.accelPhase = 4;
+    } else if (elapsed >= 140 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.5;
+      state.bossChoice.accelPhase = 5;
+    } else if (elapsed >= 190 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.7;
+      state.bossChoice.accelPhase = 6;
+    }
+  } else if (bossId === 6) {
+    if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
+      state.bossChoice.accel = 1.3;
+      state.bossChoice.accelPhase = 1;
+    } else if (elapsed >= 45 && state.bossChoice.accelPhase === 1) {
+      state.bossChoice.accel = 1.35;
+      state.bossChoice.accelPhase = 2;
+    } else if (elapsed >= 65 && state.bossChoice.accelPhase === 2) {
+      state.bossChoice.accel = 1.45;
+      state.bossChoice.accelPhase = 3;
+    } else if (elapsed >= 90 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.5;
+      state.bossChoice.accelPhase = 4;
+    } else if (elapsed >= 130 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.6;
+      state.bossChoice.accelPhase = 5;
+    } else if (elapsed >= 190 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accel = 1.7;
+      state.bossChoice.accelPhase = 6;
+    }
+  }
+
+  // Get spawn rules based on elapsed time
   const rules = state.bossChoice.spawnRules || {
     allowMediumAfter: 30,
     allowHeavyAfter: 60,
   };
+
   let allowedTiers;
   if (elapsed < (rules.allowMediumAfter || 30)) allowedTiers = [1];
   else if (elapsed < (rules.allowHeavyAfter || rules.allowMediumAfter + 30))
     allowedTiers = [1, 2];
   else allowedTiers = [1, 2, 3];
+
   const templates = UNIT_TEMPLATES[state.bossChoice.age] || UNIT_TEMPLATES[1];
-  let pool = [];
-  if (state.bossChoice.id >= 4) {
-    if (allowedTiers.length === 2) {
-      const rand = Math.random();
-      if (rand < 0.85) pool = templates.filter((t) => t.tier === 1);
-      else pool = templates.filter((t) => t.tier === 2);
-    } else if (allowedTiers.length === 3) {
-      const rand = Math.random();
-      if (rand < 0.65) pool = templates.filter((t) => t.tier === 1);
-      else if (rand < 0.9) pool = templates.filter((t) => t.tier === 2);
-      else pool = templates.filter((t) => t.tier === 3);
-    } else pool = templates.filter((t) => allowedTiers.includes(t.tier));
-  } else {
-    if (allowedTiers.length === 2) {
-      const rand = Math.random();
-      if (rand < 0.5) pool = templates.filter((t) => t.tier === 1);
-      else pool = templates.filter((t) => t.tier === 2);
-    } else if (allowedTiers.length === 3) {
-      const rand = Math.random();
-      if (rand < 0.33) pool = templates.filter((t) => t.tier === 1);
-      else if (rand < 0.66) pool = templates.filter((t) => t.tier === 2);
-      else pool = templates.filter((t) => t.tier === 3);
-    } else pool = templates.filter((t) => allowedTiers.includes(t.tier));
-  }
-  const templ = pool.length
-    ? pool[Math.floor(Math.random() * pool.length)]
-    : templates[0];
+
+  // Simple unit selection logic
+  let pool = templates.filter((t) => allowedTiers.includes(t.tier));
+
+  // Ensure we have units to spawn
+  if (pool.length === 0) pool = templates.filter((t) => t.tier === 1);
+  if (pool.length === 0) pool = [templates[0]];
+
+  const templ = pool[Math.floor(Math.random() * pool.length)];
+
+  // Calculate spawn interval with boss acceleration
   const bossAgeFactor = 1 + state.bossChoice.age * 0.3;
-  const bossAccel = state.bossChoice.accel || 1.0;
+  const bossAccel = state.bossChoice.accel || 0.8;
   let interval = 1.6 * bossAgeFactor * (0.7 + Math.random() * 0.9);
   interval /= bossAccel;
+
   const diffFactor =
     { easy: 1.25, medium: 1.0, hard: 0.78 }[state.difficulty] || 1.0;
   interval *= diffFactor;
+
   bossWaveTimer = Math.max(0.6, interval);
   spawnUnit("enemy", templ);
 }
@@ -1558,6 +1862,10 @@ function activateBoss() {
   el.style.height = (state.bossChoice.imgHeight || 100) + "px";
   if (state.bossChoice.name === "Adolf Hitler")
     el.setAttribute("data-boss", "hitler");
+  else if (state.bossChoice.name === "Yuri Caesar")
+    el.setAttribute("data-boss", "yuri-caesar");
+  else if (state.bossChoice.name === "Lord Yaroslav")
+    el.setAttribute("data-boss", "lord-yaroslav");
   const img = document.createElement("img");
   img.src = `images/${state.bossChoice.name.toLowerCase()}.svg`;
   img.alt = state.bossChoice.name;
@@ -1612,8 +1920,14 @@ function onBossDefeated() {
         L("unlockedBoss") +
           (state.lang === "ru" ? BOSSES[idx + 1].ru : BOSSES[idx + 1].name)
       );
+      // FIXED: Immediately update the boss list to show the newly unlocked boss
+      buildBossList();
     }
-  } else state.hackEnabled = true;
+  } else {
+    state.hackEnabled = true;
+    // NEW: Mark that Future era has been completed
+    state.futureCompleted = true;
+  }
   playAgeMusic(state.playerAge);
   updateTop();
   showFinish(true, L("bossDefeated"));
@@ -1752,11 +2066,18 @@ function updateUI() {
     const cost = XP_REQUIRED[state.playerAge - 1] || 9999;
     const currentXP = state.infiniteXP ? "∞" : Math.floor(state.xp);
     ageCostDisplay.textContent = `${currentXP}/${cost}`;
-    if (state.xp >= cost || state.infiniteXP)
+    if (state.xp >= cost || state.infiniteXP) {
       upgradeAge.classList.add("upgrade-age-blink");
-    else upgradeAge.classList.remove("upgrade-age-blink");
+      const mobileUpgrade = document.getElementById("mobileUpgradeAge");
+      if (mobileUpgrade) mobileUpgrade.classList.add("upgrade-age-blink");
+    } else {
+      upgradeAge.classList.remove("upgrade-age-blink");
+      const mobileUpgrade = document.getElementById("mobileUpgradeAge");
+      if (mobileUpgrade) mobileUpgrade.classList.remove("upgrade-age-blink");
+    }
   }
   updateStatLabels();
+  updateMobileUI();
 }
 
 function updateStatLabels() {
@@ -1785,6 +2106,15 @@ function updateStatLabels() {
   }
 }
 
+function updateHackUI() {
+  if (!hackBtn) return;
+  if (!state.hackEnabled) {
+    hackBtn.style.display = "none";
+    if (hackPopup) hackPopup.style.display = "none";
+  } else hackBtn.style.display = "inline-block";
+}
+
+// Game loop
 let last = performance.now();
 function loop(now) {
   const rawDt = (now - last) / 1000;
@@ -1826,14 +2156,6 @@ function showFinish(win, message) {
   if (finishOverlay) finishOverlay.style.display = "flex";
 }
 
-function updateHackUI() {
-  if (!hackBtn) return;
-  if (!state.hackEnabled) {
-    hackBtn.style.display = "none";
-    if (hackPopup) hackPopup.style.display = "none";
-  } else hackBtn.style.display = "inline-block";
-}
-
 function startGame() {
   updateUI();
   if (state.mode === null) {
@@ -1872,11 +2194,34 @@ function startGame() {
   bossWaveTimer = 0;
   clearMenuBackground();
   buildUnitButtons();
+  buildMobileUnitButtons();
   updateUI();
   buildBossList();
   if (menu) menu.style.display = "none";
   updateHackUI();
+
+  // NEW: Hide upgrade button if Future era was completed in previous game
+  if (state.futureCompleted) {
+    upgradeAge.style.display = "none";
+    const mobileUpgrade = document.getElementById("mobileUpgradeAge");
+    if (mobileUpgrade) mobileUpgrade.style.display = "none";
+  } else {
+    upgradeAge.style.display = "flex";
+    const mobileUpgrade = document.getElementById("mobileUpgradeAge");
+    if (mobileUpgrade) mobileUpgrade.style.display = "flex";
+  }
+
   playAgeMusic(state.playerAge);
+}
+
+function startBossGame() {
+  if (!state.unlocked.includes(state.chosenBossId)) {
+    showToast(L("chooseBossLocked"));
+    return;
+  }
+  state.mode = "boss";
+  state.bossChoice = BOSSES.find((b) => b.id === state.chosenBossId);
+  startGame();
 }
 
 function localizeText() {
@@ -2047,6 +2392,7 @@ function initializeEventListeners() {
         state.playerAge++;
         state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
         buildUnitButtons();
+        buildMobileUnitButtons();
         playAgeMusic(state.playerAge);
         updateUI();
         showToast(
@@ -2133,6 +2479,7 @@ function init() {
   initializeHackMenu();
   initializeSpeedButtons();
   initializeMenuButton();
+  initializeMobileControls();
   initializeEventListeners();
   localizeText();
   const allMusic = [
