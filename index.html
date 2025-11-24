@@ -784,6 +784,113 @@
         }
       }
 
+      /* Ultra-compact mobile layout for 275px height */
+      @media (max-height: 275px) and (orientation: landscape) {
+        .mobile-stats {
+          padding: 4px;
+          font-size: 10px;
+        }
+
+        .mobile-stat-value {
+          font-size: 12px;
+        }
+
+        .mobile-boss-info {
+          top: 35px;
+          padding: 4px;
+          font-size: 9px;
+        }
+
+        .mobile-unit-buttons {
+          bottom: 45px;
+          padding: 6px;
+          gap: 4px;
+        }
+
+        .mobile-unit-btn {
+          width: 50px;
+          height: 40px;
+          padding: 4px;
+        }
+
+        .mobile-unit-btn .unit-name {
+          font-size: 8px;
+        }
+
+        .mobile-unit-btn .unit-cost {
+          font-size: 7px;
+        }
+
+        .mobile-controls {
+          padding: 6px;
+        }
+
+        .mobile-upgrade-btn {
+          min-width: 50px;
+          padding: 6px;
+        }
+
+        .mobile-upgrade-btn .upgrade-text {
+          font-size: 8px;
+        }
+
+        .mobile-upgrade-btn .upgrade-cost {
+          font-size: 7px;
+        }
+
+        .mobile-speed-btn {
+          padding: 4px 6px;
+          font-size: 9px;
+        }
+
+        .mobile-action-btn {
+          padding: 4px 8px;
+          font-size: 9px;
+        }
+
+        .battle {
+          margin-top: 30px;
+          margin-bottom: 45px;
+          height: calc(100vh - 75px);
+          min-height: 180px;
+        }
+
+        .base {
+          width: 60px;
+          height: 60px;
+          font-size: 10px;
+          bottom: 12%;
+        }
+
+        .base.player,
+        .base.enemy {
+          font-size: 9px;
+        }
+
+        .ground {
+          bottom: 10%;
+          height: 6px;
+        }
+
+        .unit {
+          bottom: 11% !important;
+        }
+
+        .bossUnit {
+          bottom: 11% !important;
+        }
+
+        .hpBar {
+          top: -8px;
+          height: 4px;
+        }
+
+        #pHP,
+        #eHP {
+          font-size: 10px;
+        }
+      }
+
       @media (max-width: 900px) {
         .battle {
           height: 440px;
@@ -1046,6 +1153,16 @@
             </div>
 
             <div id="panelBosses" style="display: none">
+              <div
+                style="
+                  margin-bottom: 10px;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #9fb0d0;
+                "
+              >
+                Click to select, double-click to start
+              </div>
               <div
                 id="bossList"
                 style="max-height: 300px; overflow-y: auto; margin-bottom: 15px"
