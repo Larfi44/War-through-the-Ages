@@ -891,6 +891,131 @@
         }
       }
 
+      /* Ultra-compact layout for very small screens (150px height) */
+      @media (max-height: 150px) and (orientation: landscape) {
+        body {
+          padding: 4px;
+        }
+
+        .card {
+          padding: 4px;
+          gap: 4px;
+        }
+
+        .mobile-stats {
+          padding: 2px;
+          font-size: 8px;
+        }
+
+        .mobile-stat-value {
+          font-size: 10px;
+        }
+
+        .mobile-boss-info {
+          top: 25px;
+          padding: 2px;
+          font-size: 7px;
+        }
+
+        .mobile-unit-buttons {
+          bottom: 35px;
+          padding: 4px;
+          gap: 2px;
+        }
+
+        .mobile-unit-btn {
+          width: 40px;
+          height: 30px;
+          padding: 2px;
+        }
+
+        .mobile-unit-btn .unit-name {
+          font-size: 6px;
+        }
+
+        .mobile-unit-btn .unit-cost {
+          font-size: 5px;
+        }
+
+        .mobile-controls {
+          padding: 4px;
+        }
+
+        .mobile-upgrade-btn {
+          min-width: 40px;
+          padding: 4px;
+        }
+
+        .mobile-upgrade-btn .upgrade-text {
+          font-size: 6px;
+        }
+
+        .mobile-upgrade-btn .upgrade-cost {
+          font-size: 5px;
+        }
+
+        .mobile-speed-btn {
+          padding: 2px 4px;
+          font-size: 7px;
+        }
+
+        .mobile-action-btn {
+          padding: 2px 6px;
+          font-size: 7px;
+        }
+
+        .battle {
+          margin-top: 25px;
+          margin-bottom: 35px;
+          height: calc(100vh - 60px);
+          min-height: 100px;
+        }
+
+        .base {
+          width: 40px;
+          height: 40px;
+          font-size: 8px;
+          bottom: 10%;
+        }
+
+        .base.player,
+        .base.enemy {
+          font-size: 7px;
+        }
+
+        .ground {
+          bottom: 8%;
+          height: 4px;
+        }
+
+        .unit {
+          bottom: 9% !important;
+        }
+
+        .bossUnit {
+          bottom: 9% !important;
+        }
+
+        .hpBar {
+          top: -6px;
+          height: 3px;
+        }
+
+        #pHP,
+        #eHP {
+          font-size: 8px;
+        }
+
+        .topBossInfo {
+          font-size: 10px;
+          padding: 4px 8px;
+        }
+
+        .topBossInfo .small {
+          font-size: 9px;
+        }
+      }
+
       @media (max-width: 900px) {
         .battle {
           height: 440px;
@@ -1921,6 +2046,7 @@
         currentMusic: null,
         audioEnabled: false,
         menuUnits: [],
+        futureCompleted: false, // NEW: Track if Future era has been completed
       };
 
       // DOM elements
@@ -3209,7 +3335,11 @@
                   : BOSSES[idx + 1].name)
             );
           }
-        } else state.hackEnabled = true;
+        } else {
+          state.hackEnabled = true;
+          // NEW: Mark that Future era has been completed
+          state.futureCompleted = true;
+        }
         playAgeMusic(state.playerAge);
         updateTop();
         showFinish(true, L("bossDefeated"));
@@ -3494,6 +3624,18 @@
         buildBossList();
         if (menu) menu.style.display = "none";
         updateHackUI();
+
+        // NEW: Hide upgrade button if Future era was completed in previous game
+        if (state.futureCompleted) {
+          upgradeAge.style.display = "none";
+          const mobileUpgrade = document.getElementById("mobileUpgradeAge");
+          if (mobileUpgrade) mobileUpgrade.style.display = "none";
+        } else {
+          upgradeAge.style.display = "flex";
+          const mobileUpgrade = document.getElementById("mobileUpgradeAge");
+          if (mobileUpgrade) mobileUpgrade.style.display = "flex";
+        }
+
         playAgeMusic(state.playerAge);
       }
 
