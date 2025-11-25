@@ -26,7 +26,7 @@ const BOSSES = [
     name: "Yuri Caesar",
     ru: "Юрий Цезарь",
     age: 2,
-    baseHP: 3000,
+    baseHP: 2500,
     accel: 1,
     spawnRules: { allowMediumAfter: 15, allowHeavyAfter: 25 },
     imgWidth: 100,
@@ -39,7 +39,7 @@ const BOSSES = [
     age: 3,
     baseHP: 5000,
     accel: 1,
-    spawnRules: { allowMediumAfter: 25, allowHeavyAfter: 25 },
+    spawnRules: { allowMediumAfter: 25, allowHeavyAfter: 30 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -1729,7 +1729,7 @@ function bossWaveTick(dt) {
     state.bossChoice.initialized = true;
   }
 
-  if (bossId <= 3) {
+  if (bossId <= 2) {
     if (elapsed >= 20 && state.bossChoice.accelPhase === 0) {
       state.bossChoice.accel = 0.9;
       state.bossChoice.accelPhase = 1;
@@ -1745,6 +1745,17 @@ function bossWaveTick(dt) {
     } else if (elapsed >= 100 && state.bossChoice.accelPhase === 3) {
       state.bossChoice.accel = 1.35;
       state.bossChoice.accelPhase = 4;
+    } else if (bossId === 3) {
+      if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
+        state.bossChoice.accel = 1.2;
+        state.bossChoice.accelPhase = 1;
+      } else if (elapsed >= 50 && state.bossChoice.accelPhase === 1) {
+        state.bossChoice.accel = 1.4;
+        state.bossChoice.accelPhase = 2;
+      } else if (elapsed >= 100 && state.bossChoice.accelPhase === 3) {
+        state.bossChoice.accel = 1.7;
+        state.bossChoice.accelPhase = 3;
+      }
     }
   } else if (bossId === 4) {
     if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
