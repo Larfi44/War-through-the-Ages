@@ -37,9 +37,9 @@ const BOSSES = [
     name: "Ivan the Terrible",
     ru: "Иван Грозный",
     age: 3,
-    baseHP: 6000,
+    baseHP: 5000,
     accel: 1,
-    spawnRules: { allowMediumAfter: 30, allowHeavyAfter: 40 },
+    spawnRules: { allowMediumAfter: 25, allowHeavyAfter: 25 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -49,7 +49,7 @@ const BOSSES = [
     ru: "Наполеон Бонапарт",
     age: 4,
     accel: 1,
-    baseHP: 12000,
+    baseHP: 10000,
     spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 50 },
     imgWidth: 100,
     imgHeight: 100,
@@ -60,7 +60,7 @@ const BOSSES = [
     ru: "Адольф Гитлер",
     age: 5,
     accel: 1,
-    baseHP: 25000,
+    baseHP: 20000,
     spawnRules: { allowMediumAfter: 45, allowHeavyAfter: 60 },
     imgWidth: 150,
     imgHeight: 150,
@@ -71,7 +71,7 @@ const BOSSES = [
     ru: "Лорд Ярослав",
     age: 6,
     accel: 1,
-    baseHP: 50000,
+    baseHP: 40000,
     spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 60 },
     imgWidth: 100,
     imgHeight: 100,
@@ -1746,9 +1746,7 @@ function bossWaveTick(dt) {
       state.bossChoice.accel = 1.35;
       state.bossChoice.accelPhase = 4;
     }
-  }
-  // BOSSES 4-6: Enlightenment to Future (Faster start, aggressive progression)
-  else if (bossId === 4) {
+  } else if (bossId === 4) {
     if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
       state.bossChoice.accel = 0.9;
       state.bossChoice.accelPhase = 1;
