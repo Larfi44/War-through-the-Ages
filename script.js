@@ -1860,15 +1860,86 @@ function activateBoss() {
   el.className = "bossUnit";
   el.style.width = (state.bossChoice.imgWidth || 100) + "px";
   el.style.height = (state.bossChoice.imgHeight || 100) + "px";
-  if (state.bossChoice.name === "Adolf Hitler")
-    el.setAttribute("data-boss", "hitler");
+
+  // Add data-boss attributes for positioning
+  if (state.bossChoice.name === "Kronos")
+    el.setAttribute("data-boss", "kronos");
   else if (state.bossChoice.name === "Yuri Caesar")
     el.setAttribute("data-boss", "yuri-caesar");
+  else if (state.bossChoice.name === "Ivan the Terrible")
+    el.setAttribute("data-boss", "ivan");
+  else if (state.bossChoice.name === "Napoleon Bonaparte")
+    el.setAttribute("data-boss", "napoleon");
+  else if (state.bossChoice.name === "Adolf Hitler")
+    el.setAttribute("data-boss", "hitler");
   else if (state.bossChoice.name === "Lord Yaroslav")
     el.setAttribute("data-boss", "lord-yaroslav");
+
   const img = document.createElement("img");
-  img.src = `images/${state.bossChoice.name.toLowerCase()}.svg`;
+
+  // Handle image loading with spaces in names
+  let imageName;
+  switch (state.bossChoice.name) {
+    case "Kronos":
+      imageName = "Kronos";
+      break;
+    case "Yuri Caesar":
+      imageName = "Yuri Caesar"; // or "yuri caesar" if you kept spaces
+      break;
+    case "Ivan the Terrible":
+      imageName = "Ivan the Terrible"; // keep spaces
+      break;
+    case "Napoleon Bonaparte":
+      imageName = "Napoleon Bonaparte"; // keep spaces
+      break;
+    case "Adolf Hitler":
+      imageName = "Adolf Hitler"; // or "adolf hitler" with spaces
+      break;
+    case "Lord Yaroslav":
+      imageName = "Lord Yaroslav"; // keep spaces
+      break;
+    default:
+      imageName = state.bossChoice.name.toLowerCase();
+  }
+
+  const imagePath = `images/${imageName}.svg`;
+  console.log(
+    "Loading boss image:",
+    imagePath,
+    "for boss:",
+    state.bossChoice.name
+  );
+
+  img.src = imagePath;
   img.alt = state.bossChoice.name;
+
+  // Add error handling with multiple fallbacks
+  img.onerror = function () {
+    console.error("Failed to load boss image:", imagePath);
+
+    // Try different filename formats
+    const fallbacks = [
+      imageName.replace(/\s+/g, "-"), // spaces to hyphens
+      imageName.replace(/\s+/g, ""), // remove spaces
+      state.bossChoice.name.toLowerCase().replace(/\s+/g, "-"),
+      state.bossChoice.name.toLowerCase().replace(/\s+/g, ""),
+      "kronos", // ultimate fallback
+    ];
+
+    let currentFallback = 0;
+    const tryNextFallback = () => {
+      if (currentFallback < fallbacks.length) {
+        const fallbackPath = `images/${fallbacks[currentFallback]}.svg`;
+        console.log("Trying fallback:", fallbackPath);
+        img.src = fallbackPath;
+        currentFallback++;
+      }
+    };
+
+    img.onerror = tryNextFallback;
+    tryNextFallback();
+  };
+
   el.appendChild(img);
   const hpBar = document.createElement("div");
   hpBar.className = "hpBar";

@@ -229,14 +229,31 @@ body {
   overflow: hidden;
   z-index: 10;
 }
+
+.bossUnit[data-boss="kronos"] {
+  bottom: 14% !important;
+}
+
 .bossUnit[data-boss="yuri-caesar"] {
   bottom: 14% !important;
 }
 
-/* Make Lord Yaroslav appear lower */
+.bossUnit[data-boss="ivan"] {
+  bottom: 14% !important;
+}
+
+.bossUnit[data-boss="napoleon"] {
+  bottom: 14% !important;
+}
+
+.bossUnit[data-boss="hitler"] {
+  bottom: 14% !important;
+}
+
 .bossUnit[data-boss="lord-yaroslav"] {
   bottom: 14% !important;
 }
+
 .hpFill {
   height: 100%;
   background: linear-gradient(90deg, #10b981, #059669);
