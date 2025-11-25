@@ -39,7 +39,7 @@ const BOSSES = [
     age: 3,
     baseHP: 5000,
     accel: 1,
-    spawnRules: { allowMediumAfter: 25, allowHeavyAfter: 30 },
+    spawnRules: { allowMediumAfter: 20, allowHeavyAfter: 25 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -1686,6 +1686,8 @@ function updateUnits(dt) {
         let xpMul = 0.4;
         let ageMultiplier = state.playerAge * 1.5;
         xpMul *= ageMultiplier;
+        if (state.bossChoice && state.bossChoice.age === 3) xpMul = 1.25;
+        if (state.bossChoice && state.bossChoice.age >= 4) xpMul = 0.55;
         if (state.bossChoice && state.bossChoice.age === 6) xpMul = 1;
         const xpGain = Math.round(baseCost * xpMul);
         const goldGain = Math.round(
@@ -1729,7 +1731,7 @@ function bossWaveTick(dt) {
     state.bossChoice.initialized = true;
   }
 
-  if (bossId <= 2) {
+  if (bossId <= 3) {
     if (elapsed >= 20 && state.bossChoice.accelPhase === 0) {
       state.bossChoice.accel = 0.9;
       state.bossChoice.accelPhase = 1;
@@ -1745,17 +1747,6 @@ function bossWaveTick(dt) {
     } else if (elapsed >= 100 && state.bossChoice.accelPhase === 3) {
       state.bossChoice.accel = 1.35;
       state.bossChoice.accelPhase = 4;
-    } else if (bossId === 3) {
-      if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
-        state.bossChoice.accel = 1.2;
-        state.bossChoice.accelPhase = 1;
-      } else if (elapsed >= 50 && state.bossChoice.accelPhase === 1) {
-        state.bossChoice.accel = 1.4;
-        state.bossChoice.accelPhase = 2;
-      } else if (elapsed >= 100 && state.bossChoice.accelPhase === 3) {
-        state.bossChoice.accel = 1.7;
-        state.bossChoice.accelPhase = 3;
-      }
     }
   } else if (bossId === 4) {
     if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
@@ -1980,16 +1971,38 @@ function activateBoss() {
 
 function onBossDefeated() {
   if (state.bossDefeated) return;
+
+  console.log("Boss defeated:", state.bossChoice.name);
   state.bossDefeated = true;
   state.bossActive = false;
   state.bossHP = 0;
-  for (let i = state.units.length - 1; i >= 0; i--)
+
+  // Remove boss unit from the game
+  for (let i = state.units.length - 1; i >= 0; i--) {
     if (state.units[i].isBoss) {
       try {
         state.units[i].el.remove();
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error removing boss element:", e);
+      }
       state.units.splice(i, 1);
+      break; // Only one boss should exist
     }
+  }
+
+  // Clear any remaining projectiles targeting the boss
+  for (let i = state.projectiles.length - 1; i >= 0; i--) {
+    if (
+      state.projectiles[i].targetRef &&
+      state.projectiles[i].targetRef.isBoss
+    ) {
+      try {
+        state.projectiles[i].el.remove();
+      } catch (e) {}
+      state.projectiles.splice(i, 1);
+    }
+  }
+
   const idx = BOSSES.findIndex((b) => b.id === state.bossChoice.id);
   if (idx >= 0 && idx < BOSSES.length - 1) {
     const next = BOSSES[idx + 1].id;
@@ -2000,14 +2013,14 @@ function onBossDefeated() {
         L("unlockedBoss") +
           (state.lang === "ru" ? BOSSES[idx + 1].ru : BOSSES[idx + 1].name)
       );
-      // FIXED: Immediately update the boss list to show the newly unlocked boss
+      // Immediately update the boss list
       buildBossList();
     }
   } else {
     state.hackEnabled = true;
-    // NEW: Mark that Future era has been completed
     state.futureCompleted = true;
   }
+
   playAgeMusic(state.playerAge);
   updateTop();
   showFinish(true, L("bossDefeated"));
