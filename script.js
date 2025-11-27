@@ -49,8 +49,8 @@ const BOSSES = [
     ru: "Наполеон Бонапарт",
     age: 4,
     accel: 1,
-    baseHP: 8000,
-    spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 50 },
+    baseHP: 7000,
+    spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 45 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -60,8 +60,8 @@ const BOSSES = [
     ru: "Адольф Гитлер",
     age: 5,
     accel: 1,
-    baseHP: 15000,
-    spawnRules: { allowMediumAfter: 45, allowHeavyAfter: 60 },
+    baseHP: 12000,
+    spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 60 },
     imgWidth: 150,
     imgHeight: 150,
   },
@@ -71,8 +71,8 @@ const BOSSES = [
     ru: "Лорд Ярослав",
     age: 6,
     accel: 1,
-    baseHP: 30000,
-    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 60 },
+    baseHP: 25000,
+    spawnRules: { allowMediumAfter: 30, allowHeavyAfter: 55 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -1687,8 +1687,8 @@ function updateUnits(dt) {
         let ageMultiplier = state.playerAge * 1.5;
         xpMul *= ageMultiplier;
         if (state.bossChoice && state.bossChoice.age === 3) xpMul = 1.25;
-        if (state.bossChoice && state.bossChoice.age >= 4) xpMul = 0.55;
-        if (state.bossChoice && state.bossChoice.age === 6) xpMul = 1;
+        if (state.bossChoice && state.bossChoice.age >= 4) xpMul = 1.2;
+        if (state.bossChoice && state.bossChoice.age === 6) xpMul = 2;
         const xpGain = Math.round(baseCost * xpMul);
         const goldGain = Math.round(
           baseCost * (0.15 * (died.template.tier || 1)) +
@@ -1753,19 +1753,19 @@ function bossWaveTick(dt) {
       state.bossChoice.accel = 0.9;
       state.bossChoice.accelPhase = 1;
     } else if (elapsed >= 50 && state.bossChoice.accelPhase === 1) {
-      state.bossChoice.accel = 1;
+      state.bossChoice.accel = 1.15;
       state.bossChoice.accelPhase = 2;
     } else if (elapsed >= 80 && state.bossChoice.accelPhase === 2) {
-      state.bossChoice.accel = 1.15;
+      state.bossChoice.accel = 1.35;
       state.bossChoice.accelPhase = 3;
     } else if (elapsed >= 120 && state.bossChoice.accelPhase === 3) {
-      state.bossChoice.accel = 1.3;
-      state.bossChoice.accelPhase = 4;
-    } else if (elapsed >= 160 && state.bossChoice.accelPhase === 3) {
       state.bossChoice.accel = 1.5;
-      state.bossChoice.accelPhase = 5;
-    } else if (elapsed >= 220 && state.bossChoice.accelPhase === 3) {
+      state.bossChoice.accelPhase = 4;
+    } else if (elapsed >= 160 && state.bossChoice.accelPhase === 4) {
       state.bossChoice.accel = 1.7;
+      state.bossChoice.accelPhase = 5;
+    } else if (elapsed >= 200 && state.bossChoice.accelPhase === 5) {
+      state.bossChoice.accel = 2;
       state.bossChoice.accelPhase = 6;
     }
   } else if (bossId === 5) {
@@ -1789,24 +1789,21 @@ function bossWaveTick(dt) {
       state.bossChoice.accelPhase = 6;
     }
   } else if (bossId === 6) {
-    if (elapsed >= 25 && state.bossChoice.accelPhase === 0) {
-      state.bossChoice.accel = 1.3;
+    if (elapsed >= 15 && state.bossChoice.accelPhase === 0) {
+      state.bossChoice.accel = 1.8;
       state.bossChoice.accelPhase = 1;
-    } else if (elapsed >= 45 && state.bossChoice.accelPhase === 1) {
-      state.bossChoice.accel = 1.35;
+    } else if (elapsed >= 65 && state.bossChoice.accelPhase === 1) {
+      state.bossChoice.accel = 1.2;
       state.bossChoice.accelPhase = 2;
-    } else if (elapsed >= 65 && state.bossChoice.accelPhase === 2) {
-      state.bossChoice.accel = 1.45;
-      state.bossChoice.accelPhase = 3;
-    } else if (elapsed >= 90 && state.bossChoice.accelPhase === 3) {
+    } else if (elapsed >= 90 && state.bossChoice.accelPhase === 2) {
       state.bossChoice.accel = 1.5;
-      state.bossChoice.accelPhase = 4;
+      state.bossChoice.accelPhase = 3;
     } else if (elapsed >= 130 && state.bossChoice.accelPhase === 3) {
       state.bossChoice.accel = 1.6;
+      state.bossChoice.accelPhase = 4;
+    } else if (elapsed >= 190 && state.bossChoice.accelPhase === 4) {
+      state.bossChoice.accel = 2;
       state.bossChoice.accelPhase = 5;
-    } else if (elapsed >= 190 && state.bossChoice.accelPhase === 3) {
-      state.bossChoice.accel = 1.7;
-      state.bossChoice.accelPhase = 6;
     }
   }
 
