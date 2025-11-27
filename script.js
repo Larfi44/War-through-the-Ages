@@ -26,7 +26,7 @@ const BOSSES = [
     name: "Yuri Caesar",
     ru: "Юрий Цезарь",
     age: 2,
-    baseHP: 2500,
+    baseHP: 3000,
     accel: 1,
     spawnRules: { allowMediumAfter: 15, allowHeavyAfter: 25 },
     imgWidth: 100,
@@ -37,7 +37,7 @@ const BOSSES = [
     name: "Ivan the Terrible",
     ru: "Иван Грозный",
     age: 3,
-    baseHP: 4000,
+    baseHP: 5000,
     accel: 1,
     spawnRules: { allowMediumAfter: 20, allowHeavyAfter: 25 },
     imgWidth: 100,
@@ -49,7 +49,7 @@ const BOSSES = [
     ru: "Наполеон Бонапарт",
     age: 4,
     accel: 1,
-    baseHP: 7000,
+    baseHP: 8000,
     spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 45 },
     imgWidth: 100,
     imgHeight: 100,
@@ -61,7 +61,7 @@ const BOSSES = [
     age: 5,
     accel: 1,
     baseHP: 12000,
-    spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 60 },
+    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 60 },
     imgWidth: 150,
     imgHeight: 150,
   },
@@ -72,7 +72,7 @@ const BOSSES = [
     age: 6,
     accel: 1,
     baseHP: 25000,
-    spawnRules: { allowMediumAfter: 30, allowHeavyAfter: 55 },
+    spawnRules: { allowMediumAfter: 30, allowHeavyAfter: 50 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -1773,19 +1773,19 @@ function bossWaveTick(dt) {
       state.bossChoice.accel = 0.9;
       state.bossChoice.accelPhase = 1;
     } else if (elapsed >= 50 && state.bossChoice.accelPhase === 1) {
-      state.bossChoice.accel = 1;
+      state.bossChoice.accel = 1.15;
       state.bossChoice.accelPhase = 2;
     } else if (elapsed >= 80 && state.bossChoice.accelPhase === 2) {
-      state.bossChoice.accel = 1.15;
+      state.bossChoice.accel = 1.35;
       state.bossChoice.accelPhase = 3;
     } else if (elapsed >= 100 && state.bossChoice.accelPhase === 3) {
-      state.bossChoice.accel = 1.45;
+      state.bossChoice.accel = 1.55;
       state.bossChoice.accelPhase = 4;
     } else if (elapsed >= 140 && state.bossChoice.accelPhase === 3) {
-      state.bossChoice.accel = 1.5;
+      state.bossChoice.accel = 1.75;
       state.bossChoice.accelPhase = 5;
     } else if (elapsed >= 190 && state.bossChoice.accelPhase === 3) {
-      state.bossChoice.accel = 1.7;
+      state.bossChoice.accel = 2;
       state.bossChoice.accelPhase = 6;
     }
   } else if (bossId === 6) {
@@ -2237,6 +2237,70 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
+function loop(now) {
+  const rawDt = (now - last) / 1000;
+  last = now;
+  if (!state.running || state.timePaused) {
+    requestAnimationFrame(loop);
+    return;
+  }
+  const dt = rawDt * state.timeMultiplier;
+  state.time += dt;
+
+  const incomeMultiplier = DIFF[state.difficulty].incomeMultiplier || 1.0;
+  if (!state.infiniteGold)
+    state.gold += 3 * dt * (state.playerAge * 1.6) * incomeMultiplier;
+
+  if (state.mode === "boss") bossWaveTick(dt);
+  else {
+    enemySpawnNormal(dt);
+    enemyAgeTick(dt);
+  }
+
+  updateUnits(dt);
+  updateProjectiles(dt);
+  renderAll();
+  updateUI();
+
+  // UPDATED: Base destruction with rewards in boss mode
+  if (state.enemyBaseHP <= 0 && !state.enemyBaseDestroyed) {
+    state.enemyBaseDestroyed = true;
+
+    // GIVE REWARDS FOR BASE DESTRUCTION IN BOSS MODE
+    if (state.mode === "boss") {
+      const baseRewardXP = state.bossChoice.age * 100;
+      const baseRewardGold = state.bossChoice.age * 300;
+
+      if (!state.infiniteXP) state.xp += baseRewardXP;
+      if (!state.infiniteGold) state.gold += baseRewardGold;
+
+      showToast(
+        L("enemyBaseDestroyed") +
+          " +" +
+          baseRewardXP +
+          " XP +" +
+          baseRewardGold +
+          " Gold",
+        2000
+      );
+
+      console.log("Base destroyed in boss mode - Rewards:", {
+        xp: baseRewardXP,
+        gold: baseRewardGold,
+        bossAge: state.bossChoice.age,
+      });
+    } else {
+      showToast(L("enemyBaseDestroyed"), 1000);
+    }
+
+    if (state.mode === "boss") activateBoss();
+    else showFinish(true, L("victoryBase"));
+  }
+
+  if (state.playerBaseHP <= 0) showFinish(false, L("defeatBase"));
+  requestAnimationFrame(loop);
+}
 
 function showFinish(win, message) {
   state.running = false;
