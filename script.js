@@ -1453,16 +1453,21 @@ function createProjectile(fromUnit, target) {
 function updateProjectiles(dt) {
   if (!state.projectiles.length) return;
   const br = battleEl.getBoundingClientRect();
+
   for (let i = state.projectiles.length - 1; i >= 0; i--) {
     const p = state.projectiles[i];
     p.life -= dt;
+
     if (p.targetRef) {
       const alive = state.units.find((u) => u === p.targetRef);
       if (!alive || (p.targetRef.hp !== undefined && p.targetRef.hp <= 0)) {
         p.targetRef = null;
         p.targetX = p.from === "player" ? br.width - 160 : 140;
-      } else p.targetX = p.targetRef.x;
+      } else {
+        p.targetX = p.targetRef.x;
+      }
     }
+
     if (p.life <= 0) {
       try {
         p.el.remove();
@@ -1470,37 +1475,47 @@ function updateProjectiles(dt) {
       state.projectiles.splice(i, 1);
       continue;
     }
+
     const dir = p.targetX > p.x ? 1 : -1;
     p.x += dir * p.speed * dt;
     p.el.style.left = p.x + "px";
+
     let hit = false;
     for (const u of state.units) {
       if (u.side === p.from) continue;
       if (Math.abs(u.x - p.x) < 18) {
         if (u.isBoss) {
-          state.bossHP -= p.dmg;
-          const bo = state.units.find((z) => z.isBoss);
-          if (bo) bo.hp = state.bossHP;
+          // Only modify the boss object's HP, not state.bossHP directly
+          u.hp -= p.dmg;
+          state.bossHP = u.hp; // Then sync to state
           if (state.bossHP <= 0) onBossDefeated();
-        } else u.hp -= p.dmg;
+        } else {
+          u.hp -= p.dmg;
+        }
         hit = true;
         break;
       }
     }
+
     if (!hit) {
       if (p.from === "player" && p.x >= br.width - 160) {
         if (state.bossActive) {
-          state.bossHP -= p.dmg;
-          const bo = state.units.find((z) => z.isBoss);
-          if (bo) bo.hp = state.bossHP;
-          if (state.bossHP <= 0) onBossDefeated();
-        } else state.enemyBaseHP -= p.dmg;
+          const boss = state.units.find((z) => z.isBoss);
+          if (boss) {
+            boss.hp -= p.dmg;
+            state.bossHP = boss.hp; // Sync after modification
+            if (state.bossHP <= 0) onBossDefeated();
+          }
+        } else {
+          state.enemyBaseHP -= p.dmg;
+        }
         hit = true;
       } else if (p.from === "enemy" && p.x <= 140) {
         state.playerBaseHP -= p.dmg;
         hit = true;
       }
     }
+
     if (hit || p.x < 20 || p.x > br.width - 20) {
       try {
         p.el.remove();
@@ -1538,28 +1553,46 @@ function findNearest(u) {
 
 function updateUnits(dt) {
   const bw = battleEl.clientWidth;
+
+  // Sync boss HP at the start of each frame
+  const boss = state.units.find((u) => u.isBoss);
+  if (boss && state.bossActive) {
+    // Use state.bossHP as the source of truth for boss health
+    boss.hp = state.bossHP;
+    const diffMul = DIFF[state.difficulty].bossMul || 1.0;
+    boss.maxHp = state.bossChoice.baseHP * diffMul;
+  }
+
   for (const u of state.units) {
     if (u.target && (u.target.hp <= 0 || !state.units.includes(u.target))) {
       u.target = null;
       u.attackingBase = false;
     }
   }
+
   for (const u of state.units) {
     if (u.attackingBase) {
       u.atkTimer += dt;
       if (u.atkTimer >= u.atkSpeed) {
         if (u.side === "player") {
           if (state.bossActive) {
-            state.bossHP -= u.atk;
-            const bo = state.units.find((z) => z.isBoss);
-            if (bo) bo.hp = state.bossHP;
-            if (state.bossHP <= 0) onBossDefeated();
-          } else state.enemyBaseHP -= u.atk;
-        } else state.playerBaseHP -= u.atk;
+            const boss = state.units.find((z) => z.isBoss);
+            if (boss) {
+              boss.hp -= u.atk;
+              state.bossHP = boss.hp;
+              if (state.bossHP <= 0) onBossDefeated();
+            }
+          } else {
+            state.enemyBaseHP -= u.atk;
+          }
+        } else {
+          state.playerBaseHP -= u.atk;
+        }
         u.atkTimer = 0;
       }
       continue;
     }
+
     if (u.side === "player") {
       const target = findNearest(u);
       u.target = target;
@@ -1573,17 +1606,20 @@ function updateUnits(dt) {
             createProjectile(u, aim || tx);
             u.atkTimer = 0;
           }
-        } else u.x += u.spd * 60 * dt;
+        } else {
+          u.x += u.spd * 60 * dt;
+        }
       } else {
         if (target && Math.abs(target.x - u.x) <= 36) {
           u.atkTimer += dt;
           if (u.atkTimer >= u.atkSpeed) {
             if (target.isBoss) {
-              state.bossHP -= u.atk;
-              const bo = state.units.find((z) => z.isBoss);
-              if (bo) bo.hp = state.bossHP;
+              target.hp -= u.atk;
+              state.bossHP = target.hp;
               if (state.bossHP <= 0) onBossDefeated();
-            } else target.hp -= u.atk;
+            } else {
+              target.hp -= u.atk;
+            }
             u.atkTimer = 0;
           }
         } else {
@@ -1607,16 +1643,18 @@ function updateUnits(dt) {
             createProjectile(u, aim || tx);
             u.atkTimer = 0;
           }
-        } else u.x -= u.spd * 60 * dt;
+        } else {
+          u.x -= u.spd * 60 * dt;
+        }
       } else {
         if (target && Math.abs(target.x - u.x) <= 36) {
           u.atkTimer += dt;
           if (u.atkTimer >= u.atkSpeed) {
-            if (!target.isBoss) target.hp -= u.atk;
-            else {
-              state.bossHP -= u.atk;
-              const bo = state.units.find((z) => z.isBoss);
-              if (bo) bo.hp = state.bossHP;
+            if (!target.isBoss) {
+              target.hp -= u.atk;
+            } else {
+              target.hp -= u.atk;
+              state.bossHP = target.hp;
               if (state.bossHP <= 0) onBossDefeated();
             }
             u.atkTimer = 0;
@@ -1631,46 +1669,63 @@ function updateUnits(dt) {
       }
     }
   }
+
   for (let i = 0; i < state.units.length; i++) {
     for (let j = i + 1; j < state.units.length; j++) {
-      const a = state.units[i],
-        b = state.units[j];
+      const a = state.units[i];
+      const b = state.units[j];
       if (!a || !b || a.side === b.side) continue;
       if (Math.abs(a.x - b.x) < 36) {
         if (a.isBoss) {
           b.hp -= a.atk * 0.04;
-          state.bossHP -= a.atk * 0.04;
-        } else b.hp -= a.atk * 0.02;
+          // Also update boss HP in state for consistency
+          if (a.isBoss) {
+            a.hp -= a.atk * 0.04;
+            state.bossHP = a.hp;
+          }
+        } else {
+          b.hp -= a.atk * 0.02;
+        }
         if (b.isBoss) {
           a.hp -= b.atk * 0.04;
-          state.bossHP -= b.atk * 0.04;
-        } else a.hp -= b.atk * 0.02;
-      }
-    }
-  }
-  const boss = state.units.find((u) => u.isBoss);
-  if (boss) {
-    if (
-      boss.target &&
-      (boss.target.hp <= 0 || !state.units.includes(boss.target))
-    ) {
-      boss.target = null;
-      boss.attackingBase = false;
-    }
-    if (!boss.attackingBase) {
-      const target = findNearest(boss);
-      boss.target = target;
-      if (target) {
-        if (Math.abs(target.x - boss.x) > 50) boss.x -= boss.spd * 60 * dt;
-      } else {
-        boss.x -= boss.spd * 60 * dt;
-        if (boss.x <= 100) {
-          boss.attackingBase = true;
-          boss.x = 100;
+          // Also update boss HP in state for consistency
+          if (b.isBoss) {
+            b.hp -= b.atk * 0.04;
+            state.bossHP = b.hp;
+          }
+        } else {
+          a.hp -= b.atk * 0.02;
         }
       }
     }
   }
+
+  const bossUnit = state.units.find((u) => u.isBoss);
+  if (bossUnit) {
+    if (
+      bossUnit.target &&
+      (bossUnit.target.hp <= 0 || !state.units.includes(bossUnit.target))
+    ) {
+      bossUnit.target = null;
+      bossUnit.attackingBase = false;
+    }
+    if (!bossUnit.attackingBase) {
+      const target = findNearest(bossUnit);
+      bossUnit.target = target;
+      if (target) {
+        if (Math.abs(target.x - bossUnit.x) > 50) {
+          bossUnit.x -= bossUnit.spd * 60 * dt;
+        }
+      } else {
+        bossUnit.x -= bossUnit.spd * 60 * dt;
+        if (bossUnit.x <= 100) {
+          bossUnit.attackingBase = true;
+          bossUnit.x = 100;
+        }
+      }
+    }
+  }
+
   for (let k = state.units.length - 1; k >= 0; k--) {
     const u = state.units[k];
     if (u.hp <= 0) {
@@ -1708,6 +1763,15 @@ function updateUnits(dt) {
         );
         updateUI();
       }
+    }
+  }
+
+  // Sync boss HP again at the end - ensure state reflects actual boss HP and is non-negative
+  if (boss && state.bossActive) {
+    state.bossHP = Math.max(0, boss.hp);
+    // Final check if boss should be defeated
+    if (state.bossHP <= 0 && !state.bossDefeated) {
+      onBossDefeated();
     }
   }
 }
@@ -1849,9 +1913,11 @@ function activateBoss() {
   state.bossChoice =
     BOSSES.find((b) => b.id === state.chosenBossId) || BOSSES[0];
   const diffMul = DIFF[state.difficulty].bossMul || 1.0;
-  state.bossHP = Math.round(state.bossChoice.baseHP * diffMul);
+  const bossMaxHP = Math.round(state.bossChoice.baseHP * diffMul);
+  state.bossHP = bossMaxHP;
   state.enemyBaseDestroyed = true;
   playBossMusic();
+
   const br = battleEl.getBoundingClientRect();
   const el = document.createElement("div");
   el.className = "bossUnit";
@@ -1873,61 +1939,47 @@ function activateBoss() {
     el.setAttribute("data-boss", "lord-yaroslav");
 
   const img = document.createElement("img");
-
-  // Handle image loading with spaces in names
   let imageName;
   switch (state.bossChoice.name) {
     case "Kronos":
       imageName = "Kronos";
       break;
     case "Yuri Caesar":
-      imageName = "Yuri Caesar"; // or "yuri caesar" if you kept spaces
+      imageName = "Yuri Caesar";
       break;
     case "Ivan the Terrible":
-      imageName = "Ivan the Terrible"; // keep spaces
+      imageName = "Ivan the Terrible";
       break;
     case "Napoleon Bonaparte":
-      imageName = "Napoleon Bonaparte"; // keep spaces
+      imageName = "Napoleon Bonaparte";
       break;
     case "Adolf Hitler":
-      imageName = "Adolf Hitler"; // or "adolf hitler" with spaces
+      imageName = "Adolf Hitler";
       break;
     case "Lord Yaroslav":
-      imageName = "Lord Yaroslav"; // keep spaces
+      imageName = "Lord Yaroslav";
       break;
     default:
       imageName = state.bossChoice.name.toLowerCase();
   }
 
   const imagePath = `images/${imageName}.svg`;
-  console.log(
-    "Loading boss image:",
-    imagePath,
-    "for boss:",
-    state.bossChoice.name
-  );
-
   img.src = imagePath;
   img.alt = state.bossChoice.name;
 
-  // Add error handling with multiple fallbacks
   img.onerror = function () {
-    console.error("Failed to load boss image:", imagePath);
-
-    // Try different filename formats
     const fallbacks = [
-      imageName.replace(/\s+/g, "-"), // spaces to hyphens
-      imageName.replace(/\s+/g, ""), // remove spaces
+      imageName.replace(/\s+/g, "-"),
+      imageName.replace(/\s+/g, ""),
       state.bossChoice.name.toLowerCase().replace(/\s+/g, "-"),
       state.bossChoice.name.toLowerCase().replace(/\s+/g, ""),
-      "kronos", // ultimate fallback
+      "kronos",
     ];
 
     let currentFallback = 0;
     const tryNextFallback = () => {
       if (currentFallback < fallbacks.length) {
         const fallbackPath = `images/${fallbacks[currentFallback]}.svg`;
-        console.log("Trying fallback:", fallbackPath);
         img.src = fallbackPath;
         currentFallback++;
       }
@@ -1944,13 +1996,15 @@ function activateBoss() {
   hpFill.className = "hpFill";
   hpBar.appendChild(hpFill);
   el.appendChild(hpBar);
+
   if (battleUnits) battleUnits.appendChild(el);
+
   const bossObj = {
     id: "BOSS",
     template: state.bossChoice,
     side: "enemy",
-    hp: state.bossHP,
-    maxHp: state.bossHP,
+    hp: bossMaxHP, // Set to the same calculated max HP
+    maxHp: bossMaxHP, // Store the max HP for percentage calculations
     atk: Math.max(50, Math.floor(state.bossChoice.baseHP / 20)),
     spd: 0.25,
     x: br.width - 200,
@@ -1962,6 +2016,7 @@ function activateBoss() {
     attackingBase: false,
     target: null,
   };
+
   state.units.push(bossObj);
   updateTop();
 }
@@ -1969,10 +2024,17 @@ function activateBoss() {
 function onBossDefeated() {
   if (state.bossDefeated) return;
 
-  console.log("Boss defeated:", state.bossChoice.name);
+  console.log(
+    "Boss defeated:",
+    state.bossChoice?.name,
+    "Final HP:",
+    state.bossHP
+  );
+
+  // Force both HP values to 0
+  state.bossHP = 0;
   state.bossDefeated = true;
   state.bossActive = false;
-  state.bossHP = 0;
 
   // Remove boss unit from the game
   for (let i = state.units.length - 1; i >= 0; i--) {
@@ -1983,7 +2045,7 @@ function onBossDefeated() {
         console.error("Error removing boss element:", e);
       }
       state.units.splice(i, 1);
-      break; // Only one boss should exist
+      break;
     }
   }
 
@@ -2069,19 +2131,49 @@ function enemyAgeTick(dt) {
 
 function renderAll() {
   if (!battleUnits) return;
+
+  // Safety check: ensure boss HP is never negative and visuals match actual HP
+  if (state.bossActive) {
+    const boss = state.units.find((u) => u.isBoss);
+    if (boss) {
+      state.bossHP = Math.max(0, boss.hp); // Ensure non-negative
+      if (state.bossHP <= 0 && !state.bossDefeated) {
+        onBossDefeated();
+        return; // Skip rendering if boss just died
+      }
+    }
+  }
+
   battleUnits.innerHTML = "";
   const bw = battleEl.clientWidth;
+
   for (const u of state.units) {
     const el = u.el;
     if (!el) continue;
     const hpFill = el.querySelector(".hpFill");
     const maxHP = u.maxHp || u.template.hp || 60;
-    const pct = Math.max(0, Math.min(1, (u.hp || 0) / (maxHP || 1)));
+
+    // For boss units, use state.bossHP to match the right-up corner display
+    let currentHP = u.hp;
+    let displayMaxHP = maxHP;
+
+    if (u.isBoss && state.bossActive) {
+      currentHP = state.bossHP; // Use the same HP as right-up corner
+      displayMaxHP =
+        state.bossChoice.baseHP * (DIFF[state.difficulty].bossMul || 1.0);
+    }
+
+    const pct = Math.max(
+      0,
+      Math.min(1, (currentHP || 0) / (displayMaxHP || 1))
+    );
+
     if (hpFill) {
       hpFill.style.width = pct * 100 + "%";
       if (pct < 0.35) hpFill.classList.add("low");
       else hpFill.classList.remove("low");
     }
+
     el.style.left = Math.max(60, Math.min(bw - 200, u.x)) + "px";
     el.style.bottom = u.isBoss ? "16%" : "14%";
     el.style.width =
@@ -2090,6 +2182,7 @@ function renderAll() {
     el.style.height =
       (u.isBoss ? u.template.imgHeight || 100 : u.template.imgHeight || 60) +
       "px";
+
     if (state.showHPNumbers) {
       let num = el.querySelector(".hpNum");
       if (!num) {
@@ -2104,12 +2197,24 @@ function renderAll() {
         num.style.color = "#dbeafe";
         el.appendChild(num);
       }
-      num.textContent = Math.round(u.hp) + " / " + Math.round(maxHP);
+      // Show the same HP values as right-up corner for boss
+      if (u.isBoss && state.bossActive) {
+        num.textContent =
+          Math.round(currentHP) + " / " + Math.round(displayMaxHP);
+      } else {
+        num.textContent =
+          Math.round(currentHP) + " / " + Math.round(displayMaxHP);
+      }
     }
     battleUnits.appendChild(el);
   }
-  for (const p of state.projectiles)
-    if (p.el && p.el.parentNode !== battleUnits) battleUnits.appendChild(p.el);
+
+  for (const p of state.projectiles) {
+    if (p.el && p.el.parentNode !== battleUnits) {
+      battleUnits.appendChild(p.el);
+    }
+  }
+
   if (state.bossActive && state.bossChoice) {
     const lbl = document.createElement("div");
     lbl.style.position = "absolute";
@@ -2119,13 +2224,22 @@ function renderAll() {
     lbl.style.background = "rgba(255,120,120,0.12)";
     lbl.style.borderRadius = "8px";
     lbl.style.fontWeight = "700";
+
+    // Calculate the same max HP as used for hpFill
+    const bossMaxHP =
+      state.bossChoice.baseHP * (DIFF[state.difficulty].bossMul || 1.0);
+    const currentBossHP = Math.max(0, Math.round(state.bossHP));
+
     lbl.textContent =
       (state.lang === "ru" ? state.bossChoice.ru : state.bossChoice.name) +
       " (" +
-      Math.max(0, Math.round(state.bossHP)) +
+      currentBossHP +
+      "/" +
+      Math.round(bossMaxHP) +
       ")";
     battleUnits.appendChild(lbl);
   }
+
   if (pHP) pHP.textContent = Math.max(0, Math.round(state.playerBaseHP));
   if (eHP) eHP.textContent = Math.max(0, Math.round(state.enemyBaseHP));
   updateTop();
