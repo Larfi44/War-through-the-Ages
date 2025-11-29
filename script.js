@@ -2250,8 +2250,24 @@ function onBossDefeated() {
       buildBossList();
     }
   } else {
-    state.hackEnabled = true;
-    state.futureCompleted = true;
+    // === FIXED: Only unlock hack when Lord Yaroslav (ID 6) is defeated ===
+    if (state.bossChoice.id === 6) {
+      // Lord Yaroslav's ID
+      state.hackEnabled = true;
+      state.futureCompleted = true;
+      showToast(
+        state.lang === "ru"
+          ? "Хаки разблокированы! Доступны в меню."
+          : "Hacks unlocked! Available in menu."
+      );
+      console.log("Hacks unlocked - Lord Yaroslav defeated!");
+    } else {
+      // This is for other bosses that somehow reach the end (shouldn't happen)
+      console.log(
+        "Final boss defeated but not Lord Yaroslav:",
+        state.bossChoice.name
+      );
+    }
   }
 
   playAgeMusic(state.playerAge);
