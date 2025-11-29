@@ -693,6 +693,12 @@ input[type="range"] {
   font-weight: 700;
 }
 
+#panelNormal {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
 /* Menu Background */
 #menuBackground {
   position: fixed;
