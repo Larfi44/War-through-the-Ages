@@ -940,11 +940,39 @@ input[type="range"] {
   display: flex;
 }
 
+/* ===== ADAPTIVE LAYOUT FOR DIFFERENT SCREEN SIZES ===== */
+
+/* Default: Desktop layout (hidden mobile UI) */
+.mobile-stats,
+.mobile-boss-info,
+.mobile-unit-buttons,
+.mobile-controls {
+  display: none;
+}
+
+.bottomBar,
+.topBossInfo {
+  display: flex;
+}
+
 /* ===== PHONES & SMALL TABLETS (up to 600px height) ===== */
 @media (max-height: 600px) and (orientation: landscape) {
-  /* Hide desktop UI */
+  /* Keep original BossInfo always visible */
   .topBossInfo {
-    display: none !important;
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: translateX(0) !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 6px 10px !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    z-index: 999 !important;
+    font-size: 11px !important;
+    border-radius: 0 !important;
+    justify-content: center !important;
   }
 
   /* Show mobile bottom bar - exact replica of desktop but compact */
@@ -967,7 +995,7 @@ input[type="range"] {
   /* Battle area adjustment */
   .battle {
     position: fixed !important;
-    top: 0 !important;
+    top: 40px !important; /* Account for topBossInfo height */
     bottom: 70px !important;
     left: 0 !important;
     right: 0 !important;
@@ -1022,6 +1050,23 @@ input[type="range"] {
     font-size: 9px !important;
   }
 
+  /* Smaller upgrade age button */
+  .upgrade-age-square {
+    width: 70px !important;
+    height: 50px !important; /* Reduced height for mobile */
+    padding: 4px !important;
+    border-radius: 6px !important;
+  }
+
+  .upgrade-age-text {
+    font-size: 10px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .upgrade-age-cost {
+    font-size: 9px !important;
+  }
+
   /* Compact action buttons */
   .btn {
     padding: 6px 8px !important;
@@ -1040,41 +1085,18 @@ input[type="range"] {
 
   /* Adjust units positioning */
   .unit {
-    bottom: 13% !important;
+    bottom: 9% !important;
     transform: scale(0.7) !important;
   }
 
   .bossUnit {
-    bottom: 13% !important;
+    bottom: 9% !important;
     transform: scale(0.7) !important;
   }
 
   .ground {
     bottom: 11% !important;
     height: 4px !important;
-  }
-
-  /* Mobile boss info */
-  .mobile-boss-info {
-    display: flex !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 25px !important;
-    padding: 4px 10px !important;
-    background: rgba(0, 0, 0, 0.85) !important;
-    z-index: 999 !important;
-    font-size: 10px !important;
-    text-align: center !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  /* Adjust battle area to account for top boss info */
-  .battle {
-    top: 25px !important;
-    bottom: 70px !important;
   }
 
   /* Adjust projectiles for smaller screens */
@@ -1086,20 +1108,20 @@ input[type="range"] {
 /* ===== VERY SMALL PHONES (up to 400px height) ===== */
 @media (max-height: 400px) and (orientation: landscape) {
   /* Ultra-compact layout for very small phones */
+  .topBossInfo {
+    padding: 4px 8px !important;
+    font-size: 10px !important;
+    height: 30px !important;
+  }
+
   .bottomBar {
     height: 60px !important;
     padding: 6px 8px !important;
     gap: 6px !important;
   }
 
-  .mobile-boss-info {
-    height: 20px !important;
-    padding: 2px 8px !important;
-    font-size: 9px !important;
-  }
-
   .battle {
-    top: 20px !important;
+    top: 30px !important;
     bottom: 60px !important;
     min-height: 120px !important;
   }
@@ -1136,6 +1158,22 @@ input[type="range"] {
     font-size: 8px !important;
   }
 
+  /* Even smaller upgrade age button */
+  .upgrade-age-square {
+    width: 60px !important;
+    height: 42px !important; /* Further reduced height */
+    padding: 3px !important;
+  }
+
+  .upgrade-age-text {
+    font-size: 9px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .upgrade-age-cost {
+    font-size: 8px !important;
+  }
+
   .btn {
     padding: 4px 6px !important;
     font-size: 9px !important;
@@ -1151,7 +1189,7 @@ input[type="range"] {
 
   .unit,
   .bossUnit {
-    bottom: 11% !important;
+    bottom: 6% !important;
     transform: scale(0.55) !important;
   }
 
@@ -1201,8 +1239,16 @@ input[type="range"] {
 
 /* ===== DESKTOP/TABLET (601px+ height) ===== */
 @media (min-height: 601px) {
-  .mobile-boss-info {
-    display: none !important;
+  .topBossInfo {
+    position: absolute !important;
+    top: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    padding: 8px 12px !important;
+    background: rgba(0, 0, 0, 0.45) !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
   }
 
   .bottomBar {
@@ -1254,6 +1300,23 @@ input[type="range"] {
     font-size: 11px !important;
   }
 
+  /* Reset upgrade age button to original size */
+  .upgrade-age-square {
+    width: 80px !important;
+    height: 80px !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+  }
+
+  .upgrade-age-text {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .upgrade-age-cost {
+    font-size: 10px !important;
+  }
+
   .btn {
     padding: 8px 10px !important;
     font-size: 13px !important;
@@ -1262,8 +1325,8 @@ input[type="range"] {
   }
 
   .base {
-    width: 140px !important;
-    height: 140px !important;
+    width: 100px !important;
+    height: 100px !important;
     font-size: 14px !important;
     bottom: 14% !important;
   }
@@ -1291,8 +1354,8 @@ input[type="range"] {
   }
 
   .base {
-    width: 160px !important;
-    height: 160px !important;
+    width: 120px !important;
+    height: 120px !important;
     font-size: 16px !important;
   }
 
