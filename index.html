@@ -67,32 +67,61 @@
       </div>
     </div>
 
-    <!-- Rest of your existing HTML remains the same -->
-    <audio id="mainMusic" loop preload="auto">
+    <audio id="mainMusic" loop preload="none" onerror="handleAudioError(this)">
       <source src="music/main.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="bossMusic" loop preload="auto">
+    <audio id="bossMusic" loop preload="none" onerror="handleAudioError(this)">
       <source src="music/boss.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="ancientMusic" loop preload="auto">
+    <audio
+      id="ancientMusic"
+      loop
+      preload="none"
+      onerror="handleAudioError(this)"
+    >
       <source src="music/ancient.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="antiquityMusic" loop preload="auto">
+    <audio
+      id="antiquityMusic"
+      loop
+      preload="none"
+      onerror="handleAudioError(this)"
+    >
       <source src="music/antiquity.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="medievalMusic" loop preload="auto">
+    <audio
+      id="medievalMusic"
+      loop
+      preload="none"
+      onerror="handleAudioError(this)"
+    >
       <source src="music/medieval.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="enlightenmentMusic" loop preload="auto">
+    <audio
+      id="enlightenmentMusic"
+      loop
+      preload="none"
+      onerror="handleAudioError(this)"
+    >
       <source src="music/enlightenment.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="modernMusic" loop preload="auto">
+    <audio
+      id="modernMusic"
+      loop
+      preload="none"
+      onerror="handleAudioError(this)"
+    >
       <source src="music/modern.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="futureMusic" loop preload="auto">
+    <audio
+      id="futureMusic"
+      loop
+      preload="none"
+      onerror="handleAudioError(this)"
+    >
       <source src="music/future.mp3" type="audio/mpeg" />
     </audio>
-    <audio id="menuMusic" loop preload="auto">
+    <audio id="menuMusic" loop preload="none" onerror="handleAudioError(this)">
       <source src="music/menu.mp3" type="audio/mpeg" />
     </audio>
 

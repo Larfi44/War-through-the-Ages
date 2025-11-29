@@ -61,7 +61,7 @@ const BOSSES = [
     age: 5,
     accel: 1,
     baseHP: 12000,
-    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 60 },
+    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 65 },
     imgWidth: 150,
     imgHeight: 150,
   },
@@ -708,6 +708,165 @@ function playMenuMusic() {
         .catch(() => {
           state.currentMusic = null;
         });
+  }
+}
+
+// Audio error handling
+function handleAudioError(audioElement) {
+  console.log("Audio failed to load:", audioElement.id);
+  // Silently handle the error - don't show any message to user
+  audioElement.style.display = "none";
+
+  // Disable audio for this session
+  state.audioEnabled = false;
+}
+
+// Modified enableAudio function with error handling
+function enableAudio() {
+  if (!state.audioEnabled) {
+    state.audioEnabled = true;
+    const allMusic = [
+      mainMusic,
+      bossMusic,
+      ancientMusic,
+      antiquityMusic,
+      medievalMusic,
+      enlightenmentMusic,
+      modernMusic,
+      futureMusic,
+      menuMusic,
+    ];
+
+    allMusic.forEach((music) => {
+      if (music) {
+        try {
+          music.volume = state.volume;
+          // Test if audio can play
+          const playPromise = music.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              // If play fails, disable this specific audio
+              music.style.display = "none";
+            });
+          }
+          music.pause(); // Stop after testing
+          music.currentTime = 0;
+        } catch (e) {
+          // Silent catch - don't show errors
+          music.style.display = "none";
+        }
+      }
+    });
+    playMenuMusic();
+  }
+}
+
+// Modified audio functions with safe error handling
+function playMenuMusic() {
+  if (!state.audioEnabled) return;
+  stopAllMusic();
+
+  const menuMusicOptions = [
+    ancientMusic,
+    antiquityMusic,
+    medievalMusic,
+    enlightenmentMusic,
+    modernMusic,
+    futureMusic,
+    mainMusic,
+    menuMusic,
+  ].filter((music) => music !== null && music.style.display !== "none");
+
+  if (menuMusicOptions.length > 0) {
+    const randomMusic =
+      menuMusicOptions[Math.floor(Math.random() * menuMusicOptions.length)];
+    try {
+      randomMusic.volume = state.volume;
+      randomMusic.loop = true;
+      const playPromise = randomMusic.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            state.currentMusic = "menu";
+          })
+          .catch(() => {
+            // Silent failure
+            state.currentMusic = null;
+          });
+      }
+    } catch (e) {
+      // Silent catch
+    }
+  }
+}
+
+function playAgeMusic(age) {
+  if (!state.audioEnabled) return;
+  stopAllMusic();
+
+  let musicElement;
+  switch (age) {
+    case 1:
+      musicElement = ancientMusic;
+      break;
+    case 2:
+      musicElement = antiquityMusic;
+      break;
+    case 3:
+      musicElement = medievalMusic;
+      break;
+    case 4:
+      musicElement = enlightenmentMusic;
+      break;
+    case 5:
+      musicElement = modernMusic;
+      break;
+    case 6:
+      musicElement = futureMusic;
+      break;
+    default:
+      musicElement = mainMusic;
+  }
+
+  if (musicElement && musicElement.style.display !== "none") {
+    try {
+      musicElement.volume = state.volume;
+      const playPromise = musicElement.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            state.currentMusic = age;
+          })
+          .catch(() => {
+            // Silent failure
+          });
+      }
+    } catch (e) {
+      // Silent catch
+    }
+  }
+}
+
+function playBossMusic() {
+  if (!state.audioEnabled) return;
+  stopAllMusic();
+
+  if (bossMusic && bossMusic.style.display !== "none") {
+    try {
+      bossMusic.volume = state.volume;
+      const playPromise = bossMusic.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            state.currentMusic = "boss";
+          })
+          .catch(() => {
+            // Silent failure
+          });
+      }
+    } catch (e) {
+      // Silent catch
+    }
   }
 }
 
