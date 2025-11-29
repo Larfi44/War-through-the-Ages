@@ -1181,8 +1181,8 @@ input[type="range"] {
   }
 
   .base {
-    width: 55px !important;
-    height: 55px !important;
+    width: 65px !important;
+    height: 65px !important;
     bottom: 10% !important;
     font-size: 9px !important;
   }

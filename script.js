@@ -508,6 +508,7 @@ const I18N = {
     locked: "Locked",
     developedBy: "Developed by",
     yarikStudio: "YarikStudio",
+    lblStartAge: "Starting Age",
   },
   ru: {
     title: "Война сквозь века",
@@ -566,6 +567,7 @@ const I18N = {
     locked: "Закрыт",
     developedBy: "Разработано",
     yarikStudio: "YarikStudio",
+    lblStartAge: "Начальная эпоха",
   },
 };
 
@@ -580,6 +582,7 @@ let state = {
   xp: 0,
   playerAge: 1,
   enemyAge: 1,
+  startAge: 1,
   playerBaseHP: HP_PER_AGE[0],
   enemyBaseHP: HP_PER_AGE[0],
   units: [],
@@ -1267,6 +1270,7 @@ function initializeLanguageSwitcher() {
       updateUI();
       localizeText();
       updateDeveloperCredit();
+      updateAgeOptions();
       showToast(
         state.lang === "ru"
           ? "Язык изменен на Русский"
@@ -2307,10 +2311,11 @@ function enemySpawnNormal(dt) {
   if (Math.random() < spawnChance) {
     const templates = UNIT_TEMPLATES[state.enemyAge] || UNIT_TEMPLATES[1];
 
-    tierWeights = [1, 1, 1];
+    // FIX: Replace 'elapsed' with 'state.time'
+    let tierWeights = [1, 1, 1];
 
-    if (elapsed > 45) tierWeights = [1, 2, 1.5];
-    if (elapsed > 90) tierWeights = [1, 1.5, 2];
+    if (state.time > 45) tierWeights = [1, 2, 1.5];
+    if (state.time > 90) tierWeights = [1, 1.5, 2];
 
     let weightedTemplates = [];
     templates.forEach((t, i) => {
@@ -2630,6 +2635,19 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
+function updateAgeOptions() {
+  const startAgeSelect = document.getElementById("startAge");
+  if (!startAgeSelect) return;
+
+  Array.from(startAgeSelect.options).forEach((option) => {
+    const langKey = state.lang === "ru" ? "data-ru" : "data-en";
+    const translatedText = option.getAttribute(langKey);
+    if (translatedText) {
+      option.textContent = translatedText;
+    }
+  });
+}
+
 function showFinish(win, message) {
   state.running = false;
   stopAllMusic();
@@ -2640,6 +2658,13 @@ function showFinish(win, message) {
 }
 
 function startGame() {
+  // FIX: Use the selected starting age
+  state.playerAge = state.startAge;
+  state.enemyAge =
+    state.mode === "boss" && state.bossChoice
+      ? state.bossChoice.age
+      : state.startAge;
+
   updateUI();
   resetHacks();
   if (state.mode === null) {
@@ -2647,9 +2672,18 @@ function startGame() {
     return;
   }
 
+  const ageGoldMultipliers = {
+    1: 1, // Ancient World: 100 gold
+    2: 1.5, // Antiquity: 150 gold
+    3: 2.5, // Medieval: 200 gold
+    4: 3.5, // Enlightenment: 250 gold
+    5: 6, // Modern: 300 gold
+    6: 10, // Future: 400 gold
+  };
+
   state.running = true;
   state.gold =
-    100 +
+    100 * ageGoldMultipliers[state.startAge] +
     (state.mode === "boss" && state.bossChoice
       ? state.bossChoice.age === 6
         ? state.bossChoice.age * 175
@@ -2659,10 +2693,9 @@ function startGame() {
         ? state.bossChoice.age * 50
         : state.bossChoice.age * 25
       : 0);
+
   state.xp = 0;
-  state.playerAge = 1;
-  state.enemyAge =
-    state.mode === "boss" && state.bossChoice ? state.bossChoice.age : 1;
+  // REMOVED: Don't reset playerAge and enemyAge here - we already set them above
   state.playerBaseHP = HP_PER_AGE[state.playerAge - 1];
   state.enemyBaseHP = HP_PER_AGE[state.enemyAge - 1];
   state.units = [];
@@ -2729,6 +2762,7 @@ function localizeText() {
     finishToMenu: L("toMenu"),
     lblYou: L("you"),
     lblEnemy: L("enemy"),
+    lblStartAge: L("lblStartAge"),
   };
   updateDeveloperCredit();
   Object.keys(elements).forEach((id) => {
@@ -2789,6 +2823,14 @@ function localizeText() {
 }
 
 function initializeEventListeners() {
+  const startAgeSelect = document.getElementById("startAge");
+  if (startAgeSelect) {
+    startAgeSelect.value = state.startAge;
+    startAgeSelect.onchange = (e) => {
+      state.startAge = parseInt(e.target.value);
+    };
+  }
+
   if (btnNormal)
     btnNormal.onclick = () => {
       panelNormal.style.display = "block";
@@ -2960,6 +3002,7 @@ function init() {
   buildUnitButtons();
   updateTop();
   updateUI();
+  updateAgeOptions();
   if (menu) menu.style.display = "flex";
   if (state.unlocked.length >= BOSSES.length) state.hackEnabled = true;
   updateHackUI();
