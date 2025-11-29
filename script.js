@@ -61,7 +61,7 @@ const BOSSES = [
     age: 5,
     accel: 1,
     baseHP: 12000,
-    spawnRules: { allowMediumAfter: 35, allowHeavyAfter: 65 },
+    spawnRules: { allowMediumAfter: 40, allowHeavyAfter: 60 },
     imgWidth: 150,
     imgHeight: 150,
   },
@@ -845,6 +845,21 @@ function playAgeMusic(age) {
       // Silent catch
     }
   }
+}
+
+function resetHacks() {
+  state.infiniteGold = false;
+  state.infiniteXP = false;
+  state.timePaused = false;
+  state.stopEnemySpawn = false;
+
+  // Update checkbox states
+  if (infGold) infGold.checked = false;
+  if (infXP) infXP.checked = false;
+  if (stopEnemySpawn) stopEnemySpawn.checked = false;
+  if (pauseTimeBtn) pauseTimeBtn.textContent = L("pauseTime");
+
+  console.log("All hacks reset");
 }
 
 function playBossMusic() {
@@ -2254,9 +2269,12 @@ function enemySpawnNormal(dt) {
   const spawnChance = 0.4 + 0.9 * ramp;
   if (Math.random() < spawnChance) {
     const templates = UNIT_TEMPLATES[state.enemyAge] || UNIT_TEMPLATES[1];
-    let tierWeights = [1, 1, 1];
-    if (state.time > 45) tierWeights = [1, 2, 1.5];
-    if (state.time > 90) tierWeights = [1, 1.5, 2];
+
+    tierWeights = [1, 1, 1];
+
+    if (elapsed > 45) tierWeights = [1, 2, 1.5];
+    if (elapsed > 90) tierWeights = [1, 1.5, 2];
+
     let weightedTemplates = [];
     templates.forEach((t, i) => {
       for (let j = 0; j < tierWeights[i]; j++) weightedTemplates.push(t);
@@ -2578,6 +2596,7 @@ function loop(now) {
 function showFinish(win, message) {
   state.running = false;
   stopAllMusic();
+  resetHacks();
   if (finishTitle) finishTitle.textContent = win ? L("victory") : L("defeat");
   if (finishMessage) finishMessage.textContent = message;
   if (finishOverlay) finishOverlay.style.display = "flex";
@@ -2585,16 +2604,18 @@ function showFinish(win, message) {
 
 function startGame() {
   updateUI();
+  resetHacks();
   if (state.mode === null) {
     showToast(state.lang === "ru" ? "Выберите режим" : "Choose mode");
     return;
   }
+
   state.running = true;
   state.gold =
     100 +
     (state.mode === "boss" && state.bossChoice
       ? state.bossChoice.age === 6
-        ? state.bossChoice.age * 200
+        ? state.bossChoice.age * 175
         : state.bossChoice.age >= 5
         ? state.bossChoice.age * 100
         : state.bossChoice.age === 4
@@ -2855,6 +2876,7 @@ function initializeEventListeners() {
       clearMenuBackground();
       createMenuBackground();
       playMenuMusic();
+      resetHacks();
     };
   if (finishRestart)
     finishRestart.onclick = () => {
