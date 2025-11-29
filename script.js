@@ -2307,18 +2307,10 @@ function enemySpawnNormal(dt) {
   if (Math.random() < spawnChance) {
     const templates = UNIT_TEMPLATES[state.enemyAge] || UNIT_TEMPLATES[1];
 
-    let tierWeights;
+    tierWeights = [1, 1, 1];
 
-    if (state.bossChoice.age === 6) {
-      tierWeights = [1, 0.4, 0.2];
-
-      if (elapsed > 120) tierWeights = [1, 1, 1];
-    } else {
-      tierWeights = [1, 1, 1];
-
-      if (elapsed > 45) tierWeights = [1, 2, 1.5];
-      if (elapsed > 90) tierWeights = [1, 1.5, 2];
-    }
+    if (elapsed > 45) tierWeights = [1, 2, 1.5];
+    if (elapsed > 90) tierWeights = [1, 1.5, 2];
 
     let weightedTemplates = [];
     templates.forEach((t, i) => {
