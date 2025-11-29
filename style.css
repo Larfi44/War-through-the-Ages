@@ -985,6 +985,13 @@ input[type="range"] {
     justify-content: center !important;
   }
 
+  #menuPanels {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-bottom: 20px; /* Extra space for mobile */
+    margin-bottom: 20px;
+  }
+
   /* Show mobile bottom bar - exact replica of desktop but compact */
   .bottomBar {
     display: flex !important;
