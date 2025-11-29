@@ -910,92 +910,130 @@ input[type="range"] {
   white-space: nowrap;
 }
 
-/* ===== PROPER MOBILE LAYOUT FOR HEIGHT < 400px ===== */
+/* ===== COMPUTER-LIKE LAYOUT FOR MOBILE ===== */
 @media (max-height: 400px) and (orientation: landscape) {
-  /* Force mobile UI to show and hide desktop UI */
-  .bottomBar,
+  /* Hide desktop top bar but show bottom bar */
   .topBossInfo {
     display: none !important;
   }
 
+  .bottomBar {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 50px !important;
+    padding: 5px 10px !important;
+    background: rgba(2, 6, 23, 0.95) !important;
+    z-index: 1001 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Hide mobile UI */
   .mobile-stats,
   .mobile-boss-info,
   .mobile-unit-buttons,
   .mobile-controls {
-    display: flex !important;
+    display: none !important;
   }
 
-  /* Mobile stats bar - properly positioned */
-  .mobile-stats {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 30px !important;
-    padding: 4px 8px !important;
-    background: rgba(2, 6, 23, 0.95) !important;
-    z-index: 1000 !important;
-    font-size: 10px !important;
-  }
-
-  .mobile-stats-row {
-    justify-content: space-around !important;
-  }
-
-  .mobile-stat {
-    flex: 1 !important;
-    text-align: center !important;
-  }
-
-  .mobile-stat-value {
-    font-size: 12px !important;
-    color: #ffcc00 !important;
-  }
-
-  /* Boss info - properly positioned below stats */
-  .mobile-boss-info {
-    position: fixed !important;
-    top: 30px !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 20px !important;
-    padding: 2px 8px !important;
-    background: rgba(0, 0, 0, 0.8) !important;
-    z-index: 999 !important;
-    font-size: 9px !important;
-    text-align: center !important;
-  }
-
-  /* Battle area - reasonable size */
+  /* Adjust battle area to fit above bottom bar */
   .battle {
     position: fixed !important;
-    top: 50px !important;
-    bottom: 100px !important;
+    top: 0 !important;
+    bottom: 50px !important;
     left: 0 !important;
     right: 0 !important;
     margin: 0 !important;
     height: auto !important;
-    min-height: 100px !important;
+    min-height: 120px !important;
     border-radius: 0 !important;
   }
 
-  /* Proper base sizing - larger */
+  /* Make bottom bar elements smaller but same layout as desktop */
+  .bottomBar > div:first-child {
+    /* Gold/XP/Age section */
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+  }
+
+  .stat {
+    min-width: 70px !important;
+    padding: 4px 6px !important;
+    font-size: 10px !important;
+  }
+
+  .stat strong {
+    font-size: 12px !important;
+  }
+
+  /* Unit buttons - smaller but same style */
+  .unitButtons {
+    flex: 1 !important;
+    gap: 4px !important;
+    padding: 2px !important;
+    overflow-x: auto !important;
+  }
+
+  .unit-btn {
+    width: 65px !important;
+    height: 40px !important;
+    padding: 4px !important;
+  }
+
+  .unit-btn .unit-name {
+    font-size: 9px !important;
+  }
+
+  .unit-btn .unit-cost {
+    font-size: 8px !important;
+  }
+
+  /* Right side controls - same layout as desktop */
+  .bottomBar > div:last-child {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+  }
+
+  .upgrade-age-square {
+    width: 60px !important;
+    height: 40px !important;
+    padding: 3px !important;
+  }
+
+  .upgrade-age-text {
+    font-size: 8px !important;
+  }
+
+  .upgrade-age-cost {
+    font-size: 7px !important;
+  }
+
+  .speedBtn {
+    padding: 4px 6px !important;
+    font-size: 9px !important;
+    min-width: 35px !important;
+  }
+
+  .btn {
+    padding: 4px 8px !important;
+    font-size: 9px !important;
+    min-width: 45px !important;
+  }
+
+  /* Adjust bases and units for smaller battle area */
   .base {
-    width: 80px !important;
-    height: 80px !important;
-    font-size: 11px !important;
+    width: 70px !important;
+    height: 70px !important;
+    font-size: 10px !important;
     bottom: 15% !important;
   }
 
-  .base.player {
-    left: 10px !important;
-  }
-
-  .base.enemy {
-    right: 10px !important;
-  }
-
-  /* Proper unit sizing - smaller but visible */
   .unit {
     bottom: 16% !important;
     transform: scale(0.6) !important;
@@ -1006,83 +1044,28 @@ input[type="range"] {
     transform: scale(0.6) !important;
   }
 
-  /* Ground line */
   .ground {
     bottom: 14% !important;
-    height: 4px !important;
   }
+}
 
-  /* Unit buttons - properly positioned */
-  .mobile-unit-buttons {
+/* Boss info at top for mobile */
+@media (max-height: 400px) and (orientation: landscape) {
+  .topBossInfo {
+    display: flex !important;
     position: fixed !important;
-    bottom: 50px !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 40px !important;
+    top: 5px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: rgba(0, 0, 0, 0.8) !important;
     padding: 4px 8px !important;
-    background: rgba(2, 6, 23, 0.95) !important;
-    z-index: 998 !important;
-    gap: 4px !important;
-    overflow-x: auto !important;
+    border-radius: 6px !important;
+    z-index: 1000 !important;
+    font-size: 10px !important;
   }
 
-  .mobile-unit-btn {
-    width: 60px !important;
-    height: 32px !important;
-    padding: 3px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .mobile-unit-btn .unit-name {
-    font-size: 8px !important;
-  }
-
-  .mobile-unit-btn .unit-cost {
-    font-size: 7px !important;
-  }
-
-  /* Bottom controls - properly positioned */
-  .mobile-controls {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 50px !important;
-    padding: 5px 8px !important;
-    background: rgba(2, 6, 23, 0.95) !important;
-    z-index: 1001 !important;
-  }
-
-  .mobile-controls-row {
-    height: 100% !important;
-    align-items: center !important;
-    gap: 6px !important;
-  }
-
-  .mobile-upgrade-btn {
-    min-width: 50px !important;
-    height: 35px !important;
-    padding: 3px !important;
-  }
-
-  .mobile-upgrade-btn .upgrade-text {
-    font-size: 8px !important;
-  }
-
-  .mobile-upgrade-btn .upgrade-cost {
-    font-size: 7px !important;
-  }
-
-  .mobile-speed-btn {
-    padding: 4px 6px !important;
-    font-size: 8px !important;
-    height: 28px !important;
-  }
-
-  .mobile-action-btn {
-    padding: 4px 8px !important;
-    font-size: 8px !important;
-    height: 28px !important;
+  .topBossInfo .small {
+    font-size: 9px !important;
   }
 }
 
