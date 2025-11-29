@@ -1936,7 +1936,7 @@ function updateUnits(dt) {
         if (state.bossChoice && state.bossChoice.id === 6) {
           goldGain = Math.round(
             baseCost * (0.15 * (died.template.tier || 1)) +
-              (died.age * 2.5 || 1) * 15
+              (died.age * 2.5 || 1) * 20
           );
         } else {
           goldGain = Math.round(
@@ -2738,6 +2738,7 @@ function localizeText() {
     lblYou: L("you"),
     lblEnemy: L("enemy"),
   };
+  updateDeveloperCredit();
   Object.keys(elements).forEach((id) => {
     const element = document.getElementById(id);
     if (element) element.innerHTML = elements[id];
