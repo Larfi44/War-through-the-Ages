@@ -2437,12 +2437,15 @@ function renderAll() {
   if (state.bossActive && state.bossChoice) {
     const lbl = document.createElement("div");
     lbl.style.position = "absolute";
-    lbl.style.right = "110px";
+    lbl.style.left = "50%"; /* Center horizontally */
+    lbl.style.transform = "translateX(-50%)"; /* Center with transform */
     lbl.style.top = "12%";
     lbl.style.padding = "6px 10px";
     lbl.style.background = "rgba(255,120,120,0.12)";
     lbl.style.borderRadius = "8px";
     lbl.style.fontWeight = "700";
+    lbl.style.textAlign = "center"; /* Center text */
+    lbl.style.minWidth = "200px"; /* Ensure minimum width */
 
     // Calculate the same max HP as used for hpFill
     const bossMaxHP =

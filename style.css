@@ -194,18 +194,22 @@ body {
 }
 
 .topBossInfo {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 10px;
   background: rgba(0, 0, 0, 0.45);
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 8px;
   z-index: 40;
   display: flex;
   gap: 10px;
   align-items: center;
   font-weight: 700;
+  width: auto;
+  margin: 0 auto; /* Center horizontally */
+  justify-content: center; /* Center content inside */
+  text-align: center;
+  position: static; /* Remove absolute positioning */
+  transform: none; /* Remove transform */
+  left: auto; /* Remove left positioning */
+  top: auto; /* Remove top positioning */
 }
 
 .topBossInfo .small {
@@ -1240,15 +1244,19 @@ input[type="range"] {
 /* ===== DESKTOP/TABLET (601px+ height) ===== */
 @media (min-height: 601px) {
   .topBossInfo {
-    position: absolute !important;
-    top: 10px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: auto !important;
-    padding: 8px 12px !important;
-    background: rgba(0, 0, 0, 0.45) !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
+    .topBossInfo {
+      position: static !important;
+      transform: none !important;
+      width: auto !important;
+      margin: 0 auto 8px auto !important; /* Center with bottom margin */
+      padding: 8px 16px !important;
+      background: rgba(0, 0, 0, 0.45) !important;
+      border-radius: 8px !important;
+      font-size: 14px !important;
+      display: flex !important;
+      justify-content: center !important;
+      text-align: center !important;
+    }
   }
 
   .bottomBar {
