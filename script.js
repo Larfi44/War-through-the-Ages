@@ -72,7 +72,7 @@ const BOSSES = [
     age: 6,
     accel: 1,
     baseHP: 25000,
-    spawnRules: { allowMediumAfter: 30, allowHeavyAfter: 50 },
+    spawnRules: { allowMediumAfter: 30, allowHeavyAfter: 45 },
     imgWidth: 100,
     imgHeight: 100,
   },
@@ -434,12 +434,20 @@ const DIFF = {
     enemyAgeUpgradeSpeed: 1.0,
   },
   hard: {
-    enemySpawnRate: 1.8, // Increased from 1.7
-    bossMul: 1.2, // Reduced from 1.25
-    incomeMultiplier: 1.3, // Increased from 1.2
-    enemyAgeUpgradeSpeed: 1.2, // Reduced from 1.25
+    enemySpawnRate: 1.8,
+    bossMul: 1.2,
+    incomeMultiplier: 1.3,
+    enemyAgeUpgradeSpeed: 1.2,
   },
 };
+
+function updateDeveloperCredit() {
+  const developedByText = document.getElementById("developedByText");
+  const yarikStudioLink = document.getElementById("yarikStudioLink");
+
+  if (developedByText) developedByText.textContent = L("developedBy");
+  if (yarikStudioLink) yarikStudioLink.textContent = L("yarikStudio");
+}
 
 const XP_REQUIRED = [200, 400, 800, 1600, 3200];
 
@@ -498,6 +506,8 @@ const I18N = {
     volume: "Volume",
     unlocked: "Unlocked",
     locked: "Locked",
+    developedBy: "Developed by",
+    yarikStudio: "YarikStudio",
   },
   ru: {
     title: "Война сквозь века",
@@ -554,6 +564,8 @@ const I18N = {
     volume: "Громкость",
     unlocked: "Открыт",
     locked: "Закрыт",
+    developedBy: "Разработано",
+    yarikStudio: "YarikStudio",
   },
 };
 
@@ -1254,6 +1266,7 @@ function initializeLanguageSwitcher() {
       buildMobileUnitButtons();
       updateUI();
       localizeText();
+      updateDeveloperCredit();
       showToast(
         state.lang === "ru"
           ? "Язык изменен на Русский"
@@ -1919,10 +1932,18 @@ function updateUnits(dt) {
         if (state.bossChoice && state.bossChoice.age >= 4) xpMul = 1.2;
         if (state.bossChoice && state.bossChoice.age === 6) xpMul = 2;
         const xpGain = Math.round(baseCost * xpMul);
-        const goldGain = Math.round(
-          baseCost * (0.15 * (died.template.tier || 1)) +
-            (died.age * 2.5 || 1) * 10
-        );
+        let goldGain;
+        if (state.bossChoice && state.bossChoice.id === 6) {
+          goldGain = Math.round(
+            baseCost * (0.15 * (died.template.tier || 1)) +
+              (died.age * 2.5 || 1) * 15
+          );
+        } else {
+          goldGain = Math.round(
+            baseCost * (0.15 * (died.template.tier || 1)) +
+              (died.age * 2.5 || 1) * 10
+          );
+        }
         state.xp += xpGain;
         state.gold += goldGain;
         showToast(
@@ -2286,10 +2307,18 @@ function enemySpawnNormal(dt) {
   if (Math.random() < spawnChance) {
     const templates = UNIT_TEMPLATES[state.enemyAge] || UNIT_TEMPLATES[1];
 
-    tierWeights = [1, 1, 1];
+    let tierWeights;
 
-    if (elapsed > 45) tierWeights = [1, 2, 1.5];
-    if (elapsed > 90) tierWeights = [1, 1.5, 2];
+    if (state.bossChoice.age === 6) {
+      tierWeights = [1, 0.4, 0.2];
+
+      if (elapsed > 120) tierWeights = [1, 1, 1];
+    } else {
+      tierWeights = [1, 1, 1];
+
+      if (elapsed > 45) tierWeights = [1, 2, 1.5];
+      if (elapsed > 90) tierWeights = [1, 1.5, 2];
+    }
 
     let weightedTemplates = [];
     templates.forEach((t, i) => {
