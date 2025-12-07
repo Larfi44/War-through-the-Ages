@@ -2642,7 +2642,7 @@ function startGame() {
 
   state.running = true;
   state.gold =
-    1000000 * ageGoldMultipliers[state.startAge] +
+    100 * ageGoldMultipliers[state.startAge] +
     (state.mode === "boss" && state.bossChoice
       ? state.bossChoice.age === 6
         ? state.bossChoice.age * 175
