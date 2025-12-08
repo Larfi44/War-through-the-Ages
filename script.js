@@ -6,7 +6,7 @@ const AGES = [
   { id: 4, name: "Age of Enlightenment", ru: "Эпоха Просвещения" },
   { id: 5, name: "Modern Time", ru: "Современное время" },
   { id: 6, name: "Future", ru: "Будущее" },
-  { id: 7, name: "Linux Era", ru: "Эра Linux" },
+  { id: 7, name: "Age of Chaos", ru: "Эра Хаоса" },
 ];
 
 const BOSSES = [
@@ -79,9 +79,9 @@ const BOSSES = [
   {
     id: 7,
     name: "Linux",
-    ru: "Линукс",
+    ru: "Linux",
     age: 7,
-    baseHP: 50000,
+    baseHP: 25000,
     accel: 0.2,
     spawnRules: { allowMediumAfter: 1, allowHeavyAfter: 1 },
     imgWidth: 120,
@@ -1342,63 +1342,37 @@ function buildBossList() {
     bossListEl.appendChild(row);
   });
 
-  // Add Linux boss only if Lord Yaroslav is defeated (boss 6 is unlocked)
-  const lordYaroslavDefeated = state.unlocked.includes(7);
+  // Add Linux boss (id: 7) ONLY if it's in the unlocked array
+  const linuxBoss = BOSSES.find((b) => b.id === 7);
+  if (linuxBoss && state.unlocked.includes(7)) {
+    // Only show if id:7 is in unlocked
+    const unlocked = true; // If it's in the array, it's unlocked
+    const row = document.createElement("div");
+    row.className = "boss-item" + (state.chosenBossId === 7 ? " selected" : "");
+    row.setAttribute("data-boss-id", "7");
 
-  if (lordYaroslavDefeated) {
-    const linuxBoss = BOSSES.find((b) => b.id === 7);
-    if (linuxBoss) {
-      const row = document.createElement("div");
-      row.className =
-        "boss-item" + (state.chosenBossId === 7 ? " selected" : "");
-      row.setAttribute("data-boss-id", "7");
+    const bossInfo = document.createElement("div");
+    bossInfo.className = "boss-info";
 
-      // Normal styling like other bosses
-      if (state.linuxDefeated) {
-        // If Linux is already defeated, show special styling
-        row.style.background = "rgba(0, 255, 0, 0.05)";
-        row.style.border = "1px solid rgba(0, 255, 0, 0.2)";
-      }
+    const bossName = document.createElement("div");
+    bossName.className = "boss-name";
+    bossName.textContent = state.lang === "ru" ? linuxBoss.ru : linuxBoss.name;
 
-      const bossInfo = document.createElement("div");
-      bossInfo.className = "boss-info";
+    const bossAge = document.createElement("div");
+    bossAge.className = "boss-age";
+    bossAge.textContent =
+      state.lang === "ru" ? "Секретный босс" : "Secret Boss";
 
-      const bossName = document.createElement("div");
-      bossName.className = "boss-name";
-      bossName.textContent =
-        state.lang === "ru" ? linuxBoss.ru : linuxBoss.name;
-      if (state.linuxDefeated) {
-        bossName.style.color = "#00ff00";
-      }
+    bossInfo.appendChild(bossName);
+    bossInfo.appendChild(bossAge);
 
-      const bossAge = document.createElement("div");
-      bossAge.className = "boss-age";
-      bossAge.textContent =
-        state.lang === "ru" ? "Секретный босс" : "Secret Boss";
-      if (state.linuxDefeated) {
-        bossAge.style.color = "#00ff00";
-      }
+    const bossStatus = document.createElement("div");
+    bossStatus.className = "boss-status";
+    bossStatus.textContent = L("unlocked"); // Always unlocked when it appears
 
-      bossInfo.appendChild(bossName);
-      bossInfo.appendChild(bossAge);
-
-      const bossStatus = document.createElement("div");
-      bossStatus.className = "boss-status";
-      if (state.linuxDefeated) {
-        bossStatus.textContent = "DEFEATED";
-        bossStatus.style.color = "#00ff00";
-      } else if (state.linuxUnlocked) {
-        bossStatus.textContent = "UNLOCKED";
-        bossStatus.style.color = "#ff9900";
-      } else {
-        bossStatus.textContent = "LOCKED";
-        bossStatus.style.color = "#ff0000";
-      }
-
-      row.appendChild(bossInfo);
-      row.appendChild(bossStatus);
-      bossListEl.appendChild(row);
-    }
+    row.appendChild(bossInfo);
+    row.appendChild(bossStatus);
+    bossListEl.appendChild(row);
   }
 
   highlightSelected();
@@ -2282,9 +2256,14 @@ function onBossDefeated() {
           (state.lang === "ru" ? BOSSES[idx + 1].ru : BOSSES[idx + 1].name)
       );
 
-      // Unlock Linux when Lord Yaroslav is defeated
+      // Unlock Linux when Lord Yaroslav is defeated (boss id: 6)
       if (next === 6) {
         state.linuxUnlocked = true;
+        // ALSO ADD LINUX TO THE UNLOCKED ARRAY!
+        if (!state.unlocked.includes(7)) {
+          state.unlocked.push(7);
+          saveUnlocked();
+        }
         saveLinuxUnlocked();
         showToast(
           state.lang === "ru"
@@ -2299,11 +2278,8 @@ function onBossDefeated() {
     state.hackEnabled = true;
     state.futureCompleted = true;
     saveLinuxDefeated();
-    showToast(
-      state.lang === "ru"
-        ? "Хаки разблокированы! Доступны в меню."
-        : "Hacks unlocked! Available in menu."
-    );
+    updateHackUI();
+    showToast(state.lang === "ru" ? "Хаки разблокированы!" : "Hacks unlocked!");
   }
 
   buildBossList();
@@ -3024,6 +3000,18 @@ function init() {
     }
   } catch (e) {}
 
+  // If Linux is defeated, then hacks are enabled
+  if (state.linuxDefeated) {
+    state.hackEnabled = true;
+    state.futureCompleted = true;
+  }
+
+  // Also check if Lord Yaroslav is defeated (boss 6 is in unlocked array)
+  if (state.unlocked.includes(6)) {
+    state.linuxUnlocked = true;
+    saveLinuxUnlocked();
+  }
+
   initializeLanguageSwitcher();
   buildBossList();
   buildUnitButtons();
@@ -3031,12 +3019,6 @@ function init() {
   updateUI();
   updateAgeOptions();
   if (menu) menu.style.display = "flex";
-
-  // Enable hack mode only if Linux boss is defeated
-  if (state.linuxDefeated) {
-    state.hackEnabled = true;
-    state.futureCompleted = true;
-  }
 
   updateHackUI();
   initializeHackMenu();
