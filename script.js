@@ -81,9 +81,9 @@ const BOSSES = [
     name: "Linux",
     ru: "Linux",
     age: 7,
-    baseHP: 25000,
-    accel: 0.2,
-    spawnRules: { allowMediumAfter: 1, allowHeavyAfter: 1 },
+    baseHP: 20000,
+    accel: 0.3,
+    spawnRules: { allowMediumAfter: 10, allowHeavyAfter: 25 },
     imgWidth: 120,
     imgHeight: 120,
     isLinux: true,
@@ -862,8 +862,9 @@ function beep(freq = 440, dur = 0.06) {
   if (!state.audioEnabled) return;
   try {
     if (!window.audioCtx)
-      window.audioCtx = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      window.audioCtx = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
     const g = window.audioCtx.createGain();
     g.gain.value = state.volume * 0.3;
     g.connect(window.audioCtx.destination);
@@ -950,17 +951,17 @@ function updateMobileUI() {
           ? state.difficulty === "easy"
             ? "Легкая"
             : state.difficulty === "medium"
-            ? "Средняя"
-            : "Сложная"
+              ? "Средняя"
+              : "Сложная"
           : state.difficulty;
       mobileBossInfo.textContent =
         (state.mode === "none"
           ? L("withoutBoss")
           : state.bossChoice
-          ? state.lang === "ru"
-            ? state.bossChoice.ru
-            : state.bossChoice.name
-          : L("withoutBoss")) +
+            ? state.lang === "ru"
+              ? state.bossChoice.ru
+              : state.bossChoice.name
+            : L("withoutBoss")) +
         " • " +
         L("difficulty") +
         diffText +
@@ -1010,7 +1011,7 @@ function initializeMobileControls() {
         showToast(
           state.lang === "ru"
             ? "Максимальная эпоха достигнута!"
-            : "Maximum age reached!"
+            : "Maximum age reached!",
         );
         return;
       }
@@ -1028,7 +1029,7 @@ function initializeMobileControls() {
           (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
             (state.lang === "ru"
               ? AGES[state.playerAge - 1]?.ru || AGES[state.playerAge - 1]?.name
-              : AGES[state.playerAge - 1]?.name)
+              : AGES[state.playerAge - 1]?.name),
         );
         if (state.playerAge >= 6) {
           upgradeAge.style.display = "none";
@@ -1036,7 +1037,7 @@ function initializeMobileControls() {
           showToast(
             state.lang === "ru"
               ? "Технологический предел достигнут!"
-              : "Technological limit reached!"
+              : "Technological limit reached!",
           );
         }
       } else {
@@ -1119,9 +1120,12 @@ function spawnMenuUnits() {
     setTimeout(() => {
       unitEl.style.left = "100%";
     }, 10);
-    setTimeout(() => {
-      if (unitEl.parentNode) unitEl.parentNode.removeChild(unitEl);
-    }, duration * 1000 + 10);
+    setTimeout(
+      () => {
+        if (unitEl.parentNode) unitEl.parentNode.removeChild(unitEl);
+      },
+      duration * 1000 + 10,
+    );
     state.menuUnits.push(unitEl);
     const nextSpawn = 500 + Math.random() * 2000;
     setTimeout(spawnMenuUnits, nextSpawn);
@@ -1163,7 +1167,7 @@ function initializeLanguageSwitcher() {
         state.lang === "ru"
           ? "Язык изменен на Русский"
           : "Language changed to English",
-        1500
+        1500,
       );
     };
   });
@@ -1193,7 +1197,7 @@ function initializeHackMenu() {
     stopEnemySpawn.onchange = () => {
       state.stopEnemySpawn = stopEnemySpawn.checked;
       showToast(
-        state.stopEnemySpawn ? "Enemy spawn stopped" : "Enemy spawn enabled"
+        state.stopEnemySpawn ? "Enemy spawn stopped" : "Enemy spawn enabled",
       );
     };
   if (pauseTimeBtn)
@@ -1424,10 +1428,10 @@ function updateTop() {
       state.mode === "none"
         ? L("withoutBoss")
         : state.bossChoice
-        ? state.lang === "ru"
-          ? state.bossChoice.ru
-          : state.bossChoice.name
-        : L("withoutBoss");
+          ? state.lang === "ru"
+            ? state.bossChoice.ru
+            : state.bossChoice.name
+          : L("withoutBoss");
 
     topLeft.style.color = "";
     topAge.style.color = "";
@@ -1437,8 +1441,8 @@ function updateTop() {
         ? state.difficulty === "easy"
           ? "Легкая"
           : state.difficulty === "medium"
-          ? "Средняя"
-          : "Сложная"
+            ? "Средняя"
+            : "Сложная"
         : state.difficulty;
     topMid.textContent =
       (state.mode === "boss" ? "" : L("difficulty")) +
@@ -1575,8 +1579,8 @@ function createProjectile(fromUnit, target) {
       targetX = targetRef
         ? targetRef.x
         : fromUnit.side === "player"
-        ? br.width - 160
-        : 140;
+          ? br.width - 160
+          : 140;
     } else {
       targetRef = target;
       targetX = targetRef.x;
@@ -1890,12 +1894,12 @@ function updateUnits(dt) {
         if (state.bossChoice && state.bossChoice.id === 6) {
           goldGain = Math.round(
             baseCost * (0.15 * (died.template.tier || 1)) +
-              (died.age * 2.5 || 1) * 20
+              (died.age * 2.5 || 1) * 20,
           );
         } else {
           goldGain = Math.round(
             baseCost * (0.15 * (died.template.tier || 1)) +
-              (died.age * 2.5 || 1) * 10
+              (died.age * 2.5 || 1) * 10,
           );
         }
         state.xp += xpGain;
@@ -1908,7 +1912,7 @@ function updateUnits(dt) {
             " +" +
             xpGain +
             " XP",
-          900
+          900,
         );
         updateUI();
       }
@@ -1936,17 +1940,29 @@ function bossWaveTick(dt) {
   const elapsed = state.time;
   const bossId = state.bossChoice.id;
 
-  // SPECIAL: Linux boss spawns random units from random ages
   if (bossId === 7 && state.bossChoice.isLinux) {
     // Linux boss: spawn random units from random ages (1-6)
     const randomAge = Math.floor(Math.random() * 6) + 1;
     const templates = UNIT_TEMPLATES[randomAge] || UNIT_TEMPLATES[1];
 
-    const pool = templates;
+    const rules = state.bossChoice.spawnRules || {
+      allowMediumAfter: 20,
+      allowHeavyAfter: 30,
+    };
+
+    let allowedTiers;
+    if (elapsed < (rules.allowMediumAfter || 20)) allowedTiers = [1];
+    else if (elapsed < (rules.allowHeavyAfter || 30)) allowedTiers = [1, 2];
+    else allowedTiers = [1, 2, 3];
+
+    let pool = templates.filter((t) => allowedTiers.includes(t.tier));
+
+    if (pool.length === 0) pool = templates.filter((t) => t.tier === 1);
+    if (pool.length === 0) pool = [templates[0]];
 
     const templ = pool[Math.floor(Math.random() * pool.length)];
 
-    const linuxAccel = state.bossChoice.accel || 1.5;
+    const linuxAccel = state.bossChoice.accel || 0.2;
     let interval = 0.8 * (0.7 + Math.random() * 0.9);
     interval /= linuxAccel;
 
@@ -2194,14 +2210,14 @@ function activateBoss() {
 function saveLinuxUnlocked() {
   localStorage.setItem(
     "aow_linux_unlocked",
-    JSON.stringify(state.linuxUnlocked)
+    JSON.stringify(state.linuxUnlocked),
   );
 }
 
 function saveLinuxDefeated() {
   localStorage.setItem(
     "aow_linux_defeated",
-    JSON.stringify(state.linuxDefeated)
+    JSON.stringify(state.linuxDefeated),
   );
 }
 
@@ -2212,7 +2228,7 @@ function onBossDefeated() {
     "Boss defeated:",
     state.bossChoice?.name,
     "Final HP:",
-    state.bossHP
+    state.bossHP,
   );
 
   state.bossHP = 0;
@@ -2253,7 +2269,7 @@ function onBossDefeated() {
       saveUnlocked();
       showToast(
         L("unlockedBoss") +
-          (state.lang === "ru" ? BOSSES[idx + 1].ru : BOSSES[idx + 1].name)
+          (state.lang === "ru" ? BOSSES[idx + 1].ru : BOSSES[idx + 1].name),
       );
 
       // Unlock Linux when Lord Yaroslav is defeated (boss id: 6)
@@ -2268,7 +2284,7 @@ function onBossDefeated() {
         showToast(
           state.lang === "ru"
             ? "Секретный босс Linux разблокирован!"
-            : "Secret boss Linux unlocked!"
+            : "Secret boss Linux unlocked!",
         );
       }
     }
@@ -2327,7 +2343,7 @@ function enemyAgeTick(dt) {
       state.enemyAge++;
       state.enemyBaseHP = HP_PER_AGE[state.enemyAge - 1];
       showToast(
-        state.lang === "ru" ? "Противник повысил эпоху" : "Enemy age increased"
+        state.lang === "ru" ? "Противник повысил эпоху" : "Enemy age increased",
       );
     }
     const speedMultiplier = DIFF[state.difficulty].enemyAgeUpgradeSpeed || 1.0;
@@ -2369,7 +2385,7 @@ function renderAll() {
 
     const pct = Math.max(
       0,
-      Math.min(1, (currentHP || 0) / (displayMaxHP || 1))
+      Math.min(1, (currentHP || 0) / (displayMaxHP || 1)),
     );
 
     if (hpFill) {
@@ -2623,10 +2639,10 @@ function startGame() {
       ? state.bossChoice.age === 6
         ? state.bossChoice.age * 175
         : state.bossChoice.age >= 5
-        ? state.bossChoice.age * 100
-        : state.bossChoice.age === 4
-        ? state.bossChoice.age * 50
-        : state.bossChoice.age * 25
+          ? state.bossChoice.age * 100
+          : state.bossChoice.age === 4
+            ? state.bossChoice.age * 50
+            : state.bossChoice.age * 25
       : 0);
 
   state.xp = 0;
@@ -2669,7 +2685,7 @@ function startBossGame() {
   if (state.chosenBossId === 7) {
     if (!state.linuxUnlocked) {
       showToast(
-        state.lang === "ru" ? "Linux не разблокирован" : "Linux not unlocked"
+        state.lang === "ru" ? "Linux не разблокирован" : "Linux not unlocked",
       );
       return;
     }
@@ -2776,7 +2792,7 @@ function saveUnlocked() {
 function saveLinuxUnlocked() {
   localStorage.setItem(
     "aow_linux_unlocked",
-    JSON.stringify(state.linuxUnlocked)
+    JSON.stringify(state.linuxUnlocked),
   );
 }
 
@@ -2843,7 +2859,7 @@ function initializeEventListeners() {
           showToast(
             state.lang === "ru"
               ? "Linux не разблокирован"
-              : "Linux not unlocked"
+              : "Linux not unlocked",
           );
           return;
         }
@@ -2883,7 +2899,7 @@ function initializeEventListeners() {
         showToast(
           state.lang === "ru"
             ? "Максимальная эпоха достигнута!"
-            : "Maximum age reached!"
+            : "Maximum age reached!",
         );
         return;
       }
@@ -2900,14 +2916,14 @@ function initializeEventListeners() {
           (state.lang === "ru" ? "Переход в эпоху: " : "Upgraded to ") +
             (state.lang === "ru"
               ? AGES[state.playerAge - 1]?.ru || AGES[state.playerAge - 1]?.name
-              : AGES[state.playerAge - 1]?.name)
+              : AGES[state.playerAge - 1]?.name),
         );
         if (state.playerAge >= 6) {
           upgradeAge.style.display = "none";
           showToast(
             state.lang === "ru"
               ? "Технологический предел достигнут!"
-              : "Technological limit reached!"
+              : "Technological limit reached!",
           );
         }
       } else showToast(L("notEnoughXP"));
